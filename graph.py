@@ -1,3 +1,4 @@
+import math
 import random
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -55,6 +56,7 @@ for i in range(nbCandidats):
     y = random.uniform(-1, 1)
     candidats.append((x, y))
     ax.scatter(x, y, marker="s")
+    ax.text(x - 0.02, y + 0.05, str(i + 1), fontsize=12)
 
 canvas.draw()
 
@@ -74,11 +76,30 @@ def on_click(event):
         # Plot the new point on the graph
         ax.scatter(x, y, color="black")
 
+        ax.text(x - 0.02, y + 0.05, len(votants), fontsize=12)
+
         # Redraw the canvas
         canvas.draw()
 
 
 canvas.mpl_connect("button_press_event", on_click)
+
+# add the canvas to the tkinter window
+canvas.get_tk_widget().pack()
+
+
+def genererProfils():
+    for j in range(len(votants)):
+        print("votant " + str(j + 1) + ":")
+        scores = []
+        for i in range(len(candidats)):
+            scores.append(("candidat " + str(i + 1), math.dist(votants[j], candidats[i])))
+        scores.sort(key=lambda x: x[1])
+        print(scores)
+
+
+button = tk.Button(root, text="Generer les profils", command=genererProfils)
+button.pack()
 
 # Start the tkinter event loop
 root.mainloop()
