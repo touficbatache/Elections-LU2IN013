@@ -16,13 +16,15 @@ ax.set(xlim=(-1.1, 1.1), ylim=(-1.1, 1.1))
 ax.text(0.5, 1.05, "Libéralisme culturel", transform=ax.transAxes, ha="center", va="center", fontsize=12)
 
 # Add text on right side of graph
-ax.text(1.05, 0.5, "Libéralisme économique", transform=ax.transAxes, ha="center", va="center", rotation=270, fontsize=12)
+ax.text(1.05, 0.5, "Libéralisme économique", transform=ax.transAxes, ha="center", va="center", rotation=270,
+        fontsize=12)
 
 # Add text on bottom side of graph
 ax.text(0.5, -0.05, "Conservatisme culturel", transform=ax.transAxes, ha="center", va="center", fontsize=12)
 
 # Add text on left side of graph
-ax.text(-0.05, 0.5, "Interventionnisme étatique", transform=ax.transAxes, ha="center", va="center", rotation=90, fontsize=12)
+ax.text(-0.05, 0.5, "Interventionnisme étatique", transform=ax.transAxes, ha="center", va="center", rotation=90,
+        fontsize=12)
 
 # Add a title and labels to the graph
 # ax.set_title("Sample 2D Graph")
@@ -58,6 +60,7 @@ canvas.draw()
 
 # Add functionality to add points by clicking on the graph
 votants = []
+
 
 def on_click(event):
     # Get the x and y coordinates of the click event
