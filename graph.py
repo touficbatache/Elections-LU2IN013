@@ -10,7 +10,7 @@ root.title("Interactive 2D Graph")
 # Create a figure and axis for the graph
 fig = plt.figure()
 ax = fig.add_subplot(111)
-ax.set(xlim=(-1,1), ylim=(-1,1))
+ax.set(xlim=(-1.1, 1.1), ylim=(-1.1, 1.1))
 
 # Add text on top side of graph
 ax.text(0.5, 1.05, "Libéralisme culturel", transform=ax.transAxes, ha="center", va="center", fontsize=12)
@@ -63,16 +63,16 @@ def on_click(event):
     # Get the x and y coordinates of the click event
     x = event.xdata
     y = event.ydata
-    print("x: " + str(x) + ", y: " + str(y))
 
-    # Add the point to the list of points
-    votants.append((x, y))
+    # Add the point to the list of points, only if clicked inside the graph
+    if x is not None and -1 <= x <= 1 and y is not None and -1 <= y <= 1:
+        votants.append((x, y))
 
-    # Plot the new point on the graph
-    ax.scatter(x, y, color="black")
+        # Plot the new point on the graph
+        ax.scatter(x, y, color="black")
 
-    # Redraw the canvas
-    canvas.draw()
+        # Redraw the canvas
+        canvas.draw()
 
 
 canvas.mpl_connect("button_press_event", on_click)
