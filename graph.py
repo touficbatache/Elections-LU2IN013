@@ -6,36 +6,30 @@ import matplotlib.pyplot as plt
 
 # Create the main tkinter window
 root = tk.Tk()
-root.title("Interactive 2D Graph")
+root.title("Simulation Elections")
+root.geometry("750x750")
 
 # Create a figure and axis for the graph
 fig = plt.figure()
-ax = fig.add_subplot(111)
+ax = fig.add_subplot()
 ax.set(xlim=(-1.1, 1.1), ylim=(-1.1, 1.1))
 
 # Add text on top side of graph
 ax.text(0.5, 1.05, "Libéralisme culturel", transform=ax.transAxes, ha="center", va="center", fontsize=12)
-
 # Add text on right side of graph
 ax.text(1.05, 0.5, "Libéralisme économique", transform=ax.transAxes, ha="center", va="center", rotation=270,
         fontsize=12)
-
 # Add text on bottom side of graph
 ax.text(0.5, -0.05, "Conservatisme culturel", transform=ax.transAxes, ha="center", va="center", fontsize=12)
-
 # Add text on left side of graph
 ax.text(-0.05, 0.5, "Interventionnisme étatique", transform=ax.transAxes, ha="center", va="center", rotation=90,
         fontsize=12)
 
-# Add a title and labels to the graph
-# ax.set_title("Sample 2D Graph")
-# ax.set_xlabel("X-axis", loc="left")
-# ax.set_ylabel("Y-axis", loc="top")
-
+#Remove value ticks from the x-axis and the y-axis
 ax.set_xticks([])
 ax.set_yticks([])
 
-# Changing the position of the spines
+# Changing the position of the axes to the middle
 ax.spines['left'].set_position('center')
 ax.spines['bottom'].set_position('center')
 ax.spines['right'].set_color('none')
@@ -83,23 +77,37 @@ def on_click(event):
 
 
 canvas.mpl_connect("button_press_event", on_click)
-
 # add the canvas to the tkinter window
 canvas.get_tk_widget().pack()
 
-
 def genererProfils():
+    dico = dict()
     for j in range(len(votants)):
-        print("votant " + str(j + 1) + ":")
         scores = []
         for i in range(len(candidats)):
             scores.append(("candidat " + str(i + 1), math.dist(votants[j], candidats[i])))
         scores.sort(key=lambda x: x[1])
-        print(scores)
+        dico[j] = scores
 
+    if not dico:
+        top= tk.Toplevel(root)
+        top.title("Pas de résultats")
+    else :
+        top= tk.Toplevel(root)
+        top.title("Les résultats")
+        for a in range(len(votants)) :
+            tk.Grid.columnconfigure(top,a,weight=1)
+        for b in range(len(candidats)+1):
+            tk.Grid.rowconfigure(top,b,weight=1)
+        for c, d in dico.items() :
+            lab = tk.Label(top, text= "Votant " + str(c+1), font=('Mistral 12'))
+            lab.grid(row=0,column=c,sticky="NSEW")
+            for e in range (len(candidats)):
+                res = ((2.8284 - round(d[e][1],4))*100)/2.8284
+                lab = tk.Label(top, text=str(d[e][0]) + " • " + str(round(res, 2)) + "%", font=('Mistral 12'))
+                lab.grid(row=e+1,column=c,sticky="NSEW")
 
-button = tk.Button(root, text="Generer les profils", command=genererProfils)
-button.pack()
+button = tk.Button(root, text="Generer les profils", command=genererProfils, bg="white").place(x= 0, y= 710)
 
 # Start the tkinter event loop
 root.mainloop()
