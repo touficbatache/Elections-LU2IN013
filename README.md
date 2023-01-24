@@ -8,3 +8,5 @@
 | FARAH    | Karl   | 21108753        |
 | HATOUM   | Nehmat | 21110397        |
 | SIDDIQUE | Zahra  | 28725545        |
+
+Supervisé par : MAUDET Nicolas, LEGAY Bastien
