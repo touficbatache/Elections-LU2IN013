@@ -50,7 +50,7 @@ for i in range(nbCandidats):
     y = random.uniform(-1, 1)
     candidats.append((x, y))
     ax.scatter(x, y, marker="s")
-    ax.text(x - 0.02, y + 0.05, str(i + 1), fontsize=12)
+    ax.text(x - 0.02, y + 0.05, chr(64 + i + 1), fontsize=12)
 
 canvas.draw()
 
@@ -70,7 +70,7 @@ def on_click(event):
         # Plot the new point on the graph
         ax.scatter(x, y, color="black")
 
-        ax.text(x - 0.02, y + 0.05, chr(64 + len(votants)), fontsize=12)
+        ax.text(x - 0.02, y + 0.05, len(votants), fontsize=12)
 
         # Redraw the canvas
         canvas.draw()
@@ -86,7 +86,7 @@ def genererProfils():
     for j in range(len(votants)):
         scores = []
         for i in range(len(candidats)):
-            scores.append(("candidat " + str(i + 1), math.dist(votants[j], candidats[i])))
+            scores.append(("candidat " + chr(64 + i + 1), math.dist(votants[j], candidats[i])))
         scores.sort(key=lambda x: x[1])
         dico[j] = scores
 
@@ -100,7 +100,7 @@ def genererProfils():
         for b in range(len(candidats) + 1):
             tk.Grid.rowconfigure(top, b, weight=1)
         for c, d in dico.items():
-            lab = tk.Label(top, text="Votant " + chr(64 + c + 1), font=('Mistral 12'))
+            lab = tk.Label(top, text="Votant " + str(c + 1), font=('Mistral 12'))
             lab.grid(row=0, column=c, sticky="NSEW")
             for e in range(len(candidats)):
                 res = ((math.sqrt(8) - round(d[e][1], 4)) * 100) / math.sqrt(8)
