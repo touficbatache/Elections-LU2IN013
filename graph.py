@@ -70,6 +70,7 @@ def validate_candidats(*args):
             tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
             break
 
+
 # function to reinitialize the values of the 3 lists related to the candidats or voters
 def reinitialiser(liste, pt_liste, ann_liste):
     while pt_liste:
@@ -95,11 +96,12 @@ def distribuer_candidats():
     entry = tk.Entry(top_candidats, width=20, textvariable=numberCandidats)
     entry.place(x=0, y=40)
 
-    button_candidats = tk.Button(top_candidats, text="Distribuer les candidats", command=lambda:[random_candidats(), top_candidats.destroy()])
+    button_candidats = tk.Button(top_candidats, text="Distribuer les candidats", command=lambda: [random_candidats(), top_candidats.destroy()])
     button_candidats.place(x=0, y=80)
 
 
 letter = 'A'
+
 
 # function to distribute the candidates randomly on the graph
 def random_candidats():
@@ -117,7 +119,7 @@ def random_candidats():
         c, = ax.plot(x, y, 's')
         pt_candidats.append(c)
         # label the candidates on the graph
-        ann = ax.annotate(chr(ord(letter) + len(candidats) - 1), (x,y), (x - 0.02, y + 0.05))
+        ann = ax.annotate(chr(ord(letter) + len(candidats) - 1), (x, y), (x - 0.02, y + 0.05))
         ann_candidats.append(ann)
 
         # draw the canvas
@@ -162,6 +164,7 @@ canvas.get_tk_widget().pack()
 # variable to keep track of the top level window
 top = None
 
+
 # function to generate the profiles
 def generer_profils():
     global top
@@ -201,6 +204,8 @@ def generer_profils():
 
 
 numberVoters = tk.StringVar()
+
+
 def onvalidate(*args):
     global t
     if t:
@@ -227,7 +232,7 @@ def distribuer_votant():
     entry = tk.Entry(top2, width=20, textvariable=numberVoters)
     entry.place(x=0, y=40)
 
-    button_top2 = tk.Button(top2, text="Distribuer les votants", command=lambda:[random_votant(), top2.destroy()])
+    button_top2 = tk.Button(top2, text="Distribuer les votants", command=lambda: [random_votant(), top2.destroy()])
     button_top2.place(x=0, y=80)
 
 
