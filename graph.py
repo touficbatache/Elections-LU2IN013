@@ -83,7 +83,7 @@ def distribuer_candidats():
     entry = tk.Entry(top_candidats, width=20, textvariable=nombreCandidats)
     entry.place(x=0, y=40)
 
-    button_candidats = tk.Button(top_candidats, text="Distribuer les candidats", command=random_candidats)
+    button_candidats = tk.Button(top_candidats, text="Distribuer les candidats", command=lambda:[random_candidats(), top_candidats.destroy()])
     button_candidats.place(x=0, y=80)
 
 
@@ -269,9 +269,9 @@ button2.place(relx=root.winfo_width() / 1000, rely=root.winfo_height() / 1000 * 
 button3 = tk.Button(root, text="Réinitialiser les votants", command=reinitialiser_votant)
 button3.place(relx=0.8, rely=0, relwidth=0.2, relheight=0.05)
 button4 = tk.Button(root, text="Distribuer les candidats", command=distribuer_candidats)
-button4.place(relx=1-root.winfo_width() / 1000 - 0.2, rely=root.winfo_height() / 1000, relwidth=0.2, relheight=0.08)
+button4.place(relx=root.winfo_width() / 1000 + 0.2, rely=root.winfo_height() / 1000  * 4.75, relwidth=0.2, relheight=0.05)
 button5 = tk.Button(root, text="Réinitialiser les candidats", command=reinitialiser_candidats)
-button5.place(relx=1-root.winfo_width() / 1000 - 0.4, rely=root.winfo_height() / 1000, relwidth=0.2, relheight=0.08)
+button5.place(relx=0.58, rely=0, relwidth=0.22, relheight=0.05)
 
 
 # start the tkinter event loop
