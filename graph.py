@@ -139,15 +139,22 @@ def generer_profils():
 
 
 s = tk.StringVar()
+t = None
 
 
 def onvalidate(*args):
+    global t
+    if t:
+        t.destroy()
+
     for c in s.get():
         if c.isdigit():
             continue
         t = tk.Toplevel(root)
+        t.title("ERREUR de saisie")
         tk.Label(t, text="Uniquement des entiers!").pack(padx=5, pady=5)
         tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
+        break
 
 
 def distribuer_votant():
@@ -162,7 +169,6 @@ def distribuer_votant():
     entry.place(x=0, y=40)
 
     button_top2 = tk.Button(top2, text="Distribuer les votants", command=random_votant)
-    # button_top2.config(state='disabled')
     button_top2.place(x=0, y=80)
 
 
@@ -194,11 +200,11 @@ def reinitialiser_votant():
 
 # generate the profiles on button click
 button = tk.Button(root, text="Generer les profils", command=generer_profils)
-button.place(relx=root.winfo_width() / 1000 - 0.2, rely=root.winfo_height() / 1000 * 4.5, relwidth=0.2, relheight=0.08)
+button.place(relx=root.winfo_width() / 1000 - 0.2, rely=root.winfo_height() / 1000 * 4.75, relwidth=0.2, relheight=0.05)
 button2 = tk.Button(root, text="Distribuer les votants", command=distribuer_votant)
-button2.place(relx=root.winfo_width() / 1000, rely=root.winfo_height() / 1000 * 4.5, relwidth=0.2, relheight=0.08)
+button2.place(relx=root.winfo_width() / 1000, rely=root.winfo_height() / 1000 * 4.75, relwidth=0.2, relheight=0.05)
 button3 = tk.Button(root, text="Réinitialiser les votants", command=reinitialiser_votant)
-button3.place(relx=root.winfo_width() / 1000 + 0.2, rely=root.winfo_height() / 1000 * 4.5, relwidth=0.2, relheight=0.08)
+button3.place(relx=0.8, rely=0, relwidth=0.2, relheight=0.05)
 
 # start the tkinter event loop
 root.mainloop()
