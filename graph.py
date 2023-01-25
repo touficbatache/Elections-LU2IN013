@@ -82,19 +82,19 @@ canvas.get_tk_widget().pack()
 
 top = None
 
-
+letter = 'A'
 def generer_profils():
     global top
     if top:
         top.destroy()
 
     dico = dict()
-    for j in range(len(votants)):
+    for i in range(len(votants)):
         scores = []
-        for i in range(len(candidats)):
-            scores.append(("candidat " + chr(64 + i + 1), math.dist(votants[j], candidats[i])))
+        for j in range(len(candidats)):
+            scores.append(("candidat " + chr(ord(letter) + j), math.dist(votants[i], candidats[j])))
         scores.sort(key=lambda x: x[1])
-        dico[j] = scores
+        dico[i] = scores
 
     top = tk.Toplevel(root)
     if not dico:
