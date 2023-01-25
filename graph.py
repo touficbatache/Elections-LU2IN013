@@ -43,7 +43,6 @@ canvas.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 
 # number of candidates
 numberCandidats = tk.StringVar()
-
 # empty list to store the candidates' coordinates
 candidats = []
 # empty list to store the points of the candidates plotted on the graph
@@ -51,24 +50,44 @@ pt_candidats = []
 # empty list to store the annotations of the points of the candidates plotted on the graph
 ann_candidats = []
 
+# number of voters
+numberVoters = tk.StringVar()
+# empty list to store the coordinates of the voters' coordinates
+votants = []
+# empty list to store the points of the voters plotted on the graph
+pt_votants = []
+# empty list to store the annotations of the points of the voters plotted on the graph
+ann_votants = []
+
 t = None
 
 
-# function to validate the input given (the number of candidates)
-def validate_candidats(*args):
+# function to validate the input given (the number of candidates or voters)
+def validate(*args):
     global t
     if t:
         t.destroy()
 
-    for c in numberCandidats.get():
-        if c.isdigit():
-            continue
-        else:
-            t = tk.Toplevel(root)
-            t.title("ERREUR DE SAISIE!")
-            tk.Label(t, text="Uniquement des entiers!").pack(padx=5, pady=5)
-            tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
-            break
+    if args[0] == 'PY_VAR1':
+        for c in numberVoters.get():
+            if c.isdigit():
+                continue
+            else:
+                t = tk.Toplevel(root)
+                t.title("ERREUR DE SAISIE!")
+                tk.Label(t, text="Uniquement des entiers!").pack(padx=5, pady=5)
+                tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
+                break
+    else:
+        for c in numberCandidats.get():
+            if c.isdigit():
+                continue
+            else:
+                t = tk.Toplevel(root)
+                t.title("ERREUR DE SAISIE!")
+                tk.Label(t, text="Uniquement des entiers!").pack(padx=5, pady=5)
+                tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
+                break
 
 
 # function to reinitialize the values of the 3 lists related to the candidats or voters
@@ -97,13 +116,13 @@ def distribuer(a):
     label_top.place(x=0, y=0)
 
     if a == 0:
-        numberVoters.trace_variable("w", onvalidate)
+        numberVoters.trace_variable("w", validate)
         entry = tk.Entry(top_main, width=20, textvariable=numberVoters)
         entry.place(x=0, y=40)
         button_votant = tk.Button(top_main, text="Distribuer les votants", command=lambda: [random_votant(), top_main.destroy()])
         button_votant.place(x=0, y=80)
     else:
-        numberCandidats.trace_variable("w", validate_candidats)
+        numberCandidats.trace_variable("w", validate)
         entry = tk.Entry(top_main, width=20, textvariable=numberCandidats)
         entry.place(x=0, y=40)
         button_candidats = tk.Button(top_main, text="Distribuer les candidats", command=lambda: [random_candidats(), top_main.destroy()])
@@ -134,12 +153,6 @@ def random_candidats():
 
         # draw the canvas
         canvas.draw()
-
-
-# list to store the coordinates of the voters' clicks
-votants = []
-pt_votants = []
-ann_votants = []
 
 
 # function to handle click events on the graph
@@ -211,24 +224,6 @@ def generer_profils():
                 res = ((math.sqrt(8) - d[e][1]) * 100) / math.sqrt(8)
                 lab = tk.Label(top, text=str(d[e][0]) + " • " + str(round(res, 2)) + "%")
                 lab.grid(row=e + 1, column=c, sticky="NSEW")
-
-
-numberVoters = tk.StringVar()
-
-
-def onvalidate(*args):
-    global t
-    if t:
-        t.destroy()
-
-    for c in numberVoters.get():
-        if c.isdigit():
-            continue
-        t = tk.Toplevel(root)
-        t.title("ERREUR de saisie")
-        tk.Label(t, text="Uniquement des entiers!").pack(padx=5, pady=5)
-        tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
-        break
 
 
 def random_votant():
