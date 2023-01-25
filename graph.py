@@ -51,14 +51,21 @@ pt_candidats = []
 # empty list to store the annotations of the points of the candidates plotted on the graph
 ann_candidats = []
 
+t = None
+
 
 # function to validate the input given (the number of candidates)
 def validate_candidats(*args):
+    global t
+    if t:
+        t.destroy()
+
     for c in nombreCandidats.get():
         if c.isdigit():
             continue
         else:
             t = tk.Toplevel(root)
+            t.title("ERREUR DE SAISIE!")
             tk.Label(t, text="Uniquement des entiers!").pack(padx=5, pady=5)
             tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
             break
@@ -77,7 +84,7 @@ def distribuer_candidats():
     entry.place(x=0, y=40)
 
     button_candidats = tk.Button(top_candidats, text="Distribuer les candidats", command=random_candidats)
-    button_candidats.place(x=0, y=0)
+    button_candidats.place(x=0, y=80)
 
 
 letter = 'A'
@@ -253,7 +260,7 @@ def reinitialiser_votant():
     canvas.draw()
 
 
-# buttons to modify the candidats and voters
+# generate the profiles on button click
 button = tk.Button(root, text="Generer les profils", command=generer_profils)
 button.place(relx=root.winfo_width() / 1000 - 0.2, rely=root.winfo_height() / 1000 * 4.75, relwidth=0.2, relheight=0.05)
 button2 = tk.Button(root, text="Distribuer les votants", command=distribuer_votant)
