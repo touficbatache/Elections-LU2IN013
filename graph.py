@@ -70,7 +70,7 @@ def on_click(event):
         # Plot the new point on the graph
         ax.scatter(x, y, color="black")
 
-        ax.text(x - 0.02, y + 0.05, len(votants), fontsize=12)
+        ax.text(x - 0.02, y + 0.05, chr(64 + len(votants)), fontsize=12)
 
         # Redraw the canvas
         canvas.draw()
@@ -90,26 +90,25 @@ def genererProfils():
         scores.sort(key=lambda x: x[1])
         dico[j] = scores
 
+    top = tk.Toplevel(root)
     if not dico:
-        top = tk.Toplevel(root)
         top.title("Pas de résultats")
     else:
-        top = tk.Toplevel(root)
         top.title("Les résultats")
         for a in range(len(votants)):
             tk.Grid.columnconfigure(top, a, weight=1)
         for b in range(len(candidats) + 1):
             tk.Grid.rowconfigure(top, b, weight=1)
         for c, d in dico.items():
-            lab = tk.Label(top, text="Votant " + str(c + 1), font=('Mistral 12'))
+            lab = tk.Label(top, text="Votant " + chr(64 + c + 1), font=('Mistral 12'))
             lab.grid(row=0, column=c, sticky="NSEW")
             for e in range(len(candidats)):
-                res = ((2.8284 - round(d[e][1], 4)) * 100) / 2.8284
+                res = ((math.sqrt(8) - round(d[e][1], 4)) * 100) / math.sqrt(8)
                 lab = tk.Label(top, text=str(d[e][0]) + " • " + str(round(res, 2)) + "%", font=('Mistral 12'))
                 lab.grid(row=e + 1, column=c, sticky="NSEW")
 
 
-button = tk.Button(root, text="Generer les profils", command=genererProfils, bg="white").place(x=0, y=710)
+button = tk.Button(root, text="Generer les profils", command=genererProfils, bg="white").place(relx=root.winfo_width()/1000 - 0.2, rely=root.winfo_height()/1000 *4.5, relwidth=0.2, relheight=0.08)
 
 # Start the tkinter event loop
 root.mainloop()
