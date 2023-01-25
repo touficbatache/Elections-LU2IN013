@@ -42,25 +42,80 @@ canvas.draw()
 canvas.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 
 # number of candidates
-nbCandidats = 7
+nombreCandidats = tk.StringVar()
 
 # empty list to store the candidates' coordinates
 candidats = []
+# empty list to store the points of the candidates plotted on the graph
+pt_candidats = []
+# empty list to store the annotations of the points of the candidates plotted on the graph
+ann_candidats = []
 
-# loop to generate random coordinates for the candidates
-for i in range(nbCandidats):
-    x = random.uniform(-1, 1)
-    y = random.uniform(-1, 1)
-    candidats.append((x, y))
-    # plot the candidates on the graph
-    ax.scatter(x, y, marker="s")
-    # label the candidates on the graph
-    ax.text(x - 0.02, y + 0.05, chr(ord('A') + i))
 
-# draw the canvas
-canvas.draw()
+# function to validate the input given (the number of candidates)
+def validate_candidats(*args):
+    for c in nombreCandidats.get():
+        if c.isdigit():
+            continue
+        else:
+            t = tk.Toplevel(root)
+            tk.Label(t, text="Uniquement des entiers!").pack(padx=5, pady=5)
+            tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
+            break
 
-# let user add points by clicking on the graph:
+
+# function to handle input and call random_candidats()
+def distribuer_candidats():
+    top_candidats = tk.Toplevel(root)
+    top_candidats.title("Choisir nombre candidats")
+
+    label_top = tk.Label(top_candidats, text="Donner le nombre de candidats:")
+    label_top.place(x=0, y=0)
+
+    nombreCandidats.trace_variable("w", validate_candidats)
+    entry = tk.Entry(top_candidats, width=20, textvariable=nombreCandidats)
+    entry.place(x=0, y=40)
+
+    button_candidats = tk.Button(top_candidats, text="Distribuer les candidats", command=random_candidats)
+    button_candidats.place(x=0, y=0)
+
+
+letter = 'A'
+
+# function to distribute the candidates randomly on the graph
+def random_candidats():
+    if nombreCandidats.get() != "":
+        nbCandidats = int(nombreCandidats.get())
+    else:
+        nbCandidats = 7
+
+    for i in range(nbCandidats):
+        x = random.uniform(-1, 1)
+        y = random.uniform(-1, 1)
+        candidats.append((x, y))
+        # plot the candidates on the graph
+
+        c, = ax.plot(x, y, 's')
+        pt_candidats.append(c)
+        # label the candidates on the graph
+        ann = ax.annotate(chr(ord(letter) + len(candidats) - 1), (x,y), (x - 0.02, y + 0.05))
+        ann_candidats.append(ann)
+
+        # draw the canvas
+        canvas.draw()
+
+
+# function to reinitialize the values of the 3 lists related to the candidats
+def reinitialiser_candidats():
+    while pt_candidats:
+        pt_candidats[-1].remove()
+        pt_candidats.remove(pt_candidats[-1])
+    while candidats:
+        candidats.remove(candidats[-1])
+    while ann_candidats:
+        ann_candidats[-1].remove()
+        ann_candidats.remove(ann_candidats[-1])
+    canvas.draw()
 
 # list to store the coordinates of the voters' clicks
 votants = []
@@ -198,13 +253,18 @@ def reinitialiser_votant():
     canvas.draw()
 
 
-# generate the profiles on button click
+# buttons to modify the candidats and voters
 button = tk.Button(root, text="Generer les profils", command=generer_profils)
 button.place(relx=root.winfo_width() / 1000 - 0.2, rely=root.winfo_height() / 1000 * 4.75, relwidth=0.2, relheight=0.05)
 button2 = tk.Button(root, text="Distribuer les votants", command=distribuer_votant)
 button2.place(relx=root.winfo_width() / 1000, rely=root.winfo_height() / 1000 * 4.75, relwidth=0.2, relheight=0.05)
 button3 = tk.Button(root, text="Réinitialiser les votants", command=reinitialiser_votant)
 button3.place(relx=0.8, rely=0, relwidth=0.2, relheight=0.05)
+button4 = tk.Button(root, text="Distribuer les candidats", command=distribuer_candidats)
+button4.place(relx=1-root.winfo_width() / 1000 - 0.2, rely=root.winfo_height() / 1000, relwidth=0.2, relheight=0.08)
+button5 = tk.Button(root, text="Réinitialiser les candidats", command=reinitialiser_candidats)
+button5.place(relx=1-root.winfo_width() / 1000 - 0.4, rely=root.winfo_height() / 1000, relwidth=0.2, relheight=0.08)
+
 
 # start the tkinter event loop
 root.mainloop()
