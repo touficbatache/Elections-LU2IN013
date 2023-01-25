@@ -263,13 +263,17 @@ def reinitialiser_votant():
 
 # generate the profiles on button click
 button = tk.Button(root, text="Generer les profils", command=generer_profils)
-button.place(relx=root.winfo_width() / 1000 - 0.2, rely=root.winfo_height() / 1000 * 4.75, relwidth=0.2, relheight=0.05)
+button.place(relx=0, rely=1-0.05, relwidth=0.2, relheight=0.05)
+
 button2 = tk.Button(root, text="Distribuer les votants", command=distribuer_votant)
-button2.place(relx=root.winfo_width() / 1000, rely=root.winfo_height() / 1000 * 4.75, relwidth=0.2, relheight=0.05)
+button2.place(relx=0.2, rely=1-0.05, relwidth=0.2, relheight=0.05)
+
 button3 = tk.Button(root, text="Réinitialiser les votants", command=reinitialiser_votant)
 button3.place(relx=0.8, rely=0, relwidth=0.2, relheight=0.05)
+
 button4 = tk.Button(root, text="Distribuer les candidats", command=distribuer_candidats)
-button4.place(relx=root.winfo_width() / 1000 + 0.2, rely=root.winfo_height() / 1000  * 4.75, relwidth=0.2, relheight=0.05)
+button4.place(relx=0.4, rely=1-0.05, relwidth=0.2, relheight=0.05)
+
 button5 = tk.Button(root, text="Réinitialiser les candidats", command=reinitialiser_candidats)
 button5.place(relx=0.58, rely=0, relwidth=0.22, relheight=0.05)
 
