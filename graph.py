@@ -84,20 +84,30 @@ def reinitialiser(liste, pt_liste, ann_liste):
     canvas.draw()
 
 
-# function to handle input and call random_candidats()
-def distribuer_candidats():
-    top_candidats = tk.Toplevel(root)
-    top_candidats.title("Choisir nombre candidats")
+tabAssets = ["votants", "candidats"]
 
-    label_top = tk.Label(top_candidats, text="Donner le nombre de candidats:")
+
+# function to handle input and call random() for candidates or voters
+def distribuer(a):
+    s = tabAssets[a]
+    top_main = tk.Toplevel(root)
+    top_main.title("Choisir nombre " + s)
+
+    label_top = tk.Label(top_main, text="Donner le nombre de " + s + " :")
     label_top.place(x=0, y=0)
 
-    numberCandidats.trace_variable("w", validate_candidats)
-    entry = tk.Entry(top_candidats, width=20, textvariable=numberCandidats)
-    entry.place(x=0, y=40)
-
-    button_candidats = tk.Button(top_candidats, text="Distribuer les candidats", command=lambda: [random_candidats(), top_candidats.destroy()])
-    button_candidats.place(x=0, y=80)
+    if a == 0:
+        numberVoters.trace_variable("w", onvalidate)
+        entry = tk.Entry(top_main, width=20, textvariable=numberVoters)
+        entry.place(x=0, y=40)
+        button_votant = tk.Button(top_main, text="Distribuer les votants", command=lambda: [random_votant(), top_main.destroy()])
+        button_votant.place(x=0, y=80)
+    else:
+        numberCandidats.trace_variable("w", validate_candidats)
+        entry = tk.Entry(top_main, width=20, textvariable=numberCandidats)
+        entry.place(x=0, y=40)
+        button_candidats = tk.Button(top_main, text="Distribuer les candidats", command=lambda: [random_candidats(), top_main.destroy()])
+        button_candidats.place(x=0, y=80)
 
 
 letter = 'A'
@@ -221,21 +231,6 @@ def onvalidate(*args):
         break
 
 
-def distribuer_votant():
-    top2 = tk.Toplevel(root)
-    top2.title("Choisir nombre votant")
-
-    label_top2 = tk.Label(top2, text="Enter le nombre de votants:")
-    label_top2.place(x=0, y=0)
-
-    numberVoters.trace_variable("w", onvalidate)
-    entry = tk.Entry(top2, width=20, textvariable=numberVoters)
-    entry.place(x=0, y=40)
-
-    button_top2 = tk.Button(top2, text="Distribuer les votants", command=lambda: [random_votant(), top2.destroy()])
-    button_top2.place(x=0, y=80)
-
-
 def random_votant():
     for i in range(int(numberVoters.get())):
         x = random.uniform(-1, 1)
@@ -254,13 +249,13 @@ def random_votant():
 GenererProfils = tk.Button(root, text="Generer les profils", command=generer_profils)
 GenererProfils.place(relx=0, rely=1-0.05, relwidth=0.2, relheight=0.05)
 
-DistribuerVotants = tk.Button(root, text="Distribuer les votants", command=distribuer_votant)
+DistribuerVotants = tk.Button(root, text="Distribuer les votants", command=lambda: distribuer(0))
 DistribuerVotants.place(relx=0.2, rely=1-0.05, relwidth=0.2, relheight=0.05)
 
 ReinitialiserVotants = tk.Button(root, text="Réinitialiser les votants", command=lambda: reinitialiser(votants, pt_votants, ann_votants))
 ReinitialiserVotants.place(relx=0.8, rely=0, relwidth=0.2, relheight=0.05)
 
-DistribuerCandidats = tk.Button(root, text="Distribuer les candidats", command=distribuer_candidats)
+DistribuerCandidats = tk.Button(root, text="Distribuer les candidats", command=lambda: distribuer(1))
 DistribuerCandidats.place(relx=0.4, rely=1-0.05, relwidth=0.2, relheight=0.05)
 
 ReinitialiserCandidats = tk.Button(root, text="Réinitialiser les candidats", command=lambda: reinitialiser(candidats, pt_candidats, ann_candidats))
