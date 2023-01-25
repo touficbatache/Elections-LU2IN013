@@ -80,8 +80,14 @@ canvas.mpl_connect("button_press_event", on_click)
 # add the canvas to the tkinter window
 canvas.get_tk_widget().pack()
 
+top = None
 
-def genererProfils():
+
+def generer_profils():
+    global top
+    if top:
+        top.destroy()
+
     dico = dict()
     for j in range(len(votants)):
         scores = []
@@ -108,7 +114,8 @@ def genererProfils():
                 lab.grid(row=e + 1, column=c, sticky="NSEW")
 
 
-button = tk.Button(root, text="Generer les profils", command=genererProfils, bg="white").place(relx=root.winfo_width()/1000 - 0.2, rely=root.winfo_height()/1000 *4.5, relwidth=0.2, relheight=0.08)
+button = tk.Button(root, text="Generer les profils", command=generer_profils, bg="white")
+button.place(relx=root.winfo_width() / 1000 - 0.2, rely=root.winfo_height() / 1000 * 4.5, relwidth=0.2, relheight=0.08)
 
 # Start the tkinter event loop
 root.mainloop()
