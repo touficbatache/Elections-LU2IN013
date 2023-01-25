@@ -141,11 +141,11 @@ def on_click(event):
         votants.append((x, y))
 
         # plot the new point on the graph
-        p, = ax.plot(x, y, 'o', color="black")
+        p, = ax.plot(x, y, 'o', color="black", zorder=10)
         pt_votants.append(p)
 
         # label the point on the graph
-        ann = ax.annotate(str(len(votants)), (x, y), (x - 0.02, y + 0.05))
+        ann = ax.annotate(str(len(votants)), (x, y), (x - 0.02, y + 0.05), zorder=11)
         ann_votants.append(ann)
 
         # redraw the canvas
@@ -157,6 +157,7 @@ canvas.mpl_connect("button_press_event", on_click)
 
 # add the canvas to the tkinter window
 canvas.get_tk_widget().pack()
+
 
 # variable to keep track of the top level window
 top = None
@@ -230,7 +231,7 @@ def distribuer_votant():
     entry = tk.Entry(top2, width=20, textvariable=s)
     entry.place(x=0, y=40)
 
-    button_top2 = tk.Button(top2, text="Distribuer les votants", command=random_votant)
+    button_top2 = tk.Button(top2, text="Distribuer les votants", command=lambda:[random_votant(), top2.destroy()])
     button_top2.place(x=0, y=80)
 
 
@@ -240,10 +241,10 @@ def random_votant():
         y = random.uniform(-1, 1)
         votants.append((x, y))
         # plot the candidates on the graph
-        p, = ax.plot(x, y, 'o', color="black")
+        p, = ax.plot(x, y, 'o', color="black", zorder=10)
         pt_votants.append(p)
         # label the candidates on the graph
-        ann = ax.annotate(str(len(votants)), (x, y), (x - 0.02, y + 0.05))
+        ann = ax.annotate(str(len(votants)), (x, y), (x - 0.02, y + 0.05), zorder=11)
         ann_votants.append(ann)
         canvas.draw()
 
