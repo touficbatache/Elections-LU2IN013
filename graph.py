@@ -64,6 +64,8 @@ canvas.draw()
 
 # list to store the coordinates of the voters' clicks
 votants = []
+pt_votants = []
+ann_votants = []
 
 
 # function to handle click events on the graph
@@ -77,10 +79,12 @@ def on_click(event):
         votants.append((x, y))
 
         # plot the new point on the graph
-        ax.scatter(x, y, color="black")
+        p, = ax.plot(x, y, 'o', color="black")
+        pt_votants.append(p)
 
         # label the point on the graph
-        ax.text(x - 0.02, y + 0.05, len(votants))
+        ann = ax.annotate(str(len(votants)), (x, y), (x - 0.02, y + 0.05))
+        ann_votants.append(ann)
 
         # redraw the canvas
         canvas.draw()
@@ -134,9 +138,67 @@ def generer_profils():
                 lab.grid(row=e + 1, column=c, sticky="NSEW")
 
 
+s = tk.StringVar()
+
+
+def onvalidate(*args):
+    for c in s.get():
+        if c.isdigit():
+            continue
+        t = tk.Toplevel(root)
+        tk.Label(t, text="Uniquement des entiers!").pack(padx=5, pady=5)
+        tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
+
+
+def distribuer_votant():
+    top2 = tk.Toplevel(root)
+    top2.title("Choisir nombre votant")
+
+    label_top2 = tk.Label(top2, text="Enter le nombre de votants:")
+    label_top2.place(x=0, y=0)
+
+    s.trace_variable("w", onvalidate)
+    entry = tk.Entry(top2, width=20, textvariable=s)
+    entry.place(x=0, y=40)
+
+    button_top2 = tk.Button(top2, text="Distribuer les votants", command=random_votant)
+    # button_top2.config(state='disabled')
+    button_top2.place(x=0, y=80)
+
+
+def random_votant():
+    for i in range(int(s.get())):
+        x = random.uniform(-1, 1)
+        y = random.uniform(-1, 1)
+        votants.append((x, y))
+        # plot the candidates on the graph
+        p, = ax.plot(x, y, 'o', color="black")
+        pt_votants.append(p)
+        # label the candidates on the graph
+        ann = ax.annotate(str(len(votants)), (x, y), (x - 0.02, y + 0.05))
+        ann_votants.append(ann)
+        canvas.draw()
+
+
+def reinitialiser_votant():
+    while pt_votants:
+        pt_votants[-1].remove()
+        pt_votants.remove(pt_votants[-1])
+    while votants:
+        votants.remove(votants[-1])
+    while ann_votants:
+        ann_votants[-1].remove()
+        ann_votants.remove(ann_votants[-1])
+    canvas.draw()
+
+
 # generate the profiles on button click
 button = tk.Button(root, text="Generer les profils", command=generer_profils)
 button.place(relx=root.winfo_width() / 1000 - 0.2, rely=root.winfo_height() / 1000 * 4.5, relwidth=0.2, relheight=0.08)
+button2 = tk.Button(root, text="Distribuer les votants", command=distribuer_votant)
+button2.place(relx=root.winfo_width() / 1000, rely=root.winfo_height() / 1000 * 4.5, relwidth=0.2, relheight=0.08)
+button3 = tk.Button(root, text="Réinitialiser les votants", command=reinitialiser_votant)
+button3.place(relx=root.winfo_width() / 1000 + 0.2, rely=root.winfo_height() / 1000 * 4.5, relwidth=0.2, relheight=0.08)
 
 # start the tkinter event loop
 root.mainloop()
