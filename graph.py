@@ -96,6 +96,8 @@ canvas.get_tk_widget().pack()
 # variable to keep track of the top level window
 top = None
 
+letter = 'A'
+
 
 # function to generate the profiles
 def generer_profils():
@@ -107,12 +109,12 @@ def generer_profils():
     dico = dict()
 
     # loop to calculate the scores for each voter
-    for j in range(len(votants)):
+    for i in range(len(votants)):
         scores = []
-        for i in range(len(candidats)):
-            scores.append(("candidat " + chr(64 + i + 1), math.dist(votants[j], candidats[i])))
+        for j in range(len(candidats)):
+            scores.append(("candidat " + chr(ord(letter) + j), math.dist(votants[i], candidats[j])))
         scores.sort(key=lambda x: x[1])
-        dico[j] = scores
+        dico[i] = scores
 
     # create a new top level window to display the results
     top = tk.Toplevel(root)
