@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 root = tk.Tk()
 root.title("Simulation Elections")
 root.geometry("750x750")
+root.option_add('*Font', 'Mistral 12')
 
 # create a figure and axis for the graph
 fig = plt.figure()
@@ -15,15 +16,13 @@ ax = fig.add_subplot()
 ax.set(xlim=(-1.1, 1.1), ylim=(-1.1, 1.1))
 
 # add text on top side of graph
-ax.text(0.5, 1.05, "Libéralisme culturel", transform=ax.transAxes, ha="center", va="center", fontsize=12)
+ax.text(0.5, 1.05, "Libéralisme culturel", transform=ax.transAxes, ha="center", va="center")
 # add text on right side of graph
-ax.text(1.05, 0.5, "Libéralisme économique", transform=ax.transAxes, ha="center", va="center", rotation=270,
-        fontsize=12)
+ax.text(1.05, 0.5, "Libéralisme économique", transform=ax.transAxes, ha="center", va="center", rotation=270)
 # add text on bottom side of graph
-ax.text(0.5, -0.05, "Conservatisme culturel", transform=ax.transAxes, ha="center", va="center", fontsize=12)
+ax.text(0.5, -0.05, "Conservatisme culturel", transform=ax.transAxes, ha="center", va="center")
 # add text on left side of graph
-ax.text(-0.05, 0.5, "Interventionnisme étatique", transform=ax.transAxes, ha="center", va="center", rotation=90,
-        fontsize=12)
+ax.text(-0.05, 0.5, "Interventionnisme étatique", transform=ax.transAxes, ha="center", va="center", rotation=90)
 
 # remove value ticks from the x-axis and the y-axis
 ax.set_xticks([])
@@ -56,7 +55,7 @@ for i in range(nbCandidats):
     # plot the candidates on the graph
     ax.scatter(x, y, marker="s")
     # label the candidates on the graph
-    ax.text(x - 0.02, y + 0.05, chr(64 + i + 1), fontsize=12)
+    ax.text(x - 0.02, y + 0.05, chr(ord('A') + i))
 
 # draw the canvas
 canvas.draw()
@@ -81,7 +80,7 @@ def on_click(event):
         ax.scatter(x, y, color="black")
 
         # label the point on the graph
-        ax.text(x - 0.02, y + 0.05, len(votants), fontsize=12)
+        ax.text(x - 0.02, y + 0.05, len(votants))
 
         # redraw the canvas
         canvas.draw()
@@ -95,8 +94,6 @@ canvas.get_tk_widget().pack()
 
 # variable to keep track of the top level window
 top = None
-
-letter = 'A'
 
 
 # function to generate the profiles
@@ -112,7 +109,7 @@ def generer_profils():
     for i in range(len(votants)):
         scores = []
         for j in range(len(candidats)):
-            scores.append(("candidat " + chr(ord(letter) + j), math.dist(votants[i], candidats[j])))
+            scores.append(("candidat " + chr(ord('A') + j), math.dist(votants[i], candidats[j])))
         scores.sort(key=lambda x: x[1])
         dico[i] = scores
 
@@ -129,16 +126,16 @@ def generer_profils():
         for b in range(len(candidats) + 1):
             tk.Grid.rowconfigure(top, b, weight=1)
         for c, d in dico.items():
-            lab = tk.Label(top, text="Votant " + str(c + 1), font=('Mistral 12'))
+            lab = tk.Label(top, text="Votant " + str(c + 1))
             lab.grid(row=0, column=c, sticky="NSEW")
             for e in range(len(candidats)):
-                res = ((math.sqrt(8) - round(d[e][1], 4)) * 100) / math.sqrt(8)
-                lab = tk.Label(top, text=str(d[e][0]) + " • " + str(round(res, 2)) + "%", font=('Mistral 12'))
+                res = ((math.sqrt(8) - d[e][1]) * 100) / math.sqrt(8)
+                lab = tk.Label(top, text=str(d[e][0]) + " • " + str(round(res, 2)) + "%")
                 lab.grid(row=e + 1, column=c, sticky="NSEW")
 
 
 # generate the profiles on button click
-button = tk.Button(root, text="Generer les profils", command=generer_profils, bg="white")
+button = tk.Button(root, text="Generer les profils", command=generer_profils)
 button.place(relx=root.winfo_width() / 1000 - 0.2, rely=root.winfo_height() / 1000 * 4.5, relwidth=0.2, relheight=0.08)
 
 # start the tkinter event loop
