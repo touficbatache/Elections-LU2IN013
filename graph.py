@@ -108,7 +108,7 @@ def distribuer(number, liste, pt_list, ann_list, a):
     top_main.title("Choisir nombre " + s)
     label_top = tk.Label(top_main, text="Donner le nombre de " + s + " :")
     label_top.place(x=0, y=0)
-    label_top = tk.Label(top_main, text="Laisser vide pour valeur de défaut")
+    label_top = tk.Label(top_main, text="Laisser vide pour valeur de défaut : 7")
     label_top.place(x=0, y=40)
     number.trace_variable("w", validate)
     entry = tk.Entry(top_main, width=20, textvariable=number)
@@ -116,9 +116,6 @@ def distribuer(number, liste, pt_list, ann_list, a):
     button_dist = tk.Button(top_main, text="Distribuer les " + s,
                             command=lambda: [randomiser(number, liste, pt_list, ann_list, a), top_main.destroy()])
     button_dist.place(x=0, y=120)
-
-
-letter = 'A'
 
 
 # function to distribute the candidates or voters randomly on the graph
@@ -142,7 +139,7 @@ def randomiser(number, liste, pt_list, ann_list, n):
         if n == 0:
             a = ax.annotate(str(len(votants)), (x, y), (x - 0.02, y + 0.05), zorder=11)
         else:
-            a = ax.annotate(chr(ord(letter) + len(candidats) - 1), (x, y), (x - 0.02, y + 0.05), zorder=11)
+            a = ax.annotate(chr(ord('A') + len(candidats) - 1), (x, y), (x - 0.02, y + 0.05), zorder=11)
         ann_list.append(a)
         # draw the canvas
         canvas.draw()
