@@ -69,25 +69,19 @@ def validate(*args):
         t.destroy()
 
     if args[0] == 'PY_VAR1':
-        for c in numberVoters.get():
-            if c.isdigit():
-                continue
-            else:
-                t = tk.Toplevel(root)
-                t.title("ERREUR DE SAISIE!")
-                tk.Label(t, text="Uniquement des entiers!").pack(padx=5, pady=5)
-                tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
-                break
+        value = numberVoters
     else:
-        for c in numberCandidats.get():
-            if c.isdigit():
-                continue
-            else:
-                t = tk.Toplevel(root)
-                t.title("ERREUR DE SAISIE!")
-                tk.Label(t, text="Uniquement des entiers!").pack(padx=5, pady=5)
-                tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
-                break
+        value = numberCandidats
+
+    for c in value.get():
+        if c.isdigit():
+            continue
+        else:
+            t = tk.Toplevel(root)
+            t.title("ERREUR DE SAISIE!")
+            tk.Label(t, text="Uniquement des entiers!").pack(padx=5, pady=5)
+            tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
+            break
 
 
 # function to reinitialize the values of the 3 lists related to the candidats or voters
@@ -205,7 +199,7 @@ def generer_profils():
 
     # create a new top level window to display the results
     top = tk.Toplevel(root)
-    if not dico or votants == []:
+    if not dico or votants == [] or candidats == []:
         # if there are no results in the dictionary, show it in window title
         top.title("Pas de résultats")
     else:
