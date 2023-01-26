@@ -103,54 +103,53 @@ def reinitialiser(liste, pt_liste, ann_liste):
     canvas.draw()
 
 
-tabAssets = ["votants", "candidats"]
-
-
 # function to handle input and call random() for candidates or voters
-def distribuer(a):
-    s = tabAssets[a]
+def distribuer(number, liste, pt_list, ann_list, a):
+    if a == 0:
+        s = "votants"
+    else:
+        s = "candidats"
+
     top_main = tk.Toplevel(root)
     top_main.title("Choisir nombre " + s)
-
     label_top = tk.Label(top_main, text="Donner le nombre de " + s + " :")
     label_top.place(x=0, y=0)
-
-    if a == 0:
-        numberVoters.trace_variable("w", validate)
-        entry = tk.Entry(top_main, width=20, textvariable=numberVoters)
-        entry.place(x=0, y=40)
-        button_votant = tk.Button(top_main, text="Distribuer les votants", command=lambda: [random_votant(), top_main.destroy()])
-        button_votant.place(x=0, y=80)
-    else:
-        numberCandidats.trace_variable("w", validate)
-        entry = tk.Entry(top_main, width=20, textvariable=numberCandidats)
-        entry.place(x=0, y=40)
-        button_candidats = tk.Button(top_main, text="Distribuer les candidats", command=lambda: [random_candidats(), top_main.destroy()])
-        button_candidats.place(x=0, y=80)
+    label_top = tk.Label(top_main, text="Laisser vide pour valeur de défaut")
+    label_top.place(x=0, y=40)
+    number.trace_variable("w", validate)
+    entry = tk.Entry(top_main, width=20, textvariable=number)
+    entry.place(x=0, y=80)
+    button_dist = tk.Button(top_main, text="Distribuer les " + s,
+                            command=lambda: [randomiser(number, liste, pt_list, ann_list, a), top_main.destroy()])
+    button_dist.place(x=0, y=120)
 
 
 letter = 'A'
 
 
-# function to distribute the candidates randomly on the graph
-def random_candidats():
-    if numberCandidats.get() != "":
-        nbCandidats = int(numberCandidats.get())
+# function to distribute the candidates or voters randomly on the graph
+def randomiser(number, liste, pt_list, ann_list, n):
+    if number.get() != "":
+        nb = int(number.get())
     else:
-        nbCandidats = 7
+        nb = 7
 
-    for i in range(nbCandidats):
+    for i in range(nb):
         x = random.uniform(-1, 1)
         y = random.uniform(-1, 1)
-        candidats.append((x, y))
-        # plot the candidates on the graph
-
-        c, = ax.plot(x, y, 's')
-        pt_candidats.append(c)
-        # label the candidates on the graph
-        ann = ax.annotate(chr(ord(letter) + len(candidats) - 1), (x, y), (x - 0.02, y + 0.05))
-        ann_candidats.append(ann)
-
+        liste.append((x, y))
+        # plot the assets on the graph
+        if n == 0:
+            p, = ax.plot(x, y, 'o', color="black", zorder=10)
+        else:
+            p, = ax.plot(x, y, 's', zorder=10)
+        pt_list.append(p)
+        # label the assets on the graph
+        if n == 0:
+            a = ax.annotate(str(len(votants)), (x, y), (x - 0.02, y + 0.05), zorder=11)
+        else:
+            a = ax.annotate(chr(ord(letter) + len(candidats) - 1), (x, y), (x - 0.02, y + 0.05), zorder=11)
+        ann_list.append(a)
         # draw the canvas
         canvas.draw()
 
@@ -182,7 +181,6 @@ canvas.mpl_connect("button_press_event", on_click)
 
 # add the canvas to the tkinter window
 canvas.get_tk_widget().pack()
-
 
 # variable to keep track of the top level window
 top = None
@@ -226,36 +224,25 @@ def generer_profils():
                 lab.grid(row=e + 1, column=c, sticky="NSEW")
 
 
-def random_votant():
-    for i in range(int(numberVoters.get())):
-        x = random.uniform(-1, 1)
-        y = random.uniform(-1, 1)
-        votants.append((x, y))
-        # plot the candidates on the graph
-        p, = ax.plot(x, y, 'o', color="black", zorder=10)
-        pt_votants.append(p)
-        # label the candidates on the graph
-        ann = ax.annotate(str(len(votants)), (x, y), (x - 0.02, y + 0.05), zorder=11)
-        ann_votants.append(ann)
-        canvas.draw()
-
-
 # generate the profiles on button click
 GenererProfils = tk.Button(root, text="Generer les profils", command=generer_profils)
-GenererProfils.place(relx=0, rely=1-0.05, relwidth=0.2, relheight=0.05)
+GenererProfils.place(relx=0, rely=1 - 0.05, relwidth=0.2, relheight=0.05)
 
-DistribuerVotants = tk.Button(root, text="Distribuer les votants", command=lambda: distribuer(0))
-DistribuerVotants.place(relx=0.2, rely=1-0.05, relwidth=0.2, relheight=0.05)
+DistribuerVotants = tk.Button(root, text="Distribuer les votants",
+                              command=lambda: distribuer(numberVoters, votants, pt_votants, ann_votants, 0))
+DistribuerVotants.place(relx=0.2, rely=1 - 0.05, relwidth=0.2, relheight=0.05)
 
-ReinitialiserVotants = tk.Button(root, text="Réinitialiser les votants", command=lambda: reinitialiser(votants, pt_votants, ann_votants))
+ReinitialiserVotants = tk.Button(root, text="Réinitialiser les votants",
+                                 command=lambda: reinitialiser(votants, pt_votants, ann_votants))
 ReinitialiserVotants.place(relx=0.8, rely=0, relwidth=0.2, relheight=0.05)
 
-DistribuerCandidats = tk.Button(root, text="Distribuer les candidats", command=lambda: distribuer(1))
-DistribuerCandidats.place(relx=0.4, rely=1-0.05, relwidth=0.2, relheight=0.05)
+DistribuerCandidats = tk.Button(root, text="Distribuer les candidats",
+                                command=lambda: distribuer(numberCandidats, candidats, pt_candidats, ann_candidats, 1))
+DistribuerCandidats.place(relx=0.4, rely=1 - 0.05, relwidth=0.2, relheight=0.05)
 
-ReinitialiserCandidats = tk.Button(root, text="Réinitialiser les candidats", command=lambda: reinitialiser(candidats, pt_candidats, ann_candidats))
+ReinitialiserCandidats = tk.Button(root, text="Réinitialiser les candidats",
+                                   command=lambda: reinitialiser(candidats, pt_candidats, ann_candidats))
 ReinitialiserCandidats.place(relx=0.58, rely=0, relwidth=0.22, relheight=0.05)
-
 
 # start the tkinter event loop
 root.mainloop()
