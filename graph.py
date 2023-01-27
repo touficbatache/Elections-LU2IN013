@@ -59,6 +59,9 @@ pt_votants = []
 # empty list to store the annotations of the points of the voters plotted on the graph
 ann_votants = []
 
+# Default value for insert
+default = 7
+
 
 # function to validate the input given (the number of candidates or voters)
 def validate(*args):
@@ -67,8 +70,11 @@ def validate(*args):
     else:
         value = numberCandidats
 
-    if not (value.get()).isdigit():
+    if not (value.get()).isdigit() and value.get() != "":
+        button_dist.configure(state="disabled")
         tk.messagebox.showwarning(title='ERREUR DE SAISIE', message="Valeur entière uniquement")
+    else:
+        button_dist.configure(state="normal")
 
 
 # function to reinitialize the values of the 3 lists related to the candidats or voters
@@ -98,17 +104,18 @@ def distribuer(number, liste, pt_list, ann_list, a):
 
     top_main = tk.Toplevel(root)
     top_main.title("Choisir nombre " + s)
-    top_main.geometry("300x300")
+    top_main.geometry("250x150")
     label_top = tk.Label(top_main, text="Donner le nombre de " + s + " :")
     label_top.place(x=0, y=0)
-    label_top = tk.Label(top_main, text="Laisser vide pour valeur de défaut : 7")
-    label_top.place(x=0, y=40)
     number.trace_variable("w", validate)
     entry = tk.Entry(top_main, width=20, textvariable=number)
-    entry.place(x=0, y=80)
+    entry.place(x=0, y=30)
+    label_top = tk.Label(top_main, text="Laisser vide pour valeur de défaut (" + str(default) + ")")
+    label_top.place(x=0, y=60)
+    global button_dist
     button_dist = tk.Button(top_main, text="Distribuer les " + s,
                             command=lambda: [randomiser(number, liste, pt_list, ann_list, a), top_main.destroy()])
-    button_dist.place(x=0, y=120)
+    button_dist.place(x=0, y=80)
 
 
 # function to distribute the candidates or voters randomly on the graph
@@ -116,7 +123,7 @@ def randomiser(number, liste, pt_list, ann_list, n):
     if number.get() != "":
         nb = int(number.get())
     else:
-        nb = 7
+        nb = default
 
     for i in range(nb):
         x = random.uniform(-1, 1)
