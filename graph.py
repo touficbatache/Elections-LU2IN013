@@ -59,42 +59,32 @@ pt_votants = []
 # empty list to store the annotations of the points of the voters plotted on the graph
 ann_votants = []
 
-t = None
-
 
 # function to validate the input given (the number of candidates or voters)
 def validate(*args):
-    global t
-    if t:
-        t.destroy()
-
     if args[0] == 'PY_VAR1':
         value = numberVoters
     else:
         value = numberCandidats
 
-    for c in value.get():
-        if c.isdigit():
-            continue
-        else:
-            t = tk.Toplevel(root)
-            t.title("ERREUR DE SAISIE!")
-            tk.Label(t, text="Uniquement des entiers!").pack(padx=5, pady=5)
-            tk.Button(t, text="Ok", command=t.destroy).pack(padx=5, pady=5)
-            break
+    if not (value.get()).isdigit():
+        tk.messagebox.showwarning(title='ERREUR DE SAISIE', message="Valeur entière uniquement")
 
 
 # function to reinitialize the values of the 3 lists related to the candidats or voters
 def reinitialiser(liste, pt_liste, ann_liste):
-    while pt_liste:
-        pt_liste[-1].remove()
-        pt_liste.remove(pt_liste[-1])
-    while liste:
-        liste.remove(liste[-1])
-    while ann_liste:
-        ann_liste[-1].remove()
-        ann_liste.remove(ann_liste[-1])
-    canvas.draw()
+    if not liste:
+        tk.messagebox.showerror(title="Plan déja initialisé", message="Plan déja initialisé")
+    else:
+        while pt_liste:
+            pt_liste[-1].remove()
+            pt_liste.remove(pt_liste[-1])
+        while liste:
+            liste.remove(liste[-1])
+        while ann_liste:
+            ann_liste[-1].remove()
+            ann_liste.remove(ann_liste[-1])
+        canvas.draw()
 
 
 # function to handle input and call random() for candidates or voters
@@ -194,12 +184,12 @@ def generer_profils():
         scores.sort(key=lambda x: x[1])
         dico[i] = scores
 
-    # create a new top level window to display the results
-    top = tk.Toplevel(root)
     if not dico or votants == [] or candidats == []:
         # if there are no results in the dictionary, show it in window title
-        top.title("Pas de résultats")
+        tk.messagebox.showwarning(title='Pas de résultats', message="Pas de résultats")
     else:
+        # create a new top level window to display the results
+        top = tk.Toplevel(root)
         top.title("Les résultats")
         # generate a table for each voter representing their profile
         for a in range(len(votants)):
