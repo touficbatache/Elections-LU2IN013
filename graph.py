@@ -72,9 +72,11 @@ def validate(*args):
 
 
 # function to reinitialize the values of the 3 lists related to the candidats or voters
-def reinitialiser(liste, pt_liste, ann_liste):
-    if not liste:
-        tk.messagebox.showerror(title="Plan déja initialisé", message="Plan déja initialisé")
+def reinitialiser(liste, pt_liste, ann_liste, a):
+    if not liste and a == 0:
+        tk.messagebox.showerror(title="Votants déja initialisé", message="Votants déja initialisé")
+    elif not liste and a == 1:
+        tk.messagebox.showerror(title="Candidats déja initialisé", message="Candidats déja initialisé")
     else:
         while pt_liste:
             pt_liste[-1].remove()
@@ -96,6 +98,7 @@ def distribuer(number, liste, pt_list, ann_list, a):
 
     top_main = tk.Toplevel(root)
     top_main.title("Choisir nombre " + s)
+    top_main.geometry("300x300")
     label_top = tk.Label(top_main, text="Donner le nombre de " + s + " :")
     label_top.place(x=0, y=0)
     label_top = tk.Label(top_main, text="Laisser vide pour valeur de défaut : 7")
@@ -214,7 +217,7 @@ DistribuerVotants = tk.Button(root, text="Distribuer les votants",
 DistribuerVotants.place(relx=0.2, rely=1 - 0.05, relwidth=0.2, relheight=0.05)
 
 ReinitialiserVotants = tk.Button(root, text="Réinitialiser les votants",
-                                 command=lambda: reinitialiser(votants, pt_votants, ann_votants))
+                                 command=lambda: reinitialiser(votants, pt_votants, ann_votants, 0))
 ReinitialiserVotants.place(relx=0.8, rely=0, relwidth=0.2, relheight=0.05)
 
 DistribuerCandidats = tk.Button(root, text="Distribuer les candidats",
@@ -222,7 +225,7 @@ DistribuerCandidats = tk.Button(root, text="Distribuer les candidats",
 DistribuerCandidats.place(relx=0.4, rely=1 - 0.05, relwidth=0.2, relheight=0.05)
 
 ReinitialiserCandidats = tk.Button(root, text="Réinitialiser les candidats",
-                                   command=lambda: reinitialiser(candidats, pt_candidats, ann_candidats))
+                                   command=lambda: reinitialiser(candidats, pt_candidats, ann_candidats, 1))
 ReinitialiserCandidats.place(relx=0.58, rely=0, relwidth=0.22, relheight=0.05)
 
 # start the tkinter event loop
