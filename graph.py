@@ -71,10 +71,9 @@ def validate(*args):
         value = numberCandidats
 
     if not (value.get()).isdigit() and value.get() != "":
-        button_dist.configure(state="disabled")
-        tk.messagebox.showwarning(title='ERREUR DE SAISIE', message="Valeur entière uniquement")
+        value.set(log.get())
     else:
-        button_dist.configure(state="normal")
+        log.set(value.get())
 
 
 # function to reinitialize the values of the 3 lists related to the candidats or voters
@@ -106,16 +105,18 @@ def distribuer(number, liste, pt_list, ann_list, a):
     top_main.title("Choisir nombre " + s)
     top_main.geometry("250x150")
     label_top = tk.Label(top_main, text="Donner le nombre de " + s + " :")
-    label_top.place(x=0, y=0)
+    label_top.pack()
+    global log
+    log = tk.StringVar()
     number.trace_variable("w", validate)
     entry = tk.Entry(top_main, width=20, textvariable=number)
-    entry.place(x=0, y=30)
-    label_top = tk.Label(top_main, text="Laisser vide pour valeur de défaut (" + str(default) + ")")
-    label_top.place(x=0, y=60)
+    entry.pack()
+    label_top2 = tk.Label(top_main, text="Laisser vide pour valeur de défaut (" + str(default) + ")")
+    label_top2.pack()
     global button_dist
     button_dist = tk.Button(top_main, text="Distribuer les " + s,
                             command=lambda: [randomiser(number, liste, pt_list, ann_list, a), top_main.destroy()])
-    button_dist.place(x=0, y=80)
+    button_dist.pack()
 
 
 # function to distribute the candidates or voters randomly on the graph
@@ -217,23 +218,25 @@ def generer_profils():
 
 # generate the profiles on button click
 GenererProfils = tk.Button(root, text="Generer les profils", command=generer_profils)
-GenererProfils.place(relx=0, rely=1 - 0.05, relwidth=0.2, relheight=0.05)
+GenererProfils.place(relx=0, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 DistribuerVotants = tk.Button(root, text="Distribuer les votants",
                               command=lambda: distribuer(numberVoters, votants, pt_votants, ann_votants, 0))
-DistribuerVotants.place(relx=0.2, rely=1 - 0.05, relwidth=0.2, relheight=0.05)
+DistribuerVotants.place(relx=0.25, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 ReinitialiserVotants = tk.Button(root, text="Réinitialiser les votants",
                                  command=lambda: reinitialiser(votants, pt_votants, ann_votants, 0))
 ReinitialiserVotants.place(relx=0.8, rely=0, relwidth=0.2, relheight=0.05)
+ReinitialiserVotants.configure(cursor="exchange")
 
 DistribuerCandidats = tk.Button(root, text="Distribuer les candidats",
                                 command=lambda: distribuer(numberCandidats, candidats, pt_candidats, ann_candidats, 1))
-DistribuerCandidats.place(relx=0.4, rely=1 - 0.05, relwidth=0.2, relheight=0.05)
+DistribuerCandidats.place(relx=0.5, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 ReinitialiserCandidats = tk.Button(root, text="Réinitialiser les candidats",
                                    command=lambda: reinitialiser(candidats, pt_candidats, ann_candidats, 1))
 ReinitialiserCandidats.place(relx=0.58, rely=0, relwidth=0.22, relheight=0.05)
+ReinitialiserCandidats.configure(cursor="exchange")
 
 # start the tkinter event loop
 root.mainloop()
