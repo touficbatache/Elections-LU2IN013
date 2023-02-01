@@ -190,7 +190,7 @@ def on_click(event):
             points_candidates.append(p)
 
             # label the point on the graph
-            ann = axes.annotate(chr(ord('A') + len(candidats) - 1), (x, y), (x - 0.02, y + 0.05), zorder=11)
+            ann = axes.annotate(chr(ord('A') + len(candidates) - 1), (x, y), (x - 0.02, y + 0.05), zorder=11)
             annotations_candidates.append(ann)
         else:
             # add voters to the list
@@ -201,7 +201,7 @@ def on_click(event):
             points_voters.append(p)
 
             # label the point on the graph
-            ann = axes.annotate(str(len(votants)), (x, y), (x - 0.02, y + 0.05), zorder=11)
+            ann = axes.annotate(str(len(voters)), (x, y), (x - 0.02, y + 0.05), zorder=11)
             annotations_voters.append(ann)
 
         # redraw the canvas
