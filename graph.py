@@ -5,31 +5,28 @@ import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 
-# create the main tkinter window
+# Create the main tkinter window
 root = tk.Tk()
 root.title("Simulation Elections")
 root.geometry("750x750")
 root.option_add('*Font', 'Mistral 12')
 
-# create a figure and axes for the graph
+# Create a figure and axes for the graph
 fig = plt.figure()
 axes = fig.add_subplot()
 axes.set(xlim=(-1.1, 1.1), ylim=(-1.1, 1.1))
 
-# add text on top side of graph
+# Add text on top, right, bottom and left side of graph respectively
 axes.text(0.5, 1.05, "Libéralisme culturel", transform=axes.transAxes, ha="center", va="center")
-# add text on right side of graph
 axes.text(1.05, 0.5, "Libéralisme économique", transform=axes.transAxes, ha="center", va="center", rotation=270)
-# add text on bottom side of graph
 axes.text(0.5, -0.05, "Conservatisme culturel", transform=axes.transAxes, ha="center", va="center")
-# add text on left side of graph
 axes.text(-0.05, 0.5, "Interventionnisme étatique", transform=axes.transAxes, ha="center", va="center", rotation=90)
 
-# remove value ticks from the x-axes and the y-axes
+# Remove value ticks from the x-axes and the y-axes
 axes.set_xticks([])
 axes.set_yticks([])
 
-# changing the position of the axes to the middle
+# Change the position of the axes to the middle
 axes.spines['left'].set_position('center')
 axes.spines['bottom'].set_position('center')
 axes.spines['right'].set_color('none')
@@ -37,34 +34,28 @@ axes.spines['top'].set_color('none')
 axes.xaxis.set_ticks_position('bottom')
 axes.yaxis.set_ticks_position('left')
 
-# create a tkinter canvas to display the graph
+# Create a tkinter canvas to display the graph
 canvas = FigureCanvasTkAgg(fig, master=root)
 canvas.draw()
 canvas.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 
-# number of candidates
+# Number of candidates and empty lists to store the coordinates, the points and the annotations of the candidates on the graph
 number_candidates = tk.StringVar()
-# empty list_assets to store the candidates' coordinates
 candidates = []
-# empty list_assets to store the points of the candidates plotted on the graph
 points_candidates = []
-# empty list_assets to store the annotations of the points of the candidates plotted on the graph
 annotations_candidates = []
 
-# number of voters
+# Number of voters and empty lists to store the coordinates, the points and the annotations of the voters on the graph
 number_voters = tk.StringVar()
-# empty list_assets to store the coordinates of the voters' coordinates
 voters = []
-# empty list_assets to store the points of the voters plotted on the graph
 points_voters = []
-# empty list_assets to store the annotations of the points of the voters plotted on the graph
 annotations_voters = []
 
 # Default value for insert
 default = 7
 
 
-# function to valider the input given (the number of candidates or voters)
+# Function to validate the input given (the number of candidates or voters)
 def valider(*args):
     if args[0] == 'PY_VAR1':
         value = number_voters
@@ -77,7 +68,7 @@ def valider(*args):
         log.set(value.get())
 
 
-# function to reinitialize the values of the 3 list_assetss related to the candidates or voters
+# Function to reinitialize the values of the 3 lists related to the candidates or voters
 def reinitialiser(list_assets, pt_list, ann_list, a):
     if not list_assets and a == 0:
         tk.messagebox.showerror(title="Votants déjà réinitialisés", message="Votants déjà réinitialisés")
@@ -95,7 +86,7 @@ def reinitialiser(list_assets, pt_list, ann_list, a):
         canvas.draw()
 
 
-# function to handle input and call random() for candidates or voters
+# Function to handle input and call random() for candidates or voters
 def distribuer(number, list_assets, pt_list, ann_list, a):
     if a == 0:
         s = "voters"
@@ -120,7 +111,7 @@ def distribuer(number, list_assets, pt_list, ann_list, a):
     button_dist.pack()
 
 
-# function to distribute the candidates or voters randomly on the graph
+# Function to distribute the candidates or voters randomly on the graph
 def randomiser(number, list_assets, pt_list, ann_list, n):
     if number.get() != "":
         nb = int(number.get())
@@ -147,87 +138,87 @@ def randomiser(number, list_assets, pt_list, ann_list, n):
         canvas.draw()
 
 
-# variable to keep track of the "shift" key press
+# Variable to keep track of the "shift" key press
 shift_is_held = False
 
 
-# function to handle the key press event
-# here, we're using it to update the shift press
+# Function to handle the key press event
+# Here, we're using it to update the shift press
 def on_key_press(event):
     if event.key == 'shift':
         global shift_is_held
         shift_is_held = True
 
 
-# function to handle the key release event
-# here, we're using it to update the shift release
+# Function to handle the key release event
+# Here, we're using it to update the shift release
 def on_key_release(event):
     if event.key == 'shift':
         global shift_is_held
         shift_is_held = False
 
 
-# connect the key press/release events to the on_key_press and on_key_release functions
+# Connect the key press/release events to the on_key_press and on_key_release functions
 canvas.mpl_connect('key_press_event', on_key_press)
 canvas.mpl_connect('key_release_event', on_key_release)
 
 
-# function to handle click events on the graph
+# Function to handle click events on the graph
 def on_click(event):
-    # get the x and y coordinates of the click event
+    # Get the x and y coordinates of the click event
     x = event.xdata
     y = event.ydata
 
-    # add the point to the list_assets of points, only if clicked inside the graph
+    # Add the point to the list of points, only if clicked inside the graph
     if x is not None and -1 <= x <= 1 and y is not None and -1 <= y <= 1:
-        # if the shift key is pressed, add candidates instead of voters
+        # If the shift key is pressed, add candidates instead of voters
         if shift_is_held:
-            # add candidates to the list
+            # Add candidates to the list
             candidates.append((x, y))
 
-            # plot the new point on the graph
+            # Plot the new point on the graph
             p, = axes.plot(x, y, 's', zorder=10)
             points_candidates.append(p)
 
-            # label the point on the graph
+            # Label the point on the graph
             ann = axes.annotate(chr(ord('A') + len(candidates) - 1), (x, y), (x - 0.02, y + 0.05), zorder=11)
             annotations_candidates.append(ann)
         else:
-            # add voters to the list
+            # Add voters to the list
             voters.append((x, y))
 
-            # plot the new point on the graph
+            # Plot the new point on the graph
             p, = axes.plot(x, y, 'o', color="black", zorder=10)
             points_voters.append(p)
 
-            # label the point on the graph
+            # Label the point on the graph
             ann = axes.annotate(str(len(voters)), (x, y), (x - 0.02, y + 0.05), zorder=11)
             annotations_voters.append(ann)
 
-        # redraw the canvas
+        # Redraw the canvas
         canvas.draw()
 
 
-# connect the click event to the on_click function
+# Connect the click event to the on_click function
 canvas.mpl_connect("button_press_event", on_click)
 
-# add the canvas to the tkinter window
+# Add the canvas to the tkinter window
 canvas.get_tk_widget().pack()
 
-# variable to keep track of the top level window
+# Variable to keep track of the top level window
 top = None
 
 
-# function to generate the profiles
+# Function to generate the profiles
 def generer_profils():
     global top
     if top:
         top.destroy()
 
-    # dictionary to store the scores for each voter
+    # Dictionary to store the scores for each voter
     dico = dict()
 
-    # loop to calculate the scores for each voter
+    # Loop to calculate the scores for each voter
     for i in range(len(voters)):
         scores = []
         for j in range(len(candidates)):
@@ -236,14 +227,14 @@ def generer_profils():
         dico[i] = scores
 
     if not dico or voters == [] or candidates == []:
-        # if there are no results in the dictionary, show it in window title
+        # If there are no results in the dictionary, show it in window title
         tk.messagebox.showwarning(title='Pas de résultats', message="Pas de résultats")
     else:
-        # create a new top level window to display the results
+        # Create a new top level window to display the results
         top = tk.Toplevel(root)
         top.geometry(str(len(voters)*90)+"x"+str(len(candidates)*40))
         top.title("Les résultats")
-        # generate a table for each voter representing their profile
+        # Generate a table for each voter representing their profile
         for a in range(len(voters)):
             tk.Grid.columnconfigure(top, a, weight=1)
         for b in range(len(candidates) + 1):
@@ -258,7 +249,7 @@ def generer_profils():
                 ToolTip.create_tool_tip(lab, text=str(round(res, 2)) + "%")
 
 
-# generate the profiles on button click
+# Generate the profiles on button click
 generate_profiles = tk.Button(root, text="Generer les profils", command=generer_profils)
 generate_profiles.place(relx=0, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
@@ -280,5 +271,5 @@ reinitialize_candidates = tk.Button(root, text="Réinitialiser les candidats",
 reinitialize_candidates.place(relx=0.58, rely=0, relwidth=0.22, relheight=0.05)
 reinitialize_candidates.configure(cursor="exchange")
 
-# start the tkinter event loop
+# Start the tkinter event loop
 root.mainloop()
