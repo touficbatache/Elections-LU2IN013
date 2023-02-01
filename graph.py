@@ -147,6 +147,31 @@ def randomiser(number, list_assets, pt_list, ann_list, n):
         canvas.draw()
 
 
+# variable to keep track of the "shift" key press
+shift_is_held = False
+
+
+# function to handle the key press event
+# here, we're using it to update the shift press
+def on_key_press(event):
+    if event.key == 'shift':
+        global shift_is_held
+        shift_is_held = True
+
+
+# function to handle the key release event
+# here, we're using it to update the shift release
+def on_key_release(event):
+    if event.key == 'shift':
+        global shift_is_held
+        shift_is_held = False
+
+
+# connect the key press/release events to the on_key_press and on_key_release functions
+canvas.mpl_connect('key_press_event', on_key_press)
+canvas.mpl_connect('key_release_event', on_key_release)
+
+
 # function to handle click events on the graph
 def on_click(event):
     # get the x and y coordinates of the click event
@@ -155,15 +180,29 @@ def on_click(event):
 
     # add the point to the list_assets of points, only if clicked inside the graph
     if x is not None and -1 <= x <= 1 and y is not None and -1 <= y <= 1:
-        voters.append((x, y))
+        # if the shift key is pressed, add candidates instead of voters
+        if shift_is_held:
+            # add candidates to the list
+            candidates.append((x, y))
 
-        # plot the new point on the graph
-        p, = axes.plot(x, y, 'o', color="black", zorder=10)
-        points_voters.append(p)
+            # plot the new point on the graph
+            p, = axes.plot(x, y, 's', zorder=10)
+            points_candidates.append(p)
 
-        # label the point on the graph
-        ann = axes.annotate(str(len(voters)), (x, y), (x - 0.02, y + 0.05), zorder=11)
-        annotations_voters.append(ann)
+            # label the point on the graph
+            ann = axes.annotate(chr(ord('A') + len(candidats) - 1), (x, y), (x - 0.02, y + 0.05), zorder=11)
+            annotations_candidates.append(ann)
+        else:
+            # add voters to the list
+            voters.append((x, y))
+
+            # plot the new point on the graph
+            p, = axes.plot(x, y, 'o', color="black", zorder=10)
+            points_voters.append(p)
+
+            # label the point on the graph
+            ann = axes.annotate(str(len(votants)), (x, y), (x - 0.02, y + 0.05), zorder=11)
+            annotations_voters.append(ann)
 
         # redraw the canvas
         canvas.draw()
