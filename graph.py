@@ -1,5 +1,6 @@
 import math
 import random
+import ToolTip
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
@@ -213,8 +214,9 @@ def generer_profils():
             lab.grid(row=0, column=c, sticky="NSEW")
             for e in range(len(candidates)):
                 res = ((math.sqrt(8) - d[e][1]) * 100) / math.sqrt(8)
-                lab = tk.Label(top, text=str(d[e][0]) + " • " + str(round(res, 2)) + "%")
+                lab = tk.Label(top, text=str(d[e][0]))
                 lab.grid(row=e + 1, column=c, sticky="NSEW")
+                ToolTip.create_tool_tip(lab, text=str(round(res, 2)) + "%")
 
 
 # generate the profiles on button click
