@@ -11,7 +11,7 @@ root.title("Simulation Elections")
 root.geometry("750x750")
 root.option_add('*Font', 'Mistral 12')
 
-# create a figure and axesis for the graph
+# create a figure and axes for the graph
 fig = plt.figure()
 axes = fig.add_subplot()
 axes.set(xlim=(-1.1, 1.1), ylim=(-1.1, 1.1))
@@ -25,11 +25,11 @@ axes.text(0.5, -0.05, "Conservatisme culturel", transform=axes.transAxes, ha="ce
 # add text on left side of graph
 axes.text(-0.05, 0.5, "Interventionnisme étatique", transform=axes.transAxes, ha="center", va="center", rotation=90)
 
-# remove value ticks from the x-axesis and the y-axesis
+# remove value ticks from the x-axes and the y-axes
 axes.set_xticks([])
 axes.set_yticks([])
 
-# changing the position of the axeses to the middle
+# changing the position of the axes to the middle
 axes.spines['left'].set_position('center')
 axes.spines['bottom'].set_position('center')
 axes.spines['right'].set_color('none')
