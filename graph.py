@@ -80,9 +80,9 @@ def valider(*args):
 # function to reinitialize the values of the 3 list_assetss related to the candidates or voters
 def reinitialiser(list_assets, pt_list, ann_list, a):
     if not list_assets and a == 0:
-        tk.messagebox.showerror(title="Votants déja initialisé", message="Votants déja initialisé")
+        tk.messagebox.showerror(title="Votants déjà réinitialisés", message="Votants déjà réinitialisés")
     elif not list_assets and a == 1:
-        tk.messagebox.showerror(title="Candidats déja initialisé", message="Candidats déja initialisé")
+        tk.messagebox.showerror(title="Candidats déjà réinitialisés", message="Candidats déjà réinitialisés")
     else:
         while pt_list:
             pt_list[-1].remove()
