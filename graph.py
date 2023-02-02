@@ -232,7 +232,7 @@ def generer_profils():
     else:
         # Create a new top level window to display the results
         top = tk.Toplevel(root)
-        top.geometry(str(len(voters)*90)+"x"+str(len(candidates)*40))
+        top.geometry(str(len(voters) * 90) + "x" + str(len(candidates) * 40))
         top.title("Les résultats")
         # Generate a table for each voter representing their profile
         for a in range(len(voters)):
@@ -243,7 +243,8 @@ def generer_profils():
             lab = tk.Label(top, text="Votant " + str(c + 1))
             lab.grid(row=0, column=c, sticky="NSEW")
             for e in range(len(candidates)):
-                res = ((math.sqrt(8) - d[e][1]) * 100) / math.sqrt(8)
+                maximum = math.sqrt((int(axes.get_xlim()[1]) - int(axes.get_xlim()[0]))**2 + (int(axes.get_ylim()[1]) - int(axes.get_xlim()[0]))**2)
+                res = ((maximum - d[e][1]) * 100) / maximum
                 lab = tk.Label(top, text=str(d[e][0]))
                 lab.grid(row=e + 1, column=c, sticky="NSEW")
                 ToolTip.create_tool_tip(lab, text=str(round(res, 2)) + "%")
@@ -258,16 +259,18 @@ distribute_voters = tk.Button(root, text="Distribuer les voters",
 distribute_voters.place(relx=0.25, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 reinitialize_voters = tk.Button(root, text="Réinitialiser les voters",
-                                 command=lambda: reinitialiser(voters, points_voters, annotations_voters, 0))
+                                command=lambda: reinitialiser(voters, points_voters, annotations_voters, 0))
 reinitialize_voters.place(relx=0.8, rely=0, relwidth=0.2, relheight=0.05)
 reinitialize_voters.configure(cursor="exchange")
 
 distribute_candidates = tk.Button(root, text="Distribuer les candidats",
-                                command=lambda: distribuer(number_candidates, candidates, points_candidates, annotations_candidates, 1))
+                                  command=lambda: distribuer(number_candidates, candidates, points_candidates,
+                                                             annotations_candidates, 1))
 distribute_candidates.place(relx=0.5, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 reinitialize_candidates = tk.Button(root, text="Réinitialiser les candidats",
-                                   command=lambda: reinitialiser(candidates, points_candidates, annotations_candidates, 1))
+                                    command=lambda: reinitialiser(candidates, points_candidates, annotations_candidates,
+                                                                  1))
 reinitialize_candidates.place(relx=0.58, rely=0, relwidth=0.22, relheight=0.05)
 reinitialize_candidates.configure(cursor="exchange")
 
