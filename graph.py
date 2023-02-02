@@ -243,7 +243,9 @@ def generer_profils():
             lab = tk.Label(top, text="Votant " + str(c + 1))
             lab.grid(row=0, column=c, sticky="NSEW")
             for e in range(len(candidates)):
+                # Calculates the max distance (diagonal) of the plot
                 maximum = math.sqrt((int(axes.get_xlim()[1]) - int(axes.get_xlim()[0]))**2 + (int(axes.get_ylim()[1]) - int(axes.get_ylim()[0]))**2)
+                # Calculates the percentage based on max distance
                 res = ((maximum - d[e][1]) * 100) / maximum
                 lab = tk.Label(top, text=str(d[e][0]))
                 lab.grid(row=e + 1, column=c, sticky="NSEW")
