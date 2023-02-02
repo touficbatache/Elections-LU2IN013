@@ -89,7 +89,7 @@ def reinitialiser(list_assets, pt_list, ann_list, a):
 # Function to handle input and call random() for candidates or voters
 def distribuer(number, list_assets, pt_list, ann_list, a):
     if a == 0:
-        s = "voters"
+        s = "votants"
     else:
         s = "candidats"
 
@@ -105,7 +105,6 @@ def distribuer(number, list_assets, pt_list, ann_list, a):
     entry.pack()
     label_top2 = tk.Label(top_main, text="Laisser vide pour valeur de défaut (" + str(default) + ")")
     label_top2.pack()
-    global button_dist
     button_dist = tk.Button(top_main, text="Distribuer les " + s,
                             command=lambda: [randomiser(number, list_assets, pt_list, ann_list, a), top_main.destroy()])
     button_dist.pack()
