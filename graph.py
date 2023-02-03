@@ -255,13 +255,13 @@ def generer_profils():
 generate_profiles = tk.Button(root, text="Generer les profils", command=generer_profils)
 generate_profiles.place(relx=0, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
-distribute_voters = tk.Button(root, text="Distribuer les voters",
+distribute_voters = tk.Button(root, text="Distribuer les votants",
                               command=lambda: distribuer(number_voters, voters, points_voters, annotations_voters, 0))
 distribute_voters.place(relx=0.25, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
-reinitialize_voters = tk.Button(root, text="Réinitialiser les voters",
+reinitialize_voters = tk.Button(root, text="Réinitialiser les votants",
                                 command=lambda: reinitialiser(voters, points_voters, annotations_voters, 0))
-reinitialize_voters.place(relx=0.8, rely=0, relwidth=0.2, relheight=0.05)
+reinitialize_voters.place(relx=0.58, rely=0, relwidth=0.2, relheight=0.05)
 reinitialize_voters.configure(cursor="exchange")
 
 distribute_candidates = tk.Button(root, text="Distribuer les candidats",
@@ -272,7 +272,7 @@ distribute_candidates.place(relx=0.5, rely=1 - 0.05, relwidth=0.25, relheight=0.
 reinitialize_candidates = tk.Button(root, text="Réinitialiser les candidats",
                                     command=lambda: reinitialiser(candidates, points_candidates, annotations_candidates,
                                                                   1))
-reinitialize_candidates.place(relx=0.58, rely=0, relwidth=0.22, relheight=0.05)
+reinitialize_candidates.place(relx=0.78, rely=0, relwidth=0.22, relheight=0.05)
 reinitialize_candidates.configure(cursor="exchange")
 
 # Start the tkinter event loop
