@@ -57,16 +57,48 @@ def add_voter_on_graph(coordinates: tuple) -> int:
     return -1
 
 
-def num_char(num_letters: int) -> int:
-    num_letters_next = 0
-    i = 0
-    while num_letters_next < num_letters:
-        i += 1
-        num_letters_next += 26 ** i
-    return i
+def get_letter_count(index: int) -> int:
+    """
+    Returns the letter count for a label at a given index.
+    """
+    labels_before_index = 0
+    letter_count = 0
+
+    # Search how many powers of 26 can fit before reaching the
+    # given index. We don't want to use log_26 because if we have
+    # a two-lettered label, then we would have already filled the
+    # one-lettered possibilities. So if we have a 676 (26^2) index,
+    # then that means it already contains the 26 one-lettered labels,
+    # so the label only becomes three-lettered if 676+26=702 is reached.
+    while labels_before_index < index:
+        letter_count += 1
+        labels_before_index += 26 ** letter_count
+    return letter_count
 
 
 def purify(number: int) -> int:
+    """
+    Returns the corresponding number based on the number of letters.
+
+    Example:
+
+    0 -> A
+    25 -> Z
+
+    If the given number is 26, that should correspond to A, and it returns 0.
+
+    It may look like this is working the same as modulo because it's quite
+    similar. The modulo operator gives us the remainder of the division by a
+    number, by removing multiples of that number. This gives us the remainder
+    by removing powers of the number.
+
+    Now if the number is 676 for instance, this will return 650 and not 0. Why?
+    Because if we have a two-lettered label, then we would have already filled the
+    one-lettered possibilities. So if we have a 676 (26^2) index, then that means
+    it already contains the 26 one-lettered labels, so the label only becomes
+    three-lettered if 676+26=702 is reached. So if we reached 676, then that means
+    we need to deal with one more set of 26s before resetting.
+    """
     i = 1
     while number >= 26 ** i:
         number -= 26 ** i
@@ -84,10 +116,10 @@ def add_candidate_on_graph(coordinates: tuple) -> int:
 
     # Generate an adequate label for the candidate
     new_candidate_index = len(candidates)
-    label_num_char = num_char(new_candidate_index + 1)
+    label_letter_count = get_letter_count(new_candidate_index + 1)
 
     label = ""
-    for i in reversed(range(1, label_num_char + 1)):
+    for i in reversed(range(1, label_letter_count + 1)):
         label += chr(ord('A') + (purify(new_candidate_index) % (26 ** i) // (26 ** (i - 1))))
 
     # Create a new candidate
