@@ -65,7 +65,7 @@ class GraphManager:
             return False
 
         # Plot the voter on the graph
-        point, = self.__axes.plot(voter.coordinates()[0], voter.coordinates()[1], 'o', color="black")
+        point, = self.__axes.plot(voter.coordinates()[0], voter.coordinates()[1], 'o', color="black", zorder=10)
         # Label the point on the graph
         annotation = self.__axes.annotate(
             text=voter.label(),
@@ -99,7 +99,7 @@ class GraphManager:
             return False
 
         # Plot the candidate on the graph
-        point, = self.__axes.plot(candidate.coordinates()[0], candidate.coordinates()[1], 's')
+        point, = self.__axes.plot(candidate.coordinates()[0], candidate.coordinates()[1], 's', zorder=10)
         # Label the point on the graph
         annotation = self.__axes.annotate(
             text=candidate.label(),
