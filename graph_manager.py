@@ -9,7 +9,15 @@ from voter import Voter
 
 
 class GraphManager:
-    """Class to manage the graph"""
+    """
+    Class to manage the graph.
+
+    ! This class should not expose private variables such as
+    fig, axes or canvas with getters. It should create an
+    abstraction layer over them to limit and control the usage
+    of internal and private features. Ex: we abstract canvas
+    re-drawing with build() and click-handling with bind(). !
+    """
 
     # Store the voters' data (points and annotations) in the form of:
     # dict ({ str("voter_label") : tuple(point, annotation) })
@@ -124,6 +132,9 @@ class GraphManager:
     def get_tk_widget(self) -> Canvas:
         """
         Return the Tk widget used to implement FigureCanvasTkAgg.
+
+        ! This method exposes the Tk widget, but I believe this
+        is the only instance where it's fine because it's necessary !
         """
         return self.__canvas.get_tk_widget()
 
