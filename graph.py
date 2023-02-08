@@ -1,11 +1,11 @@
 import math
 import random
 
-import ToolTip
 import tkinter as tk
 
 from candidate import Candidate
 from graph_manager import GraphManager
+from tooltip import bind_tooltip
 from voter import Voter
 
 # Create the main tkinter window
@@ -316,7 +316,7 @@ def generer_profils():
                 res = ((maximum - d[e][1]) * 100) / maximum
                 lab = tk.Label(top, text=str(d[e][0]))
                 lab.grid(row=e + 1, column=c, sticky="NSEW")
-                ToolTip.create_tool_tip(lab, text=str(round(res, 2)) + "%")
+                bind_tooltip(widget=lab, text=str(round(res, 2)) + "%")
 
 
 # Add the canvas to the tkinter window
