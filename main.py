@@ -182,7 +182,7 @@ graph_manager.bind("button_press_event", on_click)
 
 
 # Function to validate the input given (the number of candidates or voters)
-def valider(*args):
+def validate(*args):
     if args[0] == 'PY_VAR1':
         value = number_voters
     else:
@@ -229,7 +229,7 @@ def show_distribute_popup(number, is_voter: bool):
 
     global log
     log = tk.StringVar()
-    number.trace_variable("w", valider)
+    number.trace_variable("w", validate)
     entry = tk.Entry(top_main, width=20, textvariable=number)
     entry.pack()
 
@@ -274,23 +274,24 @@ top = None
 
 
 # Function to generate the profiles
-def generer_profils():
+def generate_profils():
     global top
     if top:
         top.destroy()
 
     # Dictionary to store the scores for each voter
-    dico = dict()
+    profils = dict()
 
     # Loop to calculate the scores for each voter
-    for i in range(len(voters)):
-        scores = []
-        for j in range(len(candidates)):
-            scores.append((chr(ord('A') + j), math.dist(voters[i].coordinates(), candidates[j].coordinates())))
-        scores.sort(key=lambda x: x[1])
-        dico[i] = scores
+    for voter in voters:
+        profil = list(map(
+            lambda candidate: (candidate.label(), math.dist(voter.coordinates(), candidate.coordinates())),
+            candidates
+        ))
+        profil.sort(key=lambda x: x[1])
+        profils[voter.label()] = profil
 
-    if not dico or voters == [] or candidates == []:
+    if not profils or voters == [] or candidates == []:
         # If there are no results in the dictionary, show it in window title
         tk.messagebox.showwarning(title='Pas de résultats', message="Pas de résultats")
     else:
@@ -303,9 +304,9 @@ def generer_profils():
             tk.Grid.columnconfigure(top, a, weight=1)
         for b in range(len(candidates) + 1):
             tk.Grid.rowconfigure(top, b, weight=1)
-        for c, d in dico.items():
-            lab = tk.Label(top, text="Votant " + str(c + 1))
-            lab.grid(row=0, column=c, sticky="NSEW")
+        for index, (label, profil) in enumerate(profils.items()):
+            lab = tk.Label(top, text="Votant " + label)
+            lab.grid(row=0, column=index, sticky="NSEW")
             for e in range(len(candidates)):
                 # Calculates the max distance (diagonal) of the plot
                 maximum = math.sqrt(
@@ -313,9 +314,9 @@ def generer_profils():
                     (int(graph_manager.get_ylim()[1]) - int(graph_manager.get_ylim()[0])) ** 2
                 )
                 # Calculates the percentage based on max distance
-                res = ((maximum - d[e][1]) * 100) / maximum
-                lab = tk.Label(top, text=str(d[e][0]))
-                lab.grid(row=e + 1, column=c, sticky="NSEW")
+                res = ((maximum - profil[e][1]) * 100) / maximum
+                lab = tk.Label(top, text=str(profil[e][0]))
+                lab.grid(row=e + 1, column=index, sticky="NSEW")
                 bind_tooltip(widget=lab, text=str(round(res, 2)) + "%")
 
 
@@ -324,7 +325,7 @@ graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
 
 # Generate the profiles on button click
-generate_profiles = tk.Button(root, text="Generer les profils", command=generer_profils)
+generate_profiles = tk.Button(root, text="Generer les profils", command=generate_profils)
 generate_profiles.place(relx=0, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 # Distribute the voters on button click
