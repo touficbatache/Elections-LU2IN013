@@ -377,7 +377,8 @@ def show_voting_systems():
 
         # Élimination Successive button
         # TODO #25: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20)
+        btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20,
+                                               command=lambda: voting_manager.elimination_successive(generate_profils()))
         btn_elimination_successive.grid(row=1, column=1)
 
         # Veto button
