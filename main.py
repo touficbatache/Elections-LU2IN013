@@ -527,7 +527,7 @@ def show_voting_systems():
 
         # Veto button
         # TODO #24: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_veto = tk.Button(top, text="Veto", height=7, width=20)
+        btn_veto = tk.Button(top, text="Veto", height=7, width=20, command=lambda : voting_manager.veto(candidates,generate_profils()))
         btn_veto.grid(row=2, column=0)
 
         # Condorcet button
@@ -606,6 +606,10 @@ distribute_candidates = tk.Button(
     command=lambda: show_distribute_popup(stringvar_number_candidates, is_voter=False)
 )
 distribute_candidates.place(relx=0.75, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+
+
+# TESTS Zah
+print(candidates)
 
 # Start the tkinter event loop
 root.mainloop()
