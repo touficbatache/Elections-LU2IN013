@@ -394,13 +394,23 @@ def show_voting_systems():
 graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
 
+# Reset the voters on button click
+reset_voters = tk.Button(root, text="Réinitialiser les votants", command=lambda: reset(is_voter=True))
+reset_voters.place(relx=0.58, rely=0, relwidth=0.2, relheight=0.05)
+reset_voters.configure(cursor="exchange")
+
+# Reset the candidates on button click
+reset_candidates = tk.Button(root, text="Réinitialiser les candidats", command=lambda: reset(is_voter=False))
+reset_candidates.place(relx=0.78, rely=0, relwidth=0.22, relheight=0.05)
+reset_candidates.configure(cursor="exchange")
+
 # Generate the profiles on button click
-generate_profiles = tk.Button(root, text="Profils", command=show_profils)
-generate_profiles.place(relx=0, rely=1 - 0.05, relwidth=0.10, relheight=0.05)
+generate_profiles = tk.Button(root, text="Génerer les profils", command=show_profils)
+generate_profiles.place(relx=0, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 # Generate the profiles on button click
 btn_show_voting_systems = tk.Button(root, text="Systèmes de vote", command=show_voting_systems)
-btn_show_voting_systems.place(relx=0.10, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+btn_show_voting_systems.place(relx=0.25, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 # Distribute the voters on button click
 distribute_voters = tk.Button(
@@ -408,12 +418,7 @@ distribute_voters = tk.Button(
     text="Distribuer les votants",
     command=lambda: show_distribute_popup(number_voters, is_voter=True)
 )
-distribute_voters.place(relx=0.35, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
-
-# Reset the voters on button click
-reset_voters = tk.Button(root, text="Réinitialiser les votants", command=lambda: reset(is_voter=True))
-reset_voters.place(relx=0.58, rely=0, relwidth=0.2, relheight=0.05)
-reset_voters.configure(cursor="exchange")
+distribute_voters.place(relx=0.5, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 # Distribute the candidates on button click
 distribute_candidates = tk.Button(
@@ -421,12 +426,7 @@ distribute_candidates = tk.Button(
     text="Distribuer les candidats",
     command=lambda: show_distribute_popup(number_candidates, is_voter=False)
 )
-distribute_candidates.place(relx=0.6, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
-
-# Reset the candidates on button click
-reset_candidates = tk.Button(root, text="Réinitialiser les candidats", command=lambda: reset(is_voter=False))
-reset_candidates.place(relx=0.78, rely=0, relwidth=0.22, relheight=0.05)
-reset_candidates.configure(cursor="exchange")
+distribute_candidates.place(relx=0.75, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 # Start the tkinter event loop
 root.mainloop()
