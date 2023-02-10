@@ -275,6 +275,7 @@ def distribute(number, is_voter: bool):
 
 # Variable to keep track of the top level window
 top = None
+winner_dialog = None
 
 
 # Function to show the scores
@@ -388,6 +389,31 @@ def show_voting_systems():
         # TODO #26: connect button to logic: show popup with results. use `profils` (already defined)
         btn_condorcet = tk.Button(top, text="Condorcet", height=7, width=20)
         btn_condorcet.grid(row=2, column=1)
+
+
+def display_winner(winner: tuple[str, bool, list], method: str):
+    """
+    Display winner in a popup.
+
+    :param winner: Tuple of winner, boolean specifying if raw-win or not, list of opponents if not raw-win
+    :param method: The name of the voting method
+    """
+    global winner_dialog
+    if winner_dialog:
+        winner_dialog.destroy()
+
+    winner_dialog = tk.Toplevel(root)
+    winner_dialog.title("Vainceur selon " + method)
+    tk.Label(winner_dialog, text="Le gagnant selon de système " + method + " est :").pack()
+
+    tk.Label(winner_dialog, text=winner[0], font=("Mistral", "25", "normal")).pack()
+
+    if winner[1]:
+        tk.Label(winner_dialog, text="Ce candidat a gagné par départage parmi les concurrents suivant :").pack()
+        tk.Label(winner_dialog, text=str(winner[2])).pack()
+        tk.Label(winner_dialog, text="La règle de départage utilisée correspond à l'ordre alphabétique").pack()
+    else:
+        tk.Label(winner_dialog, text="Il n'y a pas eu de départage").pack()
 
 
 # Add the canvas to the tkinter window

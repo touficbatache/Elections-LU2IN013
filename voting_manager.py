@@ -15,7 +15,7 @@ class VotingManager:
         """
         return sorted(candidate_labels, key=str.casefold)[0]
 
-    def __find_winner(self, results: dict) -> tuple[str, bool]:
+    def __find_winner(self, results: dict) -> tuple[str, bool, list]:
         """
         Finds the winner in a dictonnary of candidates and scores.
         If the list contains one winner, it returns it. If not, it
@@ -33,6 +33,6 @@ class VotingManager:
             elif score == max_score:
                 winners.append(candidate_label)
         if len(winners) == 1:
-            return winners[0], False
+            return winners[0], False, []
         else:
-            return self.__departage(winners), True
+            return self.__departage(winners), True, winners
