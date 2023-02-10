@@ -15,7 +15,7 @@ class VotingManager:
         """
         return sorted(candidates, key=str.casefold, reverse=reverse)[0]
 
-    def __find_winner(self, results: dict) -> tuple[str, bool, list]:
+    def __find_winner(self, results: dict):
         """
         Finds the winner in a dictionary of candidates and scores.
         If the list contains one winner, it returns it. If not, it
@@ -50,21 +50,23 @@ class VotingManager:
 
     def elimination_successive(self, profils: dict) -> tuple:
         """
+        Returns the winner according to Single transferable vote (STV) system.
+        Eliminates the last candidate in alphabetical order in case of equality.
 
         :param profils: dictionary of the scores of each voter
         :return: the winning candidate
         """
         scores = self.__count_scores(profils)
-        majorite = len(profils) / 2
+        majority = len(profils) / 2
 
         while scores:
             scores = self.__count_scores(profils)
-            losers = [k for k, v in scores.items() if v == sorted(scores.values(), reverse=False)[0]]
 
             for candidate, points in scores.items():
-                if points > majorite:
+                if points > majority:
                     return candidate, False
 
+            losers = [k for k, v in scores.items() if v == sorted(scores.values(), reverse=False)[0]]
             letter = self.__departage(losers, True)
             scores.pop(letter)
 

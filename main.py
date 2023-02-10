@@ -378,7 +378,7 @@ def show_voting_systems():
         # Élimination Successive button
         # TODO #25: connect button to logic: show popup with results. use `profils` (already defined)
         btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20,
-                                               command=lambda: voting_manager.elimination_successive(generate_profils()))
+                                               command=lambda: display_winner(voting_manager.elimination_successive(profils), "Single Transferable Vote (STV)"))
         btn_elimination_successive.grid(row=1, column=1)
 
         # Veto button
@@ -392,7 +392,7 @@ def show_voting_systems():
         btn_condorcet.grid(row=2, column=1)
 
 
-def display_winner(winner: tuple[str, bool, list], method: str):
+def display_winner(winner, method: str):
     """
     Display winner in a popup.
 
@@ -404,8 +404,8 @@ def display_winner(winner: tuple[str, bool, list], method: str):
         winner_dialog.destroy()
 
     winner_dialog = tk.Toplevel(root)
-    winner_dialog.title("Vainceur selon " + method)
-    tk.Label(winner_dialog, text="Le gagnant selon de système " + method + " est :").pack()
+    winner_dialog.title("Vainqueur selon " + method)
+    tk.Label(winner_dialog, text="Le gagnant selon le système " + method + " est :").pack()
 
     tk.Label(winner_dialog, text=winner[0], font=("Mistral", "25", "normal")).pack()
 
