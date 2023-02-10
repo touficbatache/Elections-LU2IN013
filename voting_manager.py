@@ -14,3 +14,19 @@ class VotingManager:
         :param candidate_labels: the list of candidate labels
         """
         return sorted(candidate_labels, key=str.casefold)[0]
+
+    def __find_winner(self, results: dict) -> tuple[str, bool]:
+        max_score = 0
+        winners = []
+        for candidate_label, score in results.items():
+            if score > max_score:
+                max_score = score
+                winners = [candidate_label]
+            elif score == max_score:
+                winners.append(candidate_label)
+
+        print(winners)
+        if len(winners) == 1:
+            return winners[0], False
+        else:
+            return self.__departage(winners), True
