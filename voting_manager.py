@@ -117,3 +117,24 @@ class VotingManager:
             points_association[candidate[0][0]] += 1
 
         return self.__find_winner(points_association)
+
+    def borda(self, profils):
+        """
+        Returns the winner according to Borda voting method. Returns the first in alphabetical order in case of equality.
+
+        :param profils: dictionnary of votes registered by the voters
+        :return: Couple of winner and boolean indicating if winner is raw-win or decided
+        """
+        votes = list(profils.values())
+        points_association = dict()
+        number_candidates = len(votes[0])
+
+        for candidate in votes[0]:
+            points_association[candidate[0]] = 0
+
+        for candidate_list in votes:
+            for i in range(number_candidates):
+                points_association[candidate_list[i][0]] = points_association[candidate_list[i][0]] + (
+                        number_candidates - i)
+
+        return self.__find_winner(points_association)

@@ -437,7 +437,7 @@ def show_voting_systems():
 
         # Borda button
         # TODO #23: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_borda = tk.Button(top, text="Borda", height=7, width=20)
+        btn_borda = tk.Button(top, text="Borda", height=7, width=20, command=lambda: voting_manager.borda(profils, root))
         btn_borda.grid(row=1, column=0)
 
         # Élimination Successive button
