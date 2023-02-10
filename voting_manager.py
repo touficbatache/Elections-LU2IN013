@@ -7,11 +7,10 @@ class VotingManager:
     #  def pluralite_simple(...):
     #    ...
 
-    @staticmethod
-    def departage(candidates: list):
+    def __departage(self, candidate_labels: list) -> str:
         """
         Returns the first element of the alphabetically sorted list of candidates.
 
-        :param candidates: the list of candidates
+        :param candidate_labels: the list of candidate labels
         """
-        return (candidates.sort(key=str.lower))[0]
+        return sorted(candidate_labels, key=str.casefold)[0]
