@@ -440,7 +440,7 @@ def show_voting_systems():
         btn_borda = tk.Button(top, text="Borda", height=7, width=20)
         btn_borda.grid(row=1, column=0)
 
-        # Élimination Successive button
+        # Élimination Successive buttont
         btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20, command=lambda: display_winner(voting_manager.elimination_successive(generate_profils()), "Élimination Successive (STV)"))
         btn_elimination_successive.grid(row=1, column=1)
 
