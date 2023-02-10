@@ -7,7 +7,6 @@ from candidate import Candidate
 from graph_manager import GraphManager
 from tooltip import bind_tooltip
 from voter import Voter
-from voting_manager import VotingManager
 
 # Create the main tkinter window
 root = tk.Tk()
@@ -34,9 +33,6 @@ default_nb_candidates_voters = 7
 
 # Variable to keep track of the "shift" key press
 shift_is_held = False
-
-# Create a voting manager
-voting_manager = VotingManager()
 
 
 def add_voter_on_graph(coordinates: tuple) -> int:
@@ -277,22 +273,27 @@ def distribute(number, is_voter: bool):
 top = None
 
 
-# Function to show the scores
-def show_profils():
-    # If a top level window is active, close it
+# Function to generate the profiles
+def generate_profils():
     global top
     if top:
         top.destroy()
 
-    # The scores for each voter
-    profils = generate_profils()
+    # Dictionary to store the scores for each voter
+    profils = dict()
+
+    # Loop to calculate the scores for each voter
+    for voter in voters:
+        profil = list(map(
+            lambda candidate: (candidate.label(), math.dist(voter.coordinates(), candidate.coordinates())),
+            candidates
+        ))
+        profil.sort(key=lambda x: x[1])
+        profils[voter.label()] = profil
 
     if not profils or voters == [] or candidates == []:
         # If there are no results in the dictionary, show it in window title
-        tk.messagebox.showwarning(
-            title="Données insuffisantes",
-            message="Pas de résultats. Veuillez ajouter des votants et des candidats."
-        )
+        tk.messagebox.showwarning(title='Pas de résultats', message="Pas de résultats")
     else:
         # Create a new top level window to display the results
         top = tk.Toplevel(root)
@@ -319,88 +320,13 @@ def show_profils():
                 bind_tooltip(widget=lab, text=str(round(res, 2)) + "%")
 
 
-# Function to generate the scores
-def generate_profils():
-    # Dictionary to store the scores for each voter
-    profils = dict()
-
-    # Loop to calculate the scores for each voter
-    for voter in voters:
-        # profil = list(...tuple(<candidate label>, <distance between candidate and voter>)...)
-        profil = list(map(
-            lambda candidate: (candidate.label(), math.dist(voter.coordinates(), candidate.coordinates())),
-            candidates
-        ))
-        # Sort by closest match
-        profil.sort(key=lambda x: x[1])
-        # profils = {...<voter label>: <profil>...}
-        profils[voter.label()] = profil
-
-    return profils
-
-
-def show_voting_systems():
-    # If a top level window is active, close it
-    global top
-    if top:
-        top.destroy()
-
-    # The scores for each voter
-    profils = generate_profils()
-
-    # If profils is null, there are no voters or no candidates: show an error dialog
-    if not profils or len(voters) == 0 or len(candidates) == 0:
-        tk.messagebox.showwarning(
-            title="Données insuffisantes",
-            message="Veuillez ajouter des votants et des candidats."
-        )
-    else:
-        # Create a new top level window to display the different voting systems to choose from
-        top = tk.Toplevel(root)
-        top.title("Systèmes de vote")
-
-        # Pluralité Simple button
-        # TODO #22: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_pluralite_simple = tk.Button(top, text="Pluralité Simple", height=7, width=20)
-        btn_pluralite_simple.grid(row=0, column=0)
-
-        # Approbation button
-        # TODO #21: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_approbation = tk.Button(top, text="Approbation", height=7, width=20)
-        btn_approbation.grid(row=0, column=1)
-
-        # Borda button
-        # TODO #23: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_borda = tk.Button(top, text="Borda", height=7, width=20)
-        btn_borda.grid(row=1, column=0)
-
-        # Élimination Successive button
-        # TODO #25: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20)
-        btn_elimination_successive.grid(row=1, column=1)
-
-        # Veto button
-        # TODO #24: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_veto = tk.Button(top, text="Veto", height=7, width=20)
-        btn_veto.grid(row=2, column=0)
-
-        # Condorcet button
-        # TODO #26: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_condorcet = tk.Button(top, text="Condorcet", height=7, width=20)
-        btn_condorcet.grid(row=2, column=1)
-
-
 # Add the canvas to the tkinter window
 graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
 
 # Generate the profiles on button click
-generate_profiles = tk.Button(root, text="Profils", command=show_profils)
-generate_profiles.place(relx=0, rely=1 - 0.05, relwidth=0.10, relheight=0.05)
-
-# Generate the profiles on button click
-btn_show_voting_systems = tk.Button(root, text="Systèmes de vote", command=show_voting_systems)
-btn_show_voting_systems.place(relx=0.10, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+generate_profiles = tk.Button(root, text="Generer les profils", command=generate_profils)
+generate_profiles.place(relx=0, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 # Distribute the voters on button click
 distribute_voters = tk.Button(
@@ -408,7 +334,7 @@ distribute_voters = tk.Button(
     text="Distribuer les votants",
     command=lambda: show_distribute_popup(number_voters, is_voter=True)
 )
-distribute_voters.place(relx=0.35, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+distribute_voters.place(relx=0.25, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 # Reset the voters on button click
 reset_voters = tk.Button(root, text="Réinitialiser les votants", command=lambda: reset(is_voter=True))
@@ -421,7 +347,7 @@ distribute_candidates = tk.Button(
     text="Distribuer les candidats",
     command=lambda: show_distribute_popup(number_candidates, is_voter=False)
 )
-distribute_candidates.place(relx=0.6, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+distribute_candidates.place(relx=0.5, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
 # Reset the candidates on button click
 reset_candidates = tk.Button(root, text="Réinitialiser les candidats", command=lambda: reset(is_voter=False))
