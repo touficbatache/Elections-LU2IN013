@@ -7,7 +7,7 @@ class VotingManager:
     #  def pluralite_simple(...):
     #    ...
 
-    def __departage(self, candidates: list, reverse=False) -> str:
+    def __departage(self, candidates: list, reverse: bool = False) -> str:
         """
         Returns the first element of the alphabetically sorted list of candidates.
 
@@ -33,6 +33,7 @@ class VotingManager:
 
     def __count_scores(self, profils: dict) -> dict:
         """
+        Counts the scores of the candidates based on the preferences of the voters
 
         :param profils: dictionary of the scores of each voter
         :return: dictionary of the updated scores of each voter
