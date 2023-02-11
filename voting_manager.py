@@ -17,11 +17,11 @@ class VotingManager:
 
     def __find_winner(self, results: dict) -> tuple[str, bool, list]:
         """
-        Finds the winner in a dictonnary of candidates and scores.
+        Finds the winner in a dictionary of candidates and scores.
         If the list contains one winner, it returns it. If not, it
         chooses one based on alphabetical order (asc).
 
-        :param results: dictionnary of results (..., candidate_label : score, ...)
+        :param results: dictionary of results (..., candidate_label : score, ...)
         :return: Couple of winner and boolean indicating if winner is raw-win or decided
         """
         winners = [k for k, v in results.items() if v == sorted(results.values(), reverse=True)[0]]
