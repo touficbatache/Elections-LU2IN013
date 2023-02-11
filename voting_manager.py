@@ -24,5 +24,9 @@ class VotingManager:
         :param results: dictionary of results (..., candidate_label : score, ...)
         :return: Couple of winner and boolean indicating if winner is raw-win or decided
         """
-        winners = [k for k, v in results.items() if v == sorted(results.values(), reverse=True)[0]]
+        winners = [
+            candidate_label
+            for candidate_label, score in results.items()
+            if score == sorted(results.values(), reverse=True)[0]
+        ]
         return self.__departage(winners), len(winners) > 1, winners
