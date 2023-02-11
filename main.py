@@ -3,6 +3,8 @@ import random
 
 import tkinter as tk
 
+from typing import Tuple
+
 from candidate import Candidate
 from graph_manager import GraphManager
 from tooltip import bind_tooltip
@@ -251,8 +253,45 @@ def show_distribute_popup(number, is_voter: bool):
     button.pack()
 
 
+def parameterize_distribution():
+    # If a top level window is active, close it
+    global top
+    if top:
+        top.destroy()
+
+    top = tk.Toplevel(root)
+    top.title("Paramètres de distribution")
+
+    btn_top_left = tk.Button(top, text="TOP LEFT", height=7, width=20)
+    btn_top_left.grid(row=0, column=0)
+
+    btn_top_middle = tk.Button(top, text="TOP MIDDLE", height=7, width=20)
+    btn_top_middle .grid(row=0, column=1)
+
+    btn_top_right = tk.Button(top, text="TOP RIGHT", height=7, width=20)
+    btn_top_right.grid(row=0, column=2)
+
+    btn_middle_left = tk.Button(top, text="MIDDLE LEFT", height=7, width=20)
+    btn_middle_left.grid(row=1, column=0)
+
+    btn_center = tk.Button(top, text="CENTER", height=7, width=20)
+    btn_center.grid(row=1, column=1)
+
+    btn_middle_right = tk.Button(top, text="MIDDLE RIGHT", height=7, width=20)
+    btn_middle_right.grid(row=1, column=2)
+
+    btn_bottom_left = tk.Button(top, text="BOTTOM LEFT", height=7, width=20)
+    btn_bottom_left.grid(row=2, column=0)
+
+    btn_bottom_middle = tk.Button(top, text="BOTTOM MIDDLE", height=7, width=20)
+    btn_bottom_middle.grid(row=2, column=1)
+
+    btn_bottom_right = tk.Button(top, text="BOTTOM RIGHT", height=7, width=20)
+    btn_bottom_right.grid(row=2, column=2)
+
+
 # Function to distribute the candidates/voters randomly on the graph
-def distribute(number, is_voter: bool):
+def distribute(number, is_voter: bool, density_position):
     if number.get() != "":
         nb = int(number.get())
     else:
@@ -391,7 +430,7 @@ def show_voting_systems():
         btn_condorcet.grid(row=2, column=1)
 
 
-def display_winner(winner: tuple[str, bool, list], method: str):
+def display_winner(winner: Tuple[str, bool, list], method: str):
     """
     Display winner in a popup.
 
@@ -433,6 +472,9 @@ reset_candidates.configure(cursor="exchange")
 # Generate the profiles on button click
 generate_profiles = tk.Button(root, text="Génerer les profils", command=show_profils)
 generate_profiles.place(relx=0, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+
+btn_parameterize_distribution = tk.Button(root, text="Paramètres de distribution", command=parameterize_distribution)
+btn_parameterize_distribution.place(relx=0, rely=0.05, relwidth=0.25, relheight=0.05)
 
 # Generate the profiles on button click
 btn_show_voting_systems = tk.Button(root, text="Systèmes de vote", command=show_voting_systems)
