@@ -354,7 +354,7 @@ def distribute(number, is_voter: bool, density_position: Tuple[Tuple[float, floa
 
     for i in range(nb):
         # Random coordinates
-        if random.random() > 0.3:
+        if random.random() > 0.4:
             x_lower = density_position[0][0]
             x_upper = density_position[0][1]
             y_lower = density_position[1][0]
