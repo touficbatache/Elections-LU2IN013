@@ -19,13 +19,17 @@ root.option_add('*Font', 'Mistral 12')
 graph_manager = GraphManager(root)
 graph_manager.build()
 
-# Create the StringVar used to hold the requested number of candidates
+# Create the StringVar variables used to hold the requested number of candidates for the normal and parameterized distributions
 number_candidates = tk.StringVar()
+number_candidates_random = tk.StringVar()
+
 # Create the Candidate list
 candidates = []
 
-# Create the StringVar used to hold the requested number of voters
+# Create the StringVar variables used to hold the requested number of voters for the normal and parameterized distributions
 number_voters = tk.StringVar()
+number_voters_random = tk.StringVar()
+
 # Create the Voter list
 voters = []
 
@@ -185,12 +189,18 @@ def on_click(event):
 graph_manager.bind("button_press_event", on_click)
 
 
-# Function to validate the input given (the number of candidates or voters)
 def validate(*args):
-    if args[0] == 'PY_VAR1':
+    """
+    Validates the input given (the number of candidates or voters).
+    """
+    if args[0] == 'PY_VAR0':
+        value = number_candidates
+    elif args[0] == 'PY_VAR1':
+        value = number_candidates_random
+    elif args[0] == 'PY_VAR2':
         value = number_voters
     else:
-        value = number_candidates
+        value = number_voters_random
 
     if not (value.get()).isdigit() and value.get() != "":
         value.set(log.get())
@@ -234,6 +244,7 @@ def show_distribute_popup(number, is_voter: bool):
     global log
     log = tk.StringVar()
     number.trace_variable("w", validate)
+
     entry = tk.Entry(top_main, width=20, textvariable=number)
     entry.pack()
 
@@ -246,13 +257,94 @@ def show_distribute_popup(number, is_voter: bool):
     button = tk.Button(
         top_main,
         text="Distribuer les " + s,
-        command=lambda: [distribute(number, is_voter), top_main.destroy()]
+        command=lambda: [distribute(number, is_voter, ((-1, 1), (-1, 1))), top_main.destroy()]
     )
     button.pack()
 
 
+def distribute_with_parameters(number, object):
+    """
+    Distributes the object passed in parameter on the graph based on chosen parameters.
+
+    The user is asked for the number of objects (candidates or voters) to distribute.
+    If no input is given, the number is by default 7.
+    There are 9 buttons which represent the different regions of the graph. Once the
+    input is entered, the user presses on one of the buttons. distribute() is then
+    called with the coordinates of the region to populate most as parameters.
+    Points will still be scattered on the rest of the graph, but with a lower proportion.
+    """
+    global top
+    if top:
+        top.destroy()
+
+    top = tk.Toplevel(root)
+    top.title("Paramètres de distribution des " + object)
+
+    is_voter = True
+    if object == "candidats":
+        is_voter = False
+
+    label = tk.Label(top, text="Donner le nombre de " + object + ":")
+    label.grid(row=0, column=1)
+
+    global log
+    log = tk.StringVar()
+    number.trace_variable("w", validate)
+
+    entry = tk.Entry(top, width=20, textvariable=number)
+    entry.grid(row=1, column=1)
+
+    btn_top_left = tk.Button(top, text="TOP LEFT", height=7, width=20, command=lambda: [distribute(number, is_voter, ((-1, 0), (0, 1))), top.destroy()])
+    btn_top_left.grid(row=2, column=0)
+
+    btn_top_middle = tk.Button(top, text="TOP MIDDLE", height=7, width=20, command=lambda: [distribute(number, is_voter, ((-0.5, 0.5), (0, 1))), top.destroy()])
+    btn_top_middle.grid(row=2, column=1)
+
+    btn_top_right = tk.Button(top, text="TOP RIGHT", height=7, width=20, command=lambda: [distribute(number, is_voter, ((0, 1), (0, 1))), top.destroy()])
+    btn_top_right.grid(row=2, column=2)
+
+    btn_middle_left = tk.Button(top, text="MIDDLE LEFT", height=7, width=20, command=lambda: [distribute(number, is_voter, ((-1, 0), (-0.5, 0.5))), top.destroy()])
+    btn_middle_left.grid(row=3, column=0)
+
+    btn_center = tk.Button(top, text="CENTER", height=7, width=20, command=lambda: [distribute(number, is_voter, ((-0.5, 0.5), (-0.5, 0.5))), top.destroy()])
+    btn_center.grid(row=3, column=1)
+
+    btn_middle_right = tk.Button(top, text="MIDDLE RIGHT", height=7, width=20, command=lambda: [distribute(number, is_voter, ((0, 1), (-0.5, 0.5))), top.destroy()])
+    btn_middle_right.grid(row=3, column=2)
+
+    btn_bottom_left = tk.Button(top, text="BOTTOM LEFT", height=7, width=20, command=lambda: [distribute(number, is_voter, ((-1, 0), (-1, 0))), top.destroy()])
+    btn_bottom_left.grid(row=4, column=0)
+
+    btn_bottom_middle = tk.Button(top, text="BOTTOM MIDDLE", height=7, width=20, command=lambda: [distribute(number, is_voter, ((-0.5, 0.5), (-1, 0))), top.destroy()])
+    btn_bottom_middle.grid(row=4, column=1)
+
+    btn_bottom_right = tk.Button(top, text="BOTTOM RIGHT", height=7, width=20, command=lambda: [distribute(number, is_voter, ((0, 1), (-1, 0))), top.destroy()])
+    btn_bottom_right.grid(row=4, column=2)
+
+
+def show_distribution_with_parameters():
+    """
+    Allows the user to choose between candidates or voters to ditribute on the graph.
+    """
+    # If a top level window is active, close it
+    global top
+    if top:
+        top.destroy()
+
+    top = tk.Toplevel(root)
+    top.title("Paramètres de distribution")
+
+    btn_candidates = tk.Button(top, text="Candidats", height=7, width=20,
+                               command=lambda candidate="candidats": distribute_with_parameters(number_candidates_random, candidate))
+    btn_candidates.grid(row=0, column=0)
+
+    btn_voters = tk.Button(top, text="Votants", height=7, width=20,
+                           command=lambda voter="votants": distribute_with_parameters(number_voters_random, voter))
+    btn_voters.grid(row=0, column=1)
+
+
 # Function to distribute the candidates/voters randomly on the graph
-def distribute(number, is_voter: bool):
+def distribute(number, is_voter: bool, density_position: tuple[tuple[float, float], tuple[float, float]]):
     if number.get() != "":
         nb = int(number.get())
     else:
@@ -260,7 +352,14 @@ def distribute(number, is_voter: bool):
 
     for i in range(nb):
         # Random coordinates
-        coordinates = (random.uniform(-1, 1), random.uniform(-1, 1))
+        if random.random() > 0.4:
+            x_lower = density_position[0][0]
+            x_upper = density_position[0][1]
+            y_lower = density_position[1][0]
+            y_upper = density_position[1][1]
+            coordinates = (random.uniform(x_lower, x_upper), random.uniform(y_lower, y_upper))
+        else:
+            coordinates = (random.uniform(-1, 1), random.uniform(-1, 1))
 
         if is_voter:
             # Voter :
@@ -433,6 +532,9 @@ reset_candidates.configure(cursor="exchange")
 # Generate the profiles on button click
 generate_profiles = tk.Button(root, text="Génerer les profils", command=show_profils)
 generate_profiles.place(relx=0, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+
+btn_distribution_with_parameters = tk.Button(root, text="Paramètres de distribution", command=show_distribution_with_parameters)
+btn_distribution_with_parameters.place(relx=0, rely=0, relwidth=0.25, relheight=0.05)
 
 # Generate the profiles on button click
 btn_show_voting_systems = tk.Button(root, text="Systèmes de vote", command=show_voting_systems)
