@@ -1,6 +1,3 @@
-from typing import Tuple
-
-
 class VotingManager:
     """
     Managing class for the different voting systems.
@@ -18,7 +15,7 @@ class VotingManager:
         """
         return sorted(candidate_labels, key=str.casefold)[0]
 
-    def __find_winner(self, results: dict) -> Tuple[str, bool, list]:
+    def __find_winner(self, results: dict) -> tuple[str, bool, list]:
         """
         Finds the winner in a dictionary of candidates and scores.
         If the list contains one winner, it returns it. If not, it

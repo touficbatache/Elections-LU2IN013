@@ -3,8 +3,6 @@ import random
 
 import tkinter as tk
 
-from typing import Tuple
-
 from candidate import Candidate
 from graph_manager import GraphManager
 from tooltip import bind_tooltip
@@ -346,7 +344,7 @@ def show_distribution_with_parameters():
 
 
 # Function to distribute the candidates/voters randomly on the graph
-def distribute(number, is_voter: bool, density_position: Tuple[Tuple[float, float], Tuple[float, float]]):
+def distribute(number, is_voter: bool, density_position: tuple[tuple[float, float], tuple[float, float]]):
     if number.get() != "":
         nb = int(number.get())
     else:
@@ -492,7 +490,7 @@ def show_voting_systems():
         btn_condorcet.grid(row=2, column=1)
 
 
-def display_winner(winner: Tuple[str, bool, list], method: str):
+def display_winner(winner: tuple[str, bool, list], method: str):
     """
     Display winner in a popup.
 
