@@ -376,7 +376,6 @@ def show_voting_systems():
         btn_borda.grid(row=1, column=0)
 
         # Élimination Successive button
-        # TODO #25: connect button to logic: show popup with results. use `profils` (already defined)
         btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20,
                                                command=lambda: display_winner(voting_manager.elimination_successive(profils), "Single Transferable Vote (STV)"))
         btn_elimination_successive.grid(row=1, column=1)
