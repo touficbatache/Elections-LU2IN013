@@ -359,7 +359,7 @@ def validate_approval_radius(*args):
 def show_approbation(profils):
     """
     Show a popup asking the user for the approval circle's radius.
-    
+
     :param profils: Scores for each voter
     """
     top_main = tk.Toplevel(root)
@@ -397,7 +397,7 @@ def show_approbation(profils):
 def calculate_approbation(profils, approval_radius):
     """
     Determine winner using the approval voting system (système de vote par approbation).
-    
+
     :param profils: Scores for each voter
     :param approval_radius: Radius of the approval circle
     """
@@ -442,8 +442,7 @@ def show_voting_systems():
         btn_borda.grid(row=1, column=0)
 
         # Élimination Successive button
-        # TODO #25: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20)
+        btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20, command=lambda: display_winner(voting_manager.elimination_successive(generate_profils()), "Élimination Successive (STV)"))
         btn_elimination_successive.grid(row=1, column=1)
 
         # Veto button
