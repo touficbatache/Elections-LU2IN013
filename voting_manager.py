@@ -3,13 +3,13 @@ class VotingManager:
     Managing class for the different voting systems.
     """
 
-    def __departage(self, candidate_labels: list) -> str:
+    def __departage(self, candidate_labels: list, reverse: bool = False) -> str:
         """
         Returns the first element of the alphabetically sorted list of candidates.
 
         :param candidate_labels: the list of candidate labels
         """
-        return sorted(candidate_labels, key=str.casefold)[0]
+        return sorted(candidate_labels, key=str.casefold, reverse=reverse)[0]
 
     def __find_winner(self, results: dict) -> tuple[str, bool, list]:
         """
