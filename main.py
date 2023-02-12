@@ -346,11 +346,8 @@ def show_voting_systems():
     if top:
         top.destroy()
 
-    # The scores for each voter
-    profils = generate_profils()
-
     # If profils is null, there are no voters or no candidates: show an error dialog
-    if not profils or len(voters) == 0 or len(candidates) == 0:
+    if not generate_profils() or len(voters) == 0 or len(candidates) == 0:
         tk.messagebox.showwarning(
             title="Données insuffisantes",
             message="Veuillez ajouter des votants et des candidats."
