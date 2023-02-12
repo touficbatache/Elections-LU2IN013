@@ -167,14 +167,14 @@ class GraphManager:
         # Remove the already plotted approval circles
         self.clear_approbation_circles()
 
+        # Calculate the multiplier in order to fill the diagonal:
+        #   - radius multiplier: diagonal size / x-axis size
+        #   - diameter multiplier: 2 * radius multiplier
+        multiplier = 2 * self.get_diagonal() / (int(self.__axes.get_xlim()[1]) - int(self.__axes.get_xlim()[0]))
+
         # For each candidate, plot the approval circles (color them accordingly)
         for candidate_label, (coordinates, _) in self.__candidates.items():
             xs, ys = coordinates.get_data()
-
-            # Calculate the multiplier in order to fill the diagonal:
-            #   - radius multiplier: diagonal size / x-axis size
-            #   - diameter multiplier: 2 * radius multiplier
-            multiplier = 2 * self.get_diagonal() / (int(self.__axes.get_xlim()[1]) - int(self.__axes.get_xlim()[0]))
 
             # Plot the approval circle
             circle = plt.Circle(
