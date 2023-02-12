@@ -473,6 +473,7 @@ def display_winner(winner: tuple[str, bool, list] | None, method: str):
 
     if winner is None:
         tk.Label(winner_dialog, text="Il n'y a pas de gagnant").pack()
+        winner_dialog.geometry("270x40")
     else:
         tk.Label(winner_dialog, text="Le gagnant selon le système " + method + " est :").pack()
 
