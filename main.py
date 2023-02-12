@@ -20,12 +20,12 @@ graph_manager = GraphManager(root)
 graph_manager.build()
 
 # Create the StringVar used to hold the requested number of candidates
-number_candidates = tk.StringVar()
+stringvar_number_candidates = tk.StringVar(name="number_candidates")
 # Create the Candidate list
 candidates = []
 
 # Create the StringVar used to hold the requested number of voters
-number_voters = tk.StringVar()
+stringvar_number_voters = tk.StringVar(name="number_voters")
 # Create the Voter list
 voters = []
 
@@ -187,10 +187,10 @@ graph_manager.bind("button_press_event", on_click)
 
 # Function to validate the input given (the number of candidates or voters)
 def validate(*args):
-    if args[0] == 'PY_VAR1':
-        value = number_voters
-    else:
-        value = number_candidates
+    if args[0] == "number_voters":
+        value = stringvar_number_voters
+    elif args[0] == "number_candidates":
+        value = stringvar_number_candidates
 
     if not (value.get()).isdigit() and value.get() != "":
         value.set(log.get())
@@ -221,7 +221,7 @@ def reset(is_voter: bool):
 
 
 # Function to show a popup, handle the input and distribute candidates/voters
-def show_distribute_popup(number, is_voter: bool):
+def show_distribute_popup(stringvar_number, is_voter: bool):
     s = "votants" if is_voter else "candidats"
 
     top_main = tk.Toplevel(root)
@@ -233,8 +233,8 @@ def show_distribute_popup(number, is_voter: bool):
 
     global log
     log = tk.StringVar()
-    number.trace_variable("w", validate)
-    entry = tk.Entry(top_main, width=20, textvariable=number)
+    stringvar_number.trace_variable("w", validate)
+    entry = tk.Entry(top_main, width=20, textvariable=stringvar_number)
     entry.pack()
 
     label_hint = tk.Label(
@@ -246,15 +246,15 @@ def show_distribute_popup(number, is_voter: bool):
     button = tk.Button(
         top_main,
         text="Distribuer les " + s,
-        command=lambda: [distribute(number, is_voter), top_main.destroy()]
+        command=lambda: [distribute(stringvar_number, is_voter), top_main.destroy()]
     )
     button.pack()
 
 
 # Function to distribute the candidates/voters randomly on the graph
-def distribute(number, is_voter: bool):
-    if number.get() != "":
-        nb = int(number.get())
+def distribute(stringvar_number, is_voter: bool):
+    if stringvar_number.get() != "":
+        nb = int(stringvar_number.get())
     else:
         nb = default_nb_candidates_voters
 
@@ -439,7 +439,7 @@ btn_show_voting_systems.place(relx=0.25, rely=1 - 0.05, relwidth=0.25, relheight
 distribute_voters = tk.Button(
     root,
     text="Distribuer les votants",
-    command=lambda: show_distribute_popup(number_voters, is_voter=True)
+    command=lambda: show_distribute_popup(stringvar_number_voters, is_voter=True)
 )
 distribute_voters.place(relx=0.5, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
@@ -447,7 +447,7 @@ distribute_voters.place(relx=0.5, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 distribute_candidates = tk.Button(
     root,
     text="Distribuer les candidats",
-    command=lambda: show_distribute_popup(number_candidates, is_voter=False)
+    command=lambda: show_distribute_popup(stringvar_number_candidates, is_voter=False)
 )
 distribute_candidates.place(relx=0.75, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
