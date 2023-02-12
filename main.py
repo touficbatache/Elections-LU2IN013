@@ -308,16 +308,10 @@ def show_profils():
             lab = tk.Label(top, text="Votant " + label)
             lab.grid(row=0, column=index, sticky="NSEW")
             for e in range(len(candidates)):
-                # Calculates the max distance (diagonal) of the plot
-                maximum = math.sqrt(
-                    (int(graph_manager.get_xlim()[1]) - int(graph_manager.get_xlim()[0])) ** 2 +
-                    (int(graph_manager.get_ylim()[1]) - int(graph_manager.get_ylim()[0])) ** 2
-                )
                 # Calculates the percentage based on max distance
-                res = ((maximum - profil[e][1]) * 100) / maximum
                 lab = tk.Label(top, text=str(profil[e][0]))
                 lab.grid(row=e + 1, column=index, sticky="NSEW")
-                bind_tooltip(widget=lab, text=str(round(res, 2)) + "%")
+                bind_tooltip(widget=lab, text=str(round(profil[e][1] * 100, 2)) + "%")
 
 
 # Function to generate the scores
@@ -325,15 +319,22 @@ def generate_profils():
     # Dictionary to store the scores for each voter
     profils = dict()
 
+    # Calculates the max distance (diagonal) of the plot
+    maximum = graph_manager.get_diagonal()
+
     # Loop to calculate the scores for each voter
     for voter in voters:
         # profil = list(...tuple(<candidate label>, <distance between candidate and voter>)...)
         profil = list(map(
-            lambda candidate: (candidate.label(), math.dist(voter.coordinates(), candidate.coordinates())),
+            lambda candidate:
+            (
+                candidate.label(),
+                (maximum - math.dist(voter.coordinates(), candidate.coordinates())) / maximum
+            ),
             candidates
         ))
         # Sort by closest match
-        profil.sort(key=lambda x: x[1])
+        profil.sort(key=lambda x: x[1], reverse=True)
         # profils = {...<voter label>: <profil>...}
         profils[voter.label()] = profil
 

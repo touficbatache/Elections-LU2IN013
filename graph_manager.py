@@ -1,3 +1,4 @@
+import math
 from tkinter import Tk, Canvas
 from typing import Callable
 
@@ -144,14 +145,11 @@ class GraphManager:
         """
         self.__canvas.mpl_connect(event, callable)
 
-    def get_xlim(self):
+    def get_diagonal(self):
         """
-        Return the x-axis view limits.
+        Return the diagonal size of the graph.
         """
-        return self.__axes.get_xlim()
-
-    def get_ylim(self):
-        """
-        Return the x-axis view limits.
-        """
-        return self.__axes.get_ylim()
+        return math.sqrt(
+            (int(self.__axes.get_xlim()[1]) - int(self.__axes.get_xlim()[0])) ** 2 +
+            (int(self.__axes.get_ylim()[1]) - int(self.__axes.get_ylim()[0])) ** 2
+        )
