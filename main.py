@@ -38,6 +38,11 @@ shift_is_held = False
 # Create a voting manager
 voting_manager = VotingManager()
 
+# Create the StringVar used to hold the approval radius around candidates
+stringvar_approval_radius = tk.StringVar(name="approval_radius")
+# Default value for nb candidates/voters
+default_approval_radius = 10
+
 
 def add_voter_on_graph(coordinates: tuple) -> int:
     """
@@ -341,6 +346,76 @@ def generate_profils():
     return profils
 
 
+# Function to validate the input given (the number of candidates or voters)
+def validate_approval_radius(*args):
+    if (not (stringvar_approval_radius.get()).isdigit() or int(
+            stringvar_approval_radius.get()) > 100) and stringvar_approval_radius.get() != "":
+        stringvar_approval_radius.set(log.get())
+    else:
+        log.set(stringvar_approval_radius.get())
+
+
+# Function to show a popup, handle the input and distribute candidates/voters
+def show_approbation(profils):
+    """
+    Show a popup asking the user for the approval circle's radius.
+    
+    :param profils: Scores for each voter
+    """
+    top_main = tk.Toplevel(root)
+    top_main.title("Rayon d'approbation")
+
+    label_title = tk.Label(top_main, text="Rayon d'approbation (pourcentage) :")
+    label_title.pack()
+
+    global log
+    log = tk.StringVar()
+    stringvar_approval_radius.trace_variable("w", validate_approval_radius)
+    entry = tk.Entry(top_main, width=20, textvariable=stringvar_approval_radius)
+    entry.pack()
+
+    label_hint = tk.Label(
+        top_main,
+        text="Laisser vide pour valeur de défaut (" + str(default_approval_radius) + "%)"
+    )
+    label_hint.pack()
+
+    button = tk.Button(
+        top_main,
+        text="Définir",
+        command=lambda: [
+            calculate_approbation(
+                profils,
+                int(stringvar_approval_radius.get()) if stringvar_approval_radius.get() != "" else default_approval_radius
+            ),
+            top_main.destroy()
+        ]
+    )
+    button.pack()
+
+
+def calculate_approbation(profils, approval_radius):
+    """
+    Determine winner using the approval voting system (système de vote par approbation).
+    
+    :param profils: Scores for each voter
+    :param approval_radius: Radius of the approval circle
+    """
+    # Show circles on the graph
+    graph_manager.add_approbation_circles(approval_radius)
+    graph_manager.build()
+
+    # Calculates the max distance (diagonal) of the plot
+    winner = voting_manager.approbation(profils, approval_radius)
+    if winner is None:
+        tk.messagebox.showwarning(
+            title="Pas de gagnant",
+            message="Il n'y a pas de gagnant."
+        )
+    else:
+        display_winner(winner, "Approbation")
+
+
 def show_voting_systems():
     # If a top level window is active, close it
     global top
@@ -364,8 +439,7 @@ def show_voting_systems():
         btn_pluralite_simple.grid(row=0, column=0)
 
         # Approbation button
-        # TODO #21: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_approbation = tk.Button(top, text="Approbation", height=7, width=20)
+        btn_approbation = tk.Button(top, text="Approbation", height=7, width=20, command=lambda: show_approbation(generate_profils()))
         btn_approbation.grid(row=0, column=1)
 
         # Borda button
@@ -402,6 +476,7 @@ def display_winner(winner: tuple[str, bool, list], method: str):
 
     winner_dialog = tk.Toplevel(root)
     winner_dialog.title("Vainqueur selon " + method)
+    winner_dialog.protocol('WM_DELETE_WINDOW', lambda: [graph_manager.clear_approbation_circles(), graph_manager.build(), winner_dialog.destroy()])
     tk.Label(winner_dialog, text="Le gagnant selon le système " + method + " est :").pack()
 
     tk.Label(winner_dialog, text=winner[0], font=("Mistral", "25", "normal")).pack()
