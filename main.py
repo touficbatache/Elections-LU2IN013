@@ -391,7 +391,7 @@ def show_voting_systems():
         btn_condorcet.grid(row=2, column=1)
 
 
-def display_winner(winner, method: str):
+def display_winner(winner: tuple[str, bool, list], method: str):
     """
     Display winner in a popup.
 
