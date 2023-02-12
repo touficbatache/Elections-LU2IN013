@@ -66,7 +66,10 @@ class VotingManager:
                 if points > majority:
                     return candidate, False, []
 
+            # Find the list of labels of all candidates who had the lowest score
             losers = [label for label, score in scores.items() if score == sorted(scores.values(), reverse=False)[0]]
+
+            # Remove the candidate whose label is last in alphabetical order
             letter = self.__departage(losers, True)
             scores.pop(letter)
 
