@@ -407,13 +407,7 @@ def calculate_approbation(profils, approval_radius):
 
     # Calculates the max distance (diagonal) of the plot
     winner = voting_manager.approbation(profils, approval_radius)
-    if winner is None:
-        tk.messagebox.showwarning(
-            title="Pas de gagnant",
-            message="Il n'y a pas de gagnant."
-        )
-    else:
-        display_winner(winner, "Approbation")
+    display_winner(winner, "Approbation")
 
 
 def show_voting_systems():
@@ -463,7 +457,7 @@ def show_voting_systems():
         btn_condorcet.grid(row=2, column=1)
 
 
-def display_winner(winner: tuple[str, bool, list], method: str):
+def display_winner(winner: tuple[str, bool, list] | None, method: str):
     """
     Display winner in a popup.
 
@@ -475,18 +469,22 @@ def display_winner(winner: tuple[str, bool, list], method: str):
         winner_dialog.destroy()
 
     winner_dialog = tk.Toplevel(root)
-    winner_dialog.title("Vainqueur selon " + method)
     winner_dialog.protocol('WM_DELETE_WINDOW', lambda: [graph_manager.clear_approbation_circles(), graph_manager.build(), winner_dialog.destroy()])
-    tk.Label(winner_dialog, text="Le gagnant selon le système " + method + " est :").pack()
+    winner_dialog.title("Vainqueur selon " + method)
 
-    tk.Label(winner_dialog, text=winner[0], font=("Mistral", "25", "normal")).pack()
-
-    if winner[1]:
-        tk.Label(winner_dialog, text="Ce candidat a gagné par départage parmi les concurrents suivants :").pack()
-        tk.Label(winner_dialog, text=str(winner[2])).pack()
-        tk.Label(winner_dialog, text="La règle de départage utilisée correspond à l'ordre alphabétique").pack()
+    if winner is None:
+        tk.Label(winner_dialog, text="Il n'y a pas de gagnant").pack()
     else:
-        tk.Label(winner_dialog, text="Il n'y a pas eu de départage").pack()
+        tk.Label(winner_dialog, text="Le gagnant selon le système " + method + " est :").pack()
+
+        tk.Label(winner_dialog, text=winner[0], font=("Mistral", "25", "normal")).pack()
+
+        if winner[1]:
+            tk.Label(winner_dialog, text="Ce candidat a gagné par départage parmi les concurrents suivants :").pack()
+            tk.Label(winner_dialog, text=str(winner[2])).pack()
+            tk.Label(winner_dialog, text="La règle de départage utilisée correspond à l'ordre alphabétique").pack()
+        else:
+            tk.Label(winner_dialog, text="Il n'y a pas eu de départage").pack()
 
 
 # Add the canvas to the tkinter window
