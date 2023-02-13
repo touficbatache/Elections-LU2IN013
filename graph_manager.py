@@ -126,6 +126,7 @@ class GraphManager:
             annotation.remove()
 
         self.__candidates.clear()
+        self.clear_approbation_circles()
 
     def build(self):
         """

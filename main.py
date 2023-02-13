@@ -220,7 +220,6 @@ def reset(is_voter: bool):
             return
 
         graph_manager.clear_candidates()
-        graph_manager.clear_approbation_circles()
         candidates.clear()
 
     graph_manager.build()
