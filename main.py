@@ -402,7 +402,7 @@ def show_approbation(profils):
 # Function to validate the input given (the number of candidates or voters)
 def validate_borda(*args):
     if (not (stringvar_borda_max.get()).isdigit() or int(
-            stringvar_borda_max.get()) > borda_max) and stringvar_borda_max.get() != "":
+            stringvar_borda_max.get()) > borda_max or int(stringvar_borda_max.get()) == 0) and stringvar_borda_max.get() != "":
         stringvar_borda_max.set(log.get())
     else:
         log.set(stringvar_borda_max.get())
