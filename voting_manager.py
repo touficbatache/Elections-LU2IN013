@@ -110,10 +110,9 @@ class VotingManager:
         votes = list(profils.values())
         points_association = dict()
 
-        for candidate in votes[0]:
-            points_association[candidate[0]] = 0
-
         for candidate in votes:
-            points_association[candidate[0][0]] = points_association[candidate[0][0]] + 1
+            if candidate[0][0] not in points_association:
+                points_association[candidate[0][0]] = 0
+            points_association[candidate[0][0]] += 1
 
         return self.__find_winner(points_association)
