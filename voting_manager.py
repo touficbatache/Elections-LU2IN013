@@ -118,7 +118,7 @@ class VotingManager:
 
         return self.__find_winner(points_association)
 
-    def borda(self, profils):
+    def borda(self, profils, maximum):
         """
         Returns the winner according to Borda voting method. Returns the first in alphabetical order in case of equality.
 
@@ -129,12 +129,13 @@ class VotingManager:
         points_association = dict()
         number_candidates = len(votes[0])
 
-        for candidate in votes[0]:
-            points_association[candidate[0]] = 0
-
         for candidate_list in votes:
             for i in range(number_candidates):
-                points_association[candidate_list[i][0]] = points_association[candidate_list[i][0]] + (
-                        number_candidates - i)
+                if candidate_list[i][0] not in points_association:
+                    points_association[candidate_list[i][0]] = 0
+                if (maximum - i) > 0:
+                    points_association[candidate_list[i][0]] += maximum - i
+
+        print(points_association)
 
         return self.__find_winner(points_association)
