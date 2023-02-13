@@ -136,6 +136,4 @@ class VotingManager:
                 if (maximum - i) > 0:
                     points_association[candidate_list[i][0]] += maximum - i
 
-        print(points_association)
-
         return self.__find_winner(points_association)
