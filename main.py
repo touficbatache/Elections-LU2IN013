@@ -45,7 +45,7 @@ default_approval_radius = 10
 
 # Create the StringVar used to hold the maximum borda score
 stringvar_borda_max = tk.StringVar(name="borda_max")
-# Default value for nb candidates/voters
+# Default value = nb candidates
 borda_max = len(candidates)
 
 
