@@ -20,12 +20,12 @@ graph_manager = GraphManager(root)
 graph_manager.build()
 
 # Create the StringVar used to hold the requested number of candidates
-number_candidates = tk.StringVar()
+stringvar_number_candidates = tk.StringVar(name="number_candidates")
 # Create the Candidate list
 candidates = []
 
 # Create the StringVar used to hold the requested number of voters
-number_voters = tk.StringVar()
+stringvar_number_voters = tk.StringVar(name="number_voters")
 # Create the Voter list
 voters = []
 
@@ -37,6 +37,11 @@ shift_is_held = False
 
 # Create a voting manager
 voting_manager = VotingManager()
+
+# Create the StringVar used to hold the approval radius around candidates
+stringvar_approval_radius = tk.StringVar(name="approval_radius")
+# Default value for nb candidates/voters
+default_approval_radius = 10
 
 
 def add_voter_on_graph(coordinates: tuple) -> int:
@@ -187,10 +192,10 @@ graph_manager.bind("button_press_event", on_click)
 
 # Function to validate the input given (the number of candidates or voters)
 def validate(*args):
-    if args[0] == 'PY_VAR1':
-        value = number_voters
-    else:
-        value = number_candidates
+    if args[0] == "number_voters":
+        value = stringvar_number_voters
+    elif args[0] == "number_candidates":
+        value = stringvar_number_candidates
 
     if not (value.get()).isdigit() and value.get() != "":
         value.set(log.get())
@@ -221,7 +226,7 @@ def reset(is_voter: bool):
 
 
 # Function to show a popup, handle the input and distribute candidates/voters
-def show_distribute_popup(number, is_voter: bool):
+def show_distribute_popup(stringvar_number, is_voter: bool):
     s = "votants" if is_voter else "candidats"
 
     top_main = tk.Toplevel(root)
@@ -233,8 +238,8 @@ def show_distribute_popup(number, is_voter: bool):
 
     global log
     log = tk.StringVar()
-    number.trace_variable("w", validate)
-    entry = tk.Entry(top_main, width=20, textvariable=number)
+    stringvar_number.trace_variable("w", validate)
+    entry = tk.Entry(top_main, width=20, textvariable=stringvar_number)
     entry.pack()
 
     label_hint = tk.Label(
@@ -246,15 +251,15 @@ def show_distribute_popup(number, is_voter: bool):
     button = tk.Button(
         top_main,
         text="Distribuer les " + s,
-        command=lambda: [distribute(number, is_voter), top_main.destroy()]
+        command=lambda: [distribute(stringvar_number, is_voter), top_main.destroy()]
     )
     button.pack()
 
 
 # Function to distribute the candidates/voters randomly on the graph
-def distribute(number, is_voter: bool):
-    if number.get() != "":
-        nb = int(number.get())
+def distribute(stringvar_number, is_voter: bool):
+    if stringvar_number.get() != "":
+        nb = int(stringvar_number.get())
     else:
         nb = default_nb_candidates_voters
 
@@ -308,16 +313,10 @@ def show_profils():
             lab = tk.Label(top, text="Votant " + label)
             lab.grid(row=0, column=index, sticky="NSEW")
             for e in range(len(candidates)):
-                # Calculates the max distance (diagonal) of the plot
-                maximum = math.sqrt(
-                    (int(graph_manager.get_xlim()[1]) - int(graph_manager.get_xlim()[0])) ** 2 +
-                    (int(graph_manager.get_ylim()[1]) - int(graph_manager.get_ylim()[0])) ** 2
-                )
                 # Calculates the percentage based on max distance
-                res = ((maximum - profil[e][1]) * 100) / maximum
                 lab = tk.Label(top, text=str(profil[e][0]))
                 lab.grid(row=e + 1, column=index, sticky="NSEW")
-                bind_tooltip(widget=lab, text=str(round(res, 2)) + "%")
+                bind_tooltip(widget=lab, text=str(round(profil[e][1] * 100, 2)) + "%")
 
 
 # Function to generate the scores
@@ -325,19 +324,90 @@ def generate_profils():
     # Dictionary to store the scores for each voter
     profils = dict()
 
+    # Calculates the max distance (diagonal) of the plot
+    maximum = graph_manager.get_diagonal()
+
     # Loop to calculate the scores for each voter
     for voter in voters:
         # profil = list(...tuple(<candidate label>, <distance between candidate and voter>)...)
         profil = list(map(
-            lambda candidate: (candidate.label(), math.dist(voter.coordinates(), candidate.coordinates())),
+            lambda candidate:
+            (
+                candidate.label(),
+                (maximum - math.dist(voter.coordinates(), candidate.coordinates())) / maximum
+            ),
             candidates
         ))
         # Sort by closest match
-        profil.sort(key=lambda x: x[1])
+        profil.sort(key=lambda x: x[1], reverse=True)
         # profils = {...<voter label>: <profil>...}
         profils[voter.label()] = profil
 
     return profils
+
+
+# Function to validate the input given (the number of candidates or voters)
+def validate_approval_radius(*args):
+    if (not (stringvar_approval_radius.get()).isdigit() or int(
+            stringvar_approval_radius.get()) > 100) and stringvar_approval_radius.get() != "":
+        stringvar_approval_radius.set(log.get())
+    else:
+        log.set(stringvar_approval_radius.get())
+
+
+# Function to show a popup, handle the input and distribute candidates/voters
+def show_approbation(profils):
+    """
+    Show a popup asking the user for the approval circle's radius.
+
+    :param profils: Scores for each voter
+    """
+    top_main = tk.Toplevel(root)
+    top_main.title("Rayon d'approbation")
+
+    label_title = tk.Label(top_main, text="Rayon d'approbation (pourcentage) :")
+    label_title.pack()
+
+    global log
+    log = tk.StringVar()
+    stringvar_approval_radius.trace_variable("w", validate_approval_radius)
+    entry = tk.Entry(top_main, width=20, textvariable=stringvar_approval_radius)
+    entry.pack()
+
+    label_hint = tk.Label(
+        top_main,
+        text="Laisser vide pour valeur de défaut (" + str(default_approval_radius) + "%)"
+    )
+    label_hint.pack()
+
+    button = tk.Button(
+        top_main,
+        text="Définir",
+        command=lambda: [
+            calculate_approbation(
+                profils,
+                int(stringvar_approval_radius.get()) if stringvar_approval_radius.get() != "" else default_approval_radius
+            ),
+            top_main.destroy()
+        ]
+    )
+    button.pack()
+
+
+def calculate_approbation(profils, approval_radius):
+    """
+    Determine winner using the approval voting system (système de vote par approbation).
+
+    :param profils: Scores for each voter
+    :param approval_radius: Radius of the approval circle
+    """
+    # Show circles on the graph
+    graph_manager.add_approbation_circles(approval_radius)
+    graph_manager.build()
+
+    # Calculates the max distance (diagonal) of the plot
+    winner = voting_manager.approbation(profils, approval_radius)
+    display_winner(winner, "Approbation")
 
 
 def show_voting_systems():
@@ -346,11 +416,8 @@ def show_voting_systems():
     if top:
         top.destroy()
 
-    # The scores for each voter
-    profils = generate_profils()
-
     # If profils is null, there are no voters or no candidates: show an error dialog
-    if not profils or len(voters) == 0 or len(candidates) == 0:
+    if not generate_profils() or len(voters) == 0 or len(candidates) == 0:
         tk.messagebox.showwarning(
             title="Données insuffisantes",
             message="Veuillez ajouter des votants et des candidats."
@@ -366,8 +433,7 @@ def show_voting_systems():
         btn_pluralite_simple.grid(row=0, column=0)
 
         # Approbation button
-        # TODO #21: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_approbation = tk.Button(top, text="Approbation", height=7, width=20)
+        btn_approbation = tk.Button(top, text="Approbation", height=7, width=20, command=lambda: show_approbation(generate_profils()))
         btn_approbation.grid(row=0, column=1)
 
         # Borda button
@@ -376,8 +442,7 @@ def show_voting_systems():
         btn_borda.grid(row=1, column=0)
 
         # Élimination Successive button
-        btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20,
-                                               command=lambda: display_winner(voting_manager.elimination_successive(profils), "Single Transferable Vote (STV)"))
+        btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20, command=lambda: display_winner(voting_manager.elimination_successive(generate_profils()), "Élimination Successive (STV)"))
         btn_elimination_successive.grid(row=1, column=1)
 
         # Veto button
@@ -391,11 +456,11 @@ def show_voting_systems():
         btn_condorcet.grid(row=2, column=1)
 
 
-def display_winner(winner: tuple[str, bool, list], method: str):
+def display_winner(winner: tuple[str, bool, list] | None, method: str):
     """
     Display winner in a popup.
 
-    :param winner: Tuple of winner, boolean specifying if raw-win or not, list of opponents if not raw-win
+    :param winner: Tuple of (winner, boolean specifying if raw-win or not, list of opponents if not raw-win)
     :param method: The name of the voting method
     """
     global winner_dialog
@@ -403,17 +468,23 @@ def display_winner(winner: tuple[str, bool, list], method: str):
         winner_dialog.destroy()
 
     winner_dialog = tk.Toplevel(root)
+    winner_dialog.protocol('WM_DELETE_WINDOW', lambda: [graph_manager.clear_approbation_circles(), graph_manager.build(), winner_dialog.destroy()])
     winner_dialog.title("Vainqueur selon " + method)
-    tk.Label(winner_dialog, text="Le gagnant selon le système " + method + " est :").pack()
 
-    tk.Label(winner_dialog, text=winner[0], font=("Mistral", "25", "normal")).pack()
-
-    if winner[1]:
-        tk.Label(winner_dialog, text="Ce candidat a gagné par départage parmi les concurrents suivant :").pack()
-        tk.Label(winner_dialog, text=str(winner[2])).pack()
-        tk.Label(winner_dialog, text="La règle de départage utilisée correspond à l'ordre alphabétique").pack()
+    if winner is None:
+        tk.Label(winner_dialog, text="Il n'y a pas de gagnant").pack()
+        winner_dialog.geometry("270x40")
     else:
-        tk.Label(winner_dialog, text="Il n'y a pas eu de départage").pack()
+        tk.Label(winner_dialog, text="Le gagnant selon le système " + method + " est :").pack()
+
+        tk.Label(winner_dialog, text=winner[0], font=("Mistral", "25", "normal")).pack()
+
+        if winner[1]:
+            tk.Label(winner_dialog, text="Ce candidat a gagné par départage parmi les concurrents suivants :").pack()
+            tk.Label(winner_dialog, text=str(winner[2])).pack()
+            tk.Label(winner_dialog, text="La règle de départage utilisée correspond à l'ordre alphabétique").pack()
+        else:
+            tk.Label(winner_dialog, text="Il n'y a pas eu de départage").pack()
 
 
 # Add the canvas to the tkinter window
@@ -442,7 +513,7 @@ btn_show_voting_systems.place(relx=0.25, rely=1 - 0.05, relwidth=0.25, relheight
 distribute_voters = tk.Button(
     root,
     text="Distribuer les votants",
-    command=lambda: show_distribute_popup(number_voters, is_voter=True)
+    command=lambda: show_distribute_popup(stringvar_number_voters, is_voter=True)
 )
 distribute_voters.place(relx=0.5, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 
@@ -450,7 +521,7 @@ distribute_voters.place(relx=0.5, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 distribute_candidates = tk.Button(
     root,
     text="Distribuer les candidats",
-    command=lambda: show_distribute_popup(number_candidates, is_voter=False)
+    command=lambda: show_distribute_popup(stringvar_number_candidates, is_voter=False)
 )
 distribute_candidates.place(relx=0.75, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
 

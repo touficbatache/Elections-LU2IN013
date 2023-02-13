@@ -1,3 +1,4 @@
+import math
 from tkinter import Tk, Canvas
 from typing import Callable
 
@@ -26,6 +27,9 @@ class GraphManager:
     # Store the candidates' data (points and annotations) in the form of:
     # dict ({ str("candidate_label") : tuple(point, annotation) })
     __candidates = dict()
+
+    # Store the plotted approbation approval circles
+    __approbation_circles = list()
 
     def __init__(self, tk_root: Tk):
         # Create a figure
@@ -122,6 +126,7 @@ class GraphManager:
             annotation.remove()
 
         self.__candidates.clear()
+        self.clear_approbation_circles()
 
     def build(self):
         """
@@ -144,14 +149,50 @@ class GraphManager:
         """
         self.__canvas.mpl_connect(event, callable)
 
-    def get_xlim(self):
+    def get_diagonal(self):
         """
-        Return the x-axis view limits.
+        Return the diagonal size of the graph.
         """
-        return self.__axes.get_xlim()
+        return math.sqrt(
+            (int(self.__axes.get_xlim()[1]) - int(self.__axes.get_xlim()[0])) ** 2 +
+            (int(self.__axes.get_ylim()[1]) - int(self.__axes.get_ylim()[0])) ** 2
+        )
 
-    def get_ylim(self):
+    def add_approbation_circles(self, approval_radius: int):
         """
-        Return the x-axis view limits.
+        Adds the approval circles around candidates on the graph.
+        Voters inside a candidate's circle are approving of them.
+
+        :param approval_radius: Radius of the approval circle
         """
-        return self.__axes.get_ylim()
+        # Remove the already plotted approval circles
+        self.clear_approbation_circles()
+
+        # Calculate the multiplier in order to fill the diagonal:
+        #   - radius multiplier: diagonal size / x-axis size
+        #   - diameter multiplier: 2 * radius multiplier
+        multiplier = 2 * self.get_diagonal() / (int(self.__axes.get_xlim()[1]) - int(self.__axes.get_xlim()[0]))
+
+        # For each candidate, plot the approval circles (color them accordingly)
+        for candidate_label, (coordinates, _) in self.__candidates.items():
+            xs, ys = coordinates.get_data()
+
+            # Plot the approval circle
+            circle = plt.Circle(
+                (xs[0], ys[0]),
+                multiplier * approval_radius / 100,
+                color=coordinates.get_color(),
+                fill=False,
+                zorder=15
+            )
+            self.__approbation_circles.append(circle)
+            self.__axes.add_patch(circle)
+
+    def clear_approbation_circles(self):
+        """
+        Clears the approval circles around candidates on the graph.
+        """
+        # Remove the already plotted approval circles
+        for approbation_circle in self.__approbation_circles:
+            approbation_circle.remove()
+        self.__approbation_circles.clear()
