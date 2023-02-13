@@ -428,8 +428,7 @@ def show_voting_systems():
         top.title("Systèmes de vote")
 
         # Pluralité Simple button
-        # TODO #22: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_pluralite_simple = tk.Button(top, text="Pluralité Simple", height=7, width=20)
+        btn_pluralite_simple = tk.Button(top, text="Pluralité Simple", height=7, width=20, command=lambda: display_winner(voting_manager.pluralite_simple(generate_profils()), "Pluralité Simple"))
         btn_pluralite_simple.grid(row=0, column=0)
 
         # Approbation button
