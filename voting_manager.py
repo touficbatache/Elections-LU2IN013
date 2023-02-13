@@ -3,10 +3,6 @@ class VotingManager:
     Managing class for the different voting systems.
     """
 
-    # TODO: Add the voting you're working on below, as follows:
-    #  def pluralite_simple(...):
-    #    ...
-
     def __departage(self, candidate_labels: list, reverse: bool = False) -> str:
         """
         Returns the first or last element of the alphabetically sorted list of candidates.
@@ -78,3 +74,28 @@ class VotingManager:
                     if candidate == letter:
                         profil.remove((candidate, _))
                         break
+
+    def approbation(self, profils: dict, approval_radius: int) -> tuple[str, bool, list] | None:
+        """
+        Approval voting system (système de vote par approbation).
+
+        In this voting system, voters can show support for one or more candidates
+        by voting "yes / no" for each one. Approval is given if the voter is
+        within an approval circle whose radius is defined by the user.
+
+        :param profils: Scores for each voter
+        :param approval_radius: Radius of the approval circle
+        :return: tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
+        """
+        results = dict()
+        for voter_label, profil in profils.items():
+            for candidate_label, score in profil:
+                if (score * 100) >= 100 - approval_radius:
+                    if candidate_label not in results:
+                        results[candidate_label] = 0
+                    results[candidate_label] += 1
+
+        if len(results) == 0:
+            return None
+
+        return self.__find_winner(results)
