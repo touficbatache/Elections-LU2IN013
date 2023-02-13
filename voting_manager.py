@@ -102,7 +102,8 @@ class VotingManager:
 
     def pluralite_simple(self, profils):
         """
-        Returns the winner according to simple majority voting method. Returns the first in alphabetical order in case of equality.
+        Returns the winner according to simple majority voting method.
+        Returns the first in alphabetical order in case of equality.
 
         :param profils: dictionnary of votes registered by the voters
         :return Couple of winner and boolean indicating if winner is raw-win or decided
