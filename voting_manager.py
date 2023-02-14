@@ -18,7 +18,7 @@ class VotingManager:
         chooses one based on alphabetical order (asc).
 
         :param results: dictionary of results (..., candidate_label : score, ...)
-        :return: Couple of winner and boolean indicating if winner is raw-win or decided
+        :return: tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
         """
         winners = [
             candidate_label
@@ -50,7 +50,7 @@ class VotingManager:
         Eliminates the last candidate in alphabetical order in case of equality.
 
         :param profils: dictionary of the scores of each voter
-        :return: the winning candidate
+        :return: tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
         """
         scores = self.__count_scores(profils)
         majority = len(profils) / 2
@@ -100,21 +100,21 @@ class VotingManager:
 
         return self.__find_winner(results)
 
-    def pluralite_simple(self, profils):
+    def pluralite_simple(self, profils: dict) -> tuple[str, bool, list]:
         """
         Returns the winner according to simple majority voting method.
         Returns the first in alphabetical order in case of equality.
 
-        :param profils: dictionnary of votes registered by the voters
-        :return Couple of winner and boolean indicating if winner is raw-win or decided
+        :param profils: dictionary of votes registered by the voters
+        :return tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
         """
-        votes = list(profils.values())
         points_association = dict()
 
-        for candidate in votes:
-            if candidate[0][0] not in points_association:
-                points_association[candidate[0][0]] = 0
-            points_association[candidate[0][0]] += 1
+        for candidate in profils.values():
+            candidate_label, _ = candidate[0]
+            if candidate_label not in points_association:
+                points_association[candidate_label] = 0
+            points_association[candidate_label] += 1
 
         return self.__find_winner(points_association)
 
