@@ -43,6 +43,9 @@ stringvar_approval_radius = tk.StringVar(name="approval_radius")
 # Default value for nb candidates/voters
 default_approval_radius = 10
 
+# Create the StringVar used to hold the maximum borda score
+stringvar_borda_max = tk.StringVar(name="borda_max")
+
 
 def add_voter_on_graph(coordinates: tuple) -> int:
     """
@@ -394,6 +397,64 @@ def show_approbation(profils):
     button.pack()
 
 
+# Function to validate the input given (the number of candidates or voters)
+def validate_borda(*args):
+    """
+    Verify the entry in show_borda().
+    The entry should be a digit, not equal to zero and less than the number of
+    total candidates.
+    The function sets the value of the stringvar at the end
+    """
+    if (not (stringvar_borda_max.get()).isdigit() or int(
+            stringvar_borda_max.get()) > borda_max or int(stringvar_borda_max.get()) == 0) and stringvar_borda_max.get() != "":
+        stringvar_borda_max.set(log.get())
+    else:
+        log.set(stringvar_borda_max.get())
+
+
+# Function to show a popup, handle the input and distribute candidates/voters
+def show_borda(profils):
+    """
+    Show a popup asking the user for the maximum score attribution in borda.
+
+    :param profils: Scores for each voter
+    """
+    global borda_max
+    borda_max = len(candidates)
+    top_main = tk.Toplevel(root)
+    top_main.title("Score maximum - Borda")
+
+    label_title = tk.Label(top_main, text="Score maximum (inférieur au nombre de candidats : " + str(borda_max) + ") :")
+    label_title.pack()
+
+    global log
+    log = tk.StringVar()
+    stringvar_borda_max.trace_variable("w", validate_borda)
+    entry = tk.Entry(top_main, width=20, textvariable=stringvar_borda_max)
+    entry.pack()
+
+    label_hint = tk.Label(
+        top_main,
+        text="Laisser vide pour valeur de défaut (nombre de candidats)"
+    )
+    label_hint.pack()
+
+    button = tk.Button(
+        top_main,
+        text="Valider",
+        command=lambda: [
+            display_winner(
+                voting_manager.borda(
+                    profils,
+                    int(stringvar_borda_max.get()) if stringvar_borda_max.get() != "" else borda_max
+                ), "Borda"
+            ),
+            top_main.destroy()
+        ]
+    )
+    button.pack()
+
+
 def calculate_approbation(profils, approval_radius):
     """
     Determine winner using the approval voting system (système de vote par approbation).
@@ -428,20 +489,26 @@ def show_voting_systems():
         top.title("Systèmes de vote")
 
         # Pluralité Simple button
-        btn_pluralite_simple = tk.Button(top, text="Pluralité Simple", height=7, width=20, command=lambda: display_winner(voting_manager.pluralite_simple(generate_profils()), "Pluralité Simple"))
+        btn_pluralite_simple = tk.Button(top, text="Pluralité Simple", height=7, width=20,
+                                         command=lambda: display_winner(
+                                             voting_manager.pluralite_simple(generate_profils()), "Pluralité Simple"))
         btn_pluralite_simple.grid(row=0, column=0)
 
         # Approbation button
-        btn_approbation = tk.Button(top, text="Approbation", height=7, width=20, command=lambda: show_approbation(generate_profils()))
+        btn_approbation = tk.Button(top, text="Approbation", height=7, width=20,
+                                    command=lambda: show_approbation(generate_profils()))
         btn_approbation.grid(row=0, column=1)
 
         # Borda button
-        # TODO #23: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_borda = tk.Button(top, text="Borda", height=7, width=20)
+        btn_borda = tk.Button(top, text="Borda", height=7, width=20,
+                              command=lambda: show_borda(generate_profils()))
         btn_borda.grid(row=1, column=0)
 
         # Élimination Successive button
-        btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20, command=lambda: display_winner(voting_manager.elimination_successive(generate_profils()), "Élimination Successive (STV)"))
+        btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20,
+                                               command=lambda: display_winner(
+                                                   voting_manager.elimination_successive(generate_profils()),
+                                                   "Élimination Successive (STV)"))
         btn_elimination_successive.grid(row=1, column=1)
 
         # Veto button
@@ -467,7 +534,9 @@ def display_winner(winner: tuple[str, bool, list] | None, method: str):
         winner_dialog.destroy()
 
     winner_dialog = tk.Toplevel(root)
-    winner_dialog.protocol('WM_DELETE_WINDOW', lambda: [graph_manager.clear_approbation_circles(), graph_manager.build(), winner_dialog.destroy()])
+    winner_dialog.protocol('WM_DELETE_WINDOW',
+                           lambda: [graph_manager.clear_approbation_circles(), graph_manager.build(),
+                                    winner_dialog.destroy()])
     winner_dialog.title("Vainqueur selon " + method)
 
     if winner is None:

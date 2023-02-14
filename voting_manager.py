@@ -117,3 +117,28 @@ class VotingManager:
             points_association[candidate[0][0]] += 1
 
         return self.__find_winner(points_association)
+
+    def borda(self, profils: dict, maximum: int) -> tuple[str, bool, list]:
+        """
+        Returns the winner according to Borda voting method.
+
+        In this system, the candidates are given a score based on the maximum score given by the user.
+        The first candidate received the max points, the second -> max-1, the third -> max-2, ...
+        If the number of candidates is higher than max, the remaining candidates [max; nb_candidates]
+        will receive the score of 0.
+        In case of equality, the function returns the first in alphabetical order.
+
+        :param profils: dictionary of votes registered by the voters
+        :param maximum: maximum score to attribute to the top candidate
+        :return: tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
+        """
+        points_association = dict()
+
+        for profil in profils.values():
+            for i, (candidate_label, _) in enumerate(profil):
+                if candidate_label not in points_association:
+                    points_association[candidate_label] = 0
+                if (maximum - i) > 0:
+                    points_association[candidate_label] += maximum - i
+
+        return self.__find_winner(points_association)
