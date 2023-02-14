@@ -152,13 +152,12 @@ class VotingManager:
         :return: tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
         """
 
-        v_scores = dict()
+        veto_scores = dict()
 
-        for voter_label, one_profil in profils.items():
-            for i in range(len(one_profil) - 1):
-                current_cand_lab, _ = one_profil[i]
-                if current_cand_lab not in v_scores:
-                    v_scores[current_cand_lab] = 0
-                v_scores[current_cand_lab] += 1
+        for profil in profils.values():
+            for candidate_label, _ in profil[:-1]:
+                if candidate_label not in veto_scores:
+                    veto_scores[candidate_label] = 0
+                veto_scores[candidate_label] += 1
 
-        return self.__find_winner(v_scores)
+        return self.__find_winner(veto_scores)
