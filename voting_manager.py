@@ -150,7 +150,7 @@ class VotingManager:
         """
 
         v_scores = dict()
-        while len(list(profils.values())[0])>1:
+        while len(list(profils.values())[0]) > 1:
             v_scores.clear()
 
             for voter_label, one_profil in profils.items():
@@ -167,9 +167,9 @@ class VotingManager:
             ]
 
             for _, profil in profils.items():
-                    for candidate, _ in profil:
-                        if candidate == self.__departage(losers, reverse=True)[0]:
-                            profil.remove((candidate, _))
-                            break
+                for candidate, _ in profil:
+                    if candidate == self.__departage(losers, reverse=True)[0]:
+                        profil.remove((candidate, _))
+                        break
 
         return self.__find_winner(v_scores)

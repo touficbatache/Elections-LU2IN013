@@ -408,7 +408,7 @@ def validate_borda(*args):
     The function sets the value of the stringvar at the end
     """
     strvar = stringvar_borda_max if args[0] == "borda_max" else stringvar_borda_step
-    
+
     if (not (strvar.get()).isdigit() or int(
             strvar.get()) > borda_max or int(strvar.get()) == 0) and strvar.get() != "":
         strvar.set(log.get())
@@ -526,7 +526,8 @@ def show_voting_systems():
         btn_elimination_successive.grid(row=1, column=1)
 
         # Veto button
-        btn_veto = tk.Button(top, text="Veto", height=7, width=20, command=lambda : display_winner(voting_manager.veto(generate_profils()), "Veto"))
+        btn_veto = tk.Button(top, text="Veto", height=7, width=20,
+                             command=lambda: display_winner(voting_manager.veto(generate_profils()), "Veto"))
         btn_veto.grid(row=2, column=0)
 
         # Condorcet button
@@ -605,7 +606,6 @@ distribute_candidates = tk.Button(
     command=lambda: show_distribute_popup(stringvar_number_candidates, is_voter=False)
 )
 distribute_candidates.place(relx=0.75, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
-
 
 # Start the tkinter event loop
 root.mainloop()
