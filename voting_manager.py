@@ -15,36 +15,6 @@ class VotingManager:
         """
         return sorted(candidate_labels, key=str.casefold)[0]
 
-
-    def veto(self, candidates,profils):
-        """
-        Implementation of veto sorting method
-        """
-        # profils = {...<voter label>: <profil>...}
-        # profil = list(...tuple(<candidate label>, <distance between candidate and voter>)...)
-
-        # dict ({ str("candidate_label") : tuple(point, annotation) })
-        # __candidates = dict()
-        # print(profils)
-
-        v_scores = dict()
-        for candidat in candidates :
-            v_scores[candidat.label()] = 0
-    
-        current_cand_lab = ""
-        for voter_label, one_profil in profils.items():
-            for i in range(len(one_profil)-2):
-                current_cand_lab, _ = one_profil[i]
-                v_scores[current_cand_lab] += 1
-        
-        #print(v_scores)
-        winners = {k:v for k,v in v_scores.items() if v == sorted(v_scores.values(), reverse=True)[0]}
-        
-        #print(self.__departage(list(winners)))
-        return self.__departage(list(winners))
-    
-    
-
     def __find_winner(self, results: dict) -> tuple[str, bool, list]:
         """
         Finds the winner in a dictonnary of candidates and scores.
@@ -56,3 +26,22 @@ class VotingManager:
         """
         winners = [k for k, v in results.items() if v == sorted(results.values(), reverse=True)[0]]
         return self.__departage(winners), len(winners) > 1, winners
+
+    def veto(self, candidates: list, profils: dict) -> str:
+        """
+        Implementation of veto sorting method
+        """
+        
+        v_scores = dict()
+        for candidat in candidates :
+            v_scores[candidat.label()] = 0
+    
+        current_cand_lab = ""
+        for voter_label, one_profil in profils.items():
+            for i in range(len(one_profil)-2):
+                current_cand_lab, _ = one_profil[i]
+                v_scores[current_cand_lab] += 1
+
+        winners = {k:v for k,v in v_scores.items() if v == sorted(v_scores.values(), reverse=True)[0]}
+    
+        return self.__departage(list(winners))
