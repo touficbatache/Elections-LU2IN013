@@ -526,8 +526,7 @@ def show_voting_systems():
         btn_elimination_successive.grid(row=1, column=1)
 
         # Veto button
-        # TODO #24: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_veto = tk.Button(top, text="Veto", height=7, width=20, command=lambda : voting_manager.veto(candidates,generate_profils()))
+        btn_veto = tk.Button(top, text="Veto", height=7, width=20, command=lambda : display_winner(voting_manager.veto(candidates,generate_profils()), "Veto"))
         btn_veto.grid(row=2, column=0)
 
         # Condorcet button
