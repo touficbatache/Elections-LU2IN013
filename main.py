@@ -285,6 +285,7 @@ def distribute(stringvar_number, is_voter: bool):
 
 # Variable to keep track of the top level window
 top = None
+winner_dialog = None
 
 
 # Function to show the scores
