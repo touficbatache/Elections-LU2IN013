@@ -45,8 +45,6 @@ default_approval_radius = 10
 
 # Create the StringVar used to hold the maximum borda score
 stringvar_borda_max = tk.StringVar(name="borda_max")
-# Default value = nb candidates
-borda_max = len(candidates)
 
 
 def add_voter_on_graph(coordinates: tuple) -> int:
@@ -420,7 +418,7 @@ def show_borda(profils):
     top_main = tk.Toplevel(root)
     top_main.title("Score maximum - Borda")
 
-    label_title = tk.Label(top_main, text="Score maximum (inférieur au nombre de candidats - " + str(borda_max) + ") :")
+    label_title = tk.Label(top_main, text="Score maximum (inférieur au nombre de candidats : " + str(borda_max) + ") :")
     label_title.pack()
 
     global log
