@@ -535,7 +535,6 @@ def show_voting_systems():
         btn_condorcet.grid(row=2, column=1)
 
 
-<<<<<<< HEAD
 def display_winner(winner: tuple[str, bool, list] | None, method: str):
     """
     Display winner in a popup.
@@ -569,8 +568,6 @@ def display_winner(winner: tuple[str, bool, list] | None, method: str):
             tk.Label(winner_dialog, text="Il n'y a pas eu de départage").pack()
 
 
-=======
->>>>>>> 9611e2a (updated)
 # Add the canvas to the tkinter window
 graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
