@@ -147,6 +147,9 @@ class VotingManager:
     def veto(self, profils: dict) -> tuple[str, bool, list]:
         """
         Implementation of veto sorting method
+        
+        :pram profils: dictionary of votes registered by the voters
+        :return: tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
         """
 
         v_scores = dict()
