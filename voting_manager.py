@@ -118,7 +118,7 @@ class VotingManager:
 
         return self.__find_winner(points_association)
 
-    def borda(self, profils : dict, maximum : int):
+    def borda(self, profils: dict, maximum: int) -> tuple[str, bool, list]:
         """
         Returns the winner according to Borda voting method. Returns the first in alphabetical order in case of equality.
 
