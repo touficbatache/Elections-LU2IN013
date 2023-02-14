@@ -144,18 +144,32 @@ class VotingManager:
 
         return self.__find_winner(points_association)
 
-    def veto(self, candidates: list, profils: dict) -> tuple[str, bool, list]:
+    def veto(self, profils: dict) -> tuple[str, bool, list]:
         """
         Implementation of veto sorting method
         """
 
         v_scores = dict()
-        for candidat in candidates:
-            v_scores[candidat.label()] = 0
+        while len(list(profils.values())[0])>1:
+            v_scores.clear()
 
-        for voter_label, one_profil in profils.items():
-            for i in range(len(one_profil) - 2):
-                current_cand_lab, _ = one_profil[i]
-                v_scores[current_cand_lab] += 1
+            for voter_label, one_profil in profils.items():
+                for i in range(len(one_profil) - 1):
+                    current_cand_lab, _ = one_profil[i]
+                    if current_cand_lab not in v_scores:
+                        v_scores[current_cand_lab] = 0
+                    v_scores[current_cand_lab] += 1
+
+            losers = [
+                candidate_label
+                for candidate_label, score in v_scores.items()
+                if score == sorted(v_scores.values())[0]
+            ]
+
+            for _, profil in profils.items():
+                    for candidate, _ in profil:
+                        if candidate == self.__departage(losers, reverse=True)[0]:
+                            profil.remove((candidate, _))
+                            break
 
         return self.__find_winner(v_scores)
