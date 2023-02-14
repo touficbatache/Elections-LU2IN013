@@ -45,6 +45,8 @@ default_approval_radius = 10
 
 # Create the StringVar used to hold the maximum borda score
 stringvar_borda_max = tk.StringVar(name="borda_max")
+# Create the StringVar used to hold the step borda score
+stringvar_borda_step = tk.StringVar(name="borda_step")
 
 
 def add_voter_on_graph(coordinates: tuple) -> int:
@@ -405,11 +407,13 @@ def validate_borda(*args):
     total candidates.
     The function sets the value of the stringvar at the end
     """
-    if (not (stringvar_borda_max.get()).isdigit() or int(
-            stringvar_borda_max.get()) > borda_max or int(stringvar_borda_max.get()) == 0) and stringvar_borda_max.get() != "":
-        stringvar_borda_max.set(log.get())
+    strvar = stringvar_borda_max if args[0] == "borda_max" else stringvar_borda_step
+    
+    if (not (strvar.get()).isdigit() or int(
+            strvar.get()) > borda_max or int(strvar.get()) == 0) and strvar.get() != "":
+        strvar.set(log.get())
     else:
-        log.set(stringvar_borda_max.get())
+        log.set(strvar.get())
 
 
 # Function to show a popup, handle the input and distribute candidates/voters
@@ -433,9 +437,18 @@ def show_borda(profils):
     entry = tk.Entry(top_main, width=20, textvariable=stringvar_borda_max)
     entry.pack()
 
+    label_title = tk.Label(top_main, text="Pas de score entre deux candidats : ")
+    label_title.pack()
+
+    global log2
+    log2 = tk.StringVar()
+    stringvar_borda_step.trace_variable("w", validate_borda)
+    entry2 = tk.Entry(top_main, width=20, textvariable=stringvar_borda_step)
+    entry2.pack()
+
     label_hint = tk.Label(
         top_main,
-        text="Laisser vide pour valeur de défaut (nombre de candidats)"
+        text="Laisser vide pour valeur de défaut (nombre de candidats=" + str(borda_max) + ", pas=1)"
     )
     label_hint.pack()
 
@@ -446,7 +459,8 @@ def show_borda(profils):
             display_winner(
                 voting_manager.borda(
                     profils,
-                    int(stringvar_borda_max.get()) if stringvar_borda_max.get() != "" else borda_max
+                    int(stringvar_borda_max.get()) if stringvar_borda_max.get() != "" else borda_max,
+                    int(stringvar_borda_step.get()) if stringvar_borda_step.get() != "" else 1
                 ), "Borda"
             ),
             top_main.destroy()
