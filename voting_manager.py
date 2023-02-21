@@ -181,6 +181,9 @@ class VotingManager:
         veto_scores = dict()
 
         for profil in profils.values():
+            if len(profil) == 1 :
+                return profil[0][0], False, []
+
             for candidate_label, _ in profil[:-1]:
                 if candidate_label not in veto_scores:
                     veto_scores[candidate_label] = 0
