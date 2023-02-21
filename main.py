@@ -655,8 +655,7 @@ def display_condorcet_winner(
         tk.Label(winner_dialog, text="Il y a un vainqueur de Condorcet (gagne tous ses duels) :").pack()
         tk.Label(winner_dialog, text=winner_label, font=("Mistral", "25", "normal")).pack()
     else:
-        tk.Label(winner_dialog,
-                 text="Il n'y a pas eu de vainqueur de Condorcet, et la méthode utilisée est celle de " + method.name).pack()
+        tk.Label(winner_dialog, text="Il n'y a pas eu de vainqueur de Condorcet, et la méthode utilisée est celle de " + method.name).pack()
 
         if not is_tie_breaking_used:
             tk.Label(winner_dialog, text="Un unique candidat a gagné :").pack()

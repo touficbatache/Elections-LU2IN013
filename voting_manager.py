@@ -225,6 +225,10 @@ class VotingManager:
         # Candidate labels list
         candidate_labels = [candidate_label for candidate_label, _ in list(profils.values())[0]]
 
+        # Give the winner directly if there's one candidate
+        if len(candidate_labels) == 1:
+            return candidate_labels[0], False, False, None
+
         # We organise duels and calculate scores
         duel_scores = list()
         for candidate1_label in candidate_labels:
