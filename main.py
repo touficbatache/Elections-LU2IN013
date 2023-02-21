@@ -7,7 +7,7 @@ from candidate import Candidate
 from graph_manager import GraphManager
 from tooltip import bind_tooltip
 from voter import Voter
-from voting_manager import VotingManager
+from voting_manager import VotingManager, CondorcetMethod, CondorcetTieBreakingRule
 
 # Create the main tkinter window
 root = tk.Tk()
@@ -485,6 +485,61 @@ def calculate_approbation(profils, approval_radius):
     display_winner(winner, "Approbation")
 
 
+def show_condorcet(profils):
+    """
+    Show a popup asking the user to choose the Condorcet method and tie-breaking rule.
+
+    :param profils: Scores for each voter
+    """
+    top_main = tk.Toplevel(root)
+    top_main.title("Condorcet")
+
+    tk.Label(top_main, text="Choisir le mode de Condorcet souhaité :").pack()
+
+    var_condorcet_method = tk.IntVar(name="var_condorcet_method")
+
+    tk.Radiobutton(
+        top_main, text="Méthode de Copeland", variable=var_condorcet_method, value=CondorcetMethod.COPELAND.value,
+        anchor="w"
+    ).pack(fill="both")
+
+    tk.Radiobutton(
+        top_main, text="Méthode de Simpson", variable=var_condorcet_method, value=CondorcetMethod.SIMPSON.value,
+        anchor="w"
+    ).pack(fill="both")
+
+    tk.Label(top_main, text="Choisir le mode de départage souhaité :").pack()
+
+    var_condorcet_tie_breaking = tk.IntVar(name="var_condorcet_tie_breaking")
+
+    tk.Radiobutton(
+        top_main, text="Random", variable=var_condorcet_tie_breaking, value=CondorcetTieBreakingRule.RANDOM.value,
+        anchor="w"
+    ).pack(fill="both")
+
+    tk.Radiobutton(
+        top_main, text="Ordre lexicographique", variable=var_condorcet_tie_breaking,
+        value=CondorcetTieBreakingRule.ORDRE_LEXICO.value, anchor="w"
+    ).pack(fill="both")
+
+    tk.Button(
+        top_main,
+        text="Valider",
+        command=lambda: [
+            display_condorcet_winner(
+                voting_manager.condorcet(
+                    profils,
+                    CondorcetMethod(var_condorcet_method.get()),
+                    CondorcetTieBreakingRule(var_condorcet_tie_breaking.get())
+                ),
+                CondorcetMethod(var_condorcet_method.get()),
+                CondorcetTieBreakingRule(var_condorcet_tie_breaking.get())
+            ),
+            top_main.destroy(),
+        ],
+    ).pack()
+
+
 def show_voting_systems():
     # If a top level window is active, close it
     global top
@@ -531,8 +586,8 @@ def show_voting_systems():
         btn_veto.grid(row=2, column=0)
 
         # Condorcet button
-        # TODO #26: connect button to logic: show popup with results. use `profils` (already defined)
-        btn_condorcet = tk.Button(top, text="Condorcet", height=7, width=20)
+        btn_condorcet = tk.Button(top, text="Condorcet", height=7, width=20,
+                                  command=lambda: show_condorcet(generate_profils()))
         btn_condorcet.grid(row=2, column=1)
 
 
@@ -567,6 +622,53 @@ def display_winner(winner: tuple[str, bool, list] | None, method: str):
             tk.Label(winner_dialog, text="La règle de départage utilisée correspond à l'ordre alphabétique").pack()
         else:
             tk.Label(winner_dialog, text="Il n'y a pas eu de départage").pack()
+
+
+def display_condorcet_winner(
+        winner: tuple[str, bool, bool, list | None] | None,
+        method: CondorcetMethod,
+        tie_breaking_rule: CondorcetTieBreakingRule
+):
+    """
+    Display Condorcet winner in a popup.
+
+    :param winner: Tuple of (
+                    winner,
+                    boolean specifying if the condorcet method has been used or not,
+                    boolean specifying if raw-win or not,
+                    list of opponents if not raw-win
+                )
+    :param method: Method to use in case there is no Condorcet winner
+    :param tie_breaking_rule: Tie-breaking rule to use in order to decide who wins
+    """
+    winner_label, is_method_used, is_tie_breaking_used, all_winners = winner
+
+    global winner_dialog
+    if winner_dialog:
+        winner_dialog.destroy()
+
+    winner_dialog = tk.Toplevel(root)
+    winner_dialog.protocol('WM_DELETE_WINDOW', lambda: winner_dialog.destroy())
+    winner_dialog.title("Gagnant selon Condorcet")
+
+    if not is_method_used:
+        tk.Label(winner_dialog, text="Il y a un vainqueur de Condorcet (gagne tous ses duels) :").pack()
+        tk.Label(winner_dialog, text=winner_label, font=("Mistral", "25", "normal")).pack()
+    else:
+        tk.Label(winner_dialog,
+                 text="Il n'y a pas eu de vainqueur de Condorcet, et la méthode utilisée est celle de " + method.name).pack()
+
+        if not is_tie_breaking_used:
+            tk.Label(winner_dialog, text="Un unique candidat a gagné :").pack()
+            tk.Label(winner_dialog, text=winner_label, font=("Mistral", "25", "normal")).pack()
+            tk.Label(winner_dialog, text="Il n'y a pas eu de départage").pack()
+        else:
+            tk.Label(winner_dialog, text="Un candidat a gagné par départage :").pack()
+            tk.Label(winner_dialog, text=winner_label, font=("Mistral", "25", "normal")).pack()
+            tk.Label(winner_dialog, text="La règle de départage utilisée est " + tie_breaking_rule.name).pack()
+            tk.Label(winner_dialog, text="Les concurrents suivants ont perdu à cause du départage :").pack()
+            all_winners.remove(winner_label)
+            tk.Label(winner_dialog, text=str(all_winners)).pack()
 
 
 # Add the canvas to the tkinter window
