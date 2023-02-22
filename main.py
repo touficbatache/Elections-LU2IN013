@@ -48,6 +48,11 @@ stringvar_borda_max = tk.StringVar(name="borda_max")
 # Create the StringVar used to hold the step borda score
 stringvar_borda_step = tk.StringVar(name="borda_step")
 
+# Create the IntVar to track which condercet method
+var_condorcet_method = tk.IntVar(name="var_condorcet_method")
+# Create the IntVar to track which tie-breaking condercet method
+var_condorcet_tie_breaking = tk.IntVar(name="var_condorcet_tie_breaking")
+
 
 def add_voter_on_graph(coordinates: tuple) -> int:
     """
@@ -495,7 +500,7 @@ def select_maxval_radius(*args):
     global log
     log = tk.StringVar()
 
-    if args[0] == "var_approbation":
+    if args[0] == "approbation":
         top_select_max.title("Choisir le diamètre d'approbation")
         label_title = tk.Label(
             top_select_max, text="Rayon d'approbation (pourcentage) :"
@@ -510,19 +515,19 @@ def select_maxval_radius(*args):
         label_hint = tk.Label(
             top_select_max,
             text="Laisser vide pour valeur de défaut ("
-            + str(default_approval_radius)
-            + "%)"
+                 + str(default_approval_radius)
+                 + "%)"
         )
         label_hint.pack()
 
-    if args[0] == "var_borda":
+    if args[0] == "borda":
         top_select_max.title("Choisir le score maximum")
         borda_max = len(candidates)
         label_title = tk.Label(
             top_select_max,
             text="Score maximum (inférieur au nombre de candidats : "
-            + str(borda_max)
-            + ") :"
+                 + str(borda_max)
+                 + ") :"
         )
         label_title.pack()
 
@@ -544,8 +549,8 @@ def select_maxval_radius(*args):
         label_hint = tk.Label(
             top_select_max,
             text="Laisser vide pour valeur de défaut (nombre de candidats="
-            + str(borda_max)
-            + ", pas=1)"
+                 + str(borda_max)
+                 + ", pas=1)"
         )
         label_hint.pack()
 
@@ -557,17 +562,65 @@ def select_maxval_radius(*args):
     top_select_max.protocol("WM_DELETE_WINDOW", lambda: on_closing(args[0]))
 
 
+def select_condorcet(*args):
+    global top_select_condorcet
+    top_select_condorcet = tk.Toplevel(root)
+    top_select_condorcet.title("Condorcet")
+
+    var_condorcet_tie_breaking.set(0)
+    var_condorcet_method.set(0)
+
+    tk.Label(top_select_condorcet, text="Choisir le mode de Condorcet souhaité :").pack()
+
+    tk.Radiobutton(
+        top_select_condorcet, text="Méthode de Copeland", variable=var_condorcet_method,
+        value=CondorcetMethod.COPELAND.value,
+        anchor="w"
+    ).pack(fill="both")
+
+    tk.Radiobutton(
+        top_select_condorcet, text="Méthode de Simpson", variable=var_condorcet_method,
+        value=CondorcetMethod.SIMPSON.value,
+        anchor="w"
+    ).pack(fill="both")
+
+    tk.Label(top_select_condorcet, text="Choisir le mode de départage souhaité :").pack()
+
+    tk.Radiobutton(
+        top_select_condorcet, text="Random", variable=var_condorcet_tie_breaking,
+        value=CondorcetTieBreakingRule.RANDOM.value,
+        anchor="w"
+    ).pack(fill="both")
+
+    tk.Radiobutton(
+        top_select_condorcet, text="Ordre lexicographique", variable=var_condorcet_tie_breaking,
+        value=CondorcetTieBreakingRule.ORDRE_LEXICO.value, anchor="w"
+    ).pack(fill="both")
+
+    tk.Button(
+        top_select_condorcet,
+        text="Valider",
+        command=lambda: top_select_condorcet.destroy() if var_condorcet_tie_breaking.get() != 0 and var_condorcet_method.get() != 0 else None
+    ).pack()
+
+    top_select_condorcet.protocol("WM_DELETE_WINDOW", lambda: on_closing(args[0]))
+
+
 def on_closing(var):
-    if var == "var_approbation":
+    if var == "approbation":
         var_approbation.set(0)
-    if var == "var_borda":
+        top_select_max.destroy()
+    if var == "borda":
         var_borda.set(0)
-    top_select_max.destroy()
+        top_select_max.destroy()
+    if var == "condorcet":
+        var_condorcet.set(0)
+        top_select_condorcet.destroy()
 
 
 def combined_modes():
     """
-    Allows user to select different modes and displays the different winners accordingly.
+    Allows user to select different modes and calls show_mult_methods to display the different winners.
     """
     top_main = tk.Toplevel(root)
     top_main.title("Mode combiné")
@@ -577,13 +630,13 @@ def combined_modes():
     )
     label_title.pack()
 
-    var_pluralite_simple = tk.IntVar(name="var_pluralite_simple")
+    var_pluralite_simple = tk.IntVar(name="pluralite_simple")
     tk.Checkbutton(
         top_main, text="Pluralité simple", variable=var_pluralite_simple, anchor="w"
     ).pack(fill="both")
 
     global var_approbation
-    var_approbation = tk.IntVar(name="var_approbation")
+    var_approbation = tk.IntVar(name="approbation")
     tk.Checkbutton(
         top_main, text="Approbation", variable=var_approbation, anchor="w"
     ).pack(fill="both")
@@ -595,7 +648,7 @@ def combined_modes():
     )
 
     global var_borda
-    var_borda = tk.IntVar(name="var_borda")
+    var_borda = tk.IntVar(name="borda")
     var_borda.trace(
         "w",
         lambda arg0, arg1, arg2: [
@@ -606,17 +659,24 @@ def combined_modes():
         fill="both"
     )
 
-    var_elim_succ = tk.IntVar(name="var_elim_succ")
+    var_elim_succ = tk.IntVar(name="elimination_successive")
     tk.Checkbutton(
         top_main, text="Elimination succéssive", variable=var_elim_succ, anchor="w"
     ).pack(fill="both")
 
-    var_veto = tk.IntVar(name="var_veto")
+    var_veto = tk.IntVar(name="veto")
     tk.Checkbutton(top_main, text="Veto", variable=var_veto, anchor="w").pack(
         fill="both"
     )
 
-    var_condorcet = tk.IntVar(name="var_condorcet")
+    global var_condorcet
+    var_condorcet = tk.IntVar(name="condorcet")
+    var_condorcet.trace(
+        "w",
+        lambda arg0, arg1, arg2: [
+            select_condorcet(arg0, arg1, arg2) if var_condorcet.get() == 1 else None
+        ]
+    )
     tk.Checkbutton(top_main, text="Condorcet", variable=var_condorcet, anchor="w").pack(
         fill="both"
     )
@@ -626,113 +686,71 @@ def combined_modes():
         text="Valider",
         command=lambda: [
             show_mult_methods(
-                var_pluralite_simple,
-                var_approbation,
-                var_borda,
-                var_elim_succ,
-                var_veto,
-                var_condorcet,
+                [var_pluralite_simple,
+                 var_approbation,
+                 var_borda,
+                 var_elim_succ,
+                 var_veto,
+                 var_condorcet]
             ),
             top_main.destroy(),
-        ],
+        ]
     )
     button.pack()
 
 
-def show_mult_methods(
-    pluralite_simple,
-    approbation,
-    borda,
-    elimination_successive,
-    veto,
-    condorcet,
-):
+def show_mult_methods(list_of_checks: list):
+    """
+    Displays the winners according to different voting methods according to selection in combined_modes()
+
+    :param list_of_checks: list of IntVars relative to each checkbox
+    """
     top_main = tk.Toplevel(root)
     top_main.title("Mode combiné - résultats")
 
-    if (
-        pluralite_simple.get() == 0
-        and approbation.get() == 0
-        and borda.get() == 0
-        and elimination_successive.get() == 0
-        and veto.get() == 0
-        and condorcet.get() == 0
-    ) or not generate_profils():
+    if all(element.get() == 0 for element in list_of_checks) or not generate_profils():
         tk.Label(top_main, text="Aucun résultat a communiqué").pack()
     else:
-        if pluralite_simple.get() == 1:
-            result_pluralite_simple = voting_manager.pluralite_simple(generate_profils())
-            tk.Label(top_main, text="Mode Pluralité Simple", anchor="w").pack(
-                fill="both"
-            )
-            tk.Label(
-                top_main, text="Gagnant : " + result_pluralite_simple[0], anchor="w"
-            ).pack(fill="both")
-            tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
-
-        if approbation.get() == 1:
-            result_approbation = voting_manager.approbation(
-                generate_profils(),
-                int(stringvar_approval_radius.get())
-                if stringvar_approval_radius.get() != ""
-                else default_approval_radius
-            )
-            tk.Label(top_main, text="Mode Approbation", anchor="w").pack(fill="both")
-            if result_approbation:
-                tk.Label(
-                    top_main, text="Gagnant : " + result_approbation[0], anchor="w"
-                ).pack(fill="both")
-                tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
-            else:
-                tk.Label(
-                    top_main,
-                    text="Pas de gagnant déterminer avec la valeur du rayon donnée",
-                    anchor="w"
-                ).pack(fill="both")
-
-        if borda.get() == 1:
-            borda_max = len(candidates)
-            result_borda = voting_manager.borda(
-                generate_profils(),
-                int(stringvar_borda_max.get())
-                if stringvar_borda_max.get() != ""
-                else borda_max,
-                int(stringvar_borda_step.get())
-                if stringvar_borda_step.get() != ""
-                else 1
-            )
-            tk.Label(top_main, text="Mode Borda", anchor="w").pack(fill="both")
-            tk.Label(top_main, text="Gagnant : " + result_borda[0], anchor="w").pack(
-                fill="both"
-            )
-            tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
-
-        if elimination_successive.get() == 1:
-            result_elimination_successive = voting_manager.elimination_successive(
-                generate_profils()
-            )
-            tk.Label(top_main, text="Mode Elimination succéssive", anchor="w").pack(
-                fill="both"
-            )
-            tk.Label(
-                top_main,
-                text="Gagnant : " + result_elimination_successive[0],
-                anchor="w",
-            ).pack(fill="both")
-            tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
-
-        if veto.get() == 1:
-            result_veto = voting_manager.veto(generate_profils())
-            tk.Label(top_main, text="Mode Veto", anchor="w").pack(
-                fill="both"
-            )
-            tk.Label(top_main, text="Gagnant : " + result_veto[0], anchor="w").pack(fill="both")
-            tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
-
-    #    if condorcet.get() == 1:
-    #        result_condorcet = voting_manager.condorcet(profils)
-    #        tk.Label(top_main, text="Le gagnant en mode condorcet est :", anchor="w").pack(fill='both')
-    #        tk.Label(top_main, text=result_condorcet[0], anchor="w").pack(fill='both')
+        for var_method in list_of_checks:
+            if var_method.get() == 1:
+                match var_method.__str__():
+                    case "approbation":
+                        result_approbation = voting_manager.approbation(generate_profils(),
+                                                                        int(stringvar_approval_radius.get()) if stringvar_approval_radius.get() != "" else default_approval_radius
+                                                                        )
+                        tk.Label(top_main, text="Mode approbation", anchor="w").pack(fill="both")
+                        if result_approbation:
+                            tk.Label(top_main, text="Gagnant : " + result_approbation[0], anchor="w").pack(fill="both")
+                            tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
+                        else:
+                            tk.Label(top_main, text="Pas de gagnant déterminé avec la valeur du rayon donné",
+                                     anchor="w").pack(fill="both")
+                            tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
+                    case "borda":
+                        borda_max = len(candidates)
+                        result_borda = voting_manager.borda(generate_profils(),
+                                                            int(stringvar_borda_max.get()) if stringvar_borda_max.get() != "" else borda_max,
+                                                            int(stringvar_borda_step.get()) if stringvar_borda_step.get() != "" else 1
+                                                            )
+                        tk.Label(top_main, text="Mode borda", anchor="w").pack(fill="both")
+                        tk.Label(top_main, text="Gagnant : " + result_borda[0], anchor="w").pack(fill="both")
+                        tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
+                    case "condorcet":
+                        result_condorcet = voting_manager.condorcet(
+                            generate_profils(),
+                            CondorcetMethod(var_condorcet_method.get()),
+                            CondorcetTieBreakingRule(var_condorcet_tie_breaking.get())
+                        )
+                        tk.Label(top_main, text="Mode condorcet", anchor="w").pack(fill="both")
+                        tk.Label(top_main, text="Gagnant : " + result_condorcet[0], anchor="w").pack(fill="both")
+                        tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
+                    case _:
+                        func = "voting_manager." + var_method.__str__() + "(generate_profils())"
+                        result = eval(func)
+                        tk.Label(top_main, text="Mode " + var_method.__str__().replace('_', ' ') + " :", anchor="w").pack(
+                            fill="both")
+                        tk.Label(top_main, text="Gagnant : " + result[0], anchor="w").pack(fill="both")
+                        tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
 
 
 def show_condorcet(profils):
@@ -744,9 +762,10 @@ def show_condorcet(profils):
     top_main = tk.Toplevel(root)
     top_main.title("Condorcet")
 
-    tk.Label(top_main, text="Choisir le mode de Condorcet souhaité :").pack()
+    var_condorcet_tie_breaking.set(0)
+    var_condorcet_method.set(0)
 
-    var_condorcet_method = tk.IntVar(name="var_condorcet_method")
+    tk.Label(top_main, text="Choisir le mode de Condorcet souhaité :").pack()
 
     tk.Radiobutton(
         top_main, text="Méthode de Copeland", variable=var_condorcet_method, value=CondorcetMethod.COPELAND.value,
@@ -759,8 +778,6 @@ def show_condorcet(profils):
     ).pack(fill="both")
 
     tk.Label(top_main, text="Choisir le mode de départage souhaité :").pack()
-
-    var_condorcet_tie_breaking = tk.IntVar(name="var_condorcet_tie_breaking")
 
     tk.Radiobutton(
         top_main, text="Random", variable=var_condorcet_tie_breaking, value=CondorcetTieBreakingRule.RANDOM.value,
@@ -840,8 +857,7 @@ def show_voting_systems():
                                   command=lambda: show_condorcet(generate_profils()))
         btn_condorcet.grid(row=2, column=1)
 
-        # Condorcet button
-        # TODO #31: connect button to logic: show popup with results. use `profils` (already defined)
+        # Combined mode button
         btn_mult = tk.Button(
             top, text="Modes combinés", height=7, width=45, command=combined_modes
         )
@@ -912,7 +928,8 @@ def display_condorcet_winner(
         tk.Label(winner_dialog, text="Il y a un vainqueur de Condorcet (gagne tous ses duels) :").pack()
         tk.Label(winner_dialog, text=winner_label, font=("Mistral", "25", "normal")).pack()
     else:
-        tk.Label(winner_dialog, text="Il n'y a pas eu de vainqueur de Condorcet, et la méthode utilisée est celle de " + method.name).pack()
+        tk.Label(winner_dialog,
+                 text="Il n'y a pas eu de vainqueur de Condorcet, et la méthode utilisée est celle de " + method.name).pack()
 
         if not is_tie_breaking_used:
             tk.Label(winner_dialog, text="Un unique candidat a gagné :").pack()
