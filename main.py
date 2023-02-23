@@ -290,6 +290,7 @@ def distribute(stringvar_number, is_voter: bool):
 
 # Variable to keep track of the top level window
 top = None
+top_main = None
 winner_dialog = None
 
 
@@ -622,6 +623,7 @@ def combined_modes():
     """
     Allows user to select different modes and calls show_mult_methods to display the different winners.
     """
+    global top_main
     top_main = tk.Toplevel(root)
     top_main.title("Mode combiné")
 
@@ -684,17 +686,17 @@ def combined_modes():
     button = tk.Button(
         top_main,
         text="Valider",
-        command=lambda: [
-            show_mult_methods(
-                [var_pluralite_simple,
-                 var_approbation,
-                 var_borda,
-                 var_elim_succ,
-                 var_veto,
-                 var_condorcet]
-            ),
-            top_main.destroy(),
-        ]
+        command=lambda: show_mult_methods(
+            [var_pluralite_simple,
+             var_approbation,
+             var_borda,
+             var_elim_succ,
+             var_veto,
+             var_condorcet]
+        )
+        if not all(element.get() == 0 for element in
+                   [var_pluralite_simple, var_approbation, var_borda, var_elim_succ, var_veto, var_condorcet])
+        else None
     )
     button.pack()
 
@@ -705,6 +707,10 @@ def show_mult_methods(list_of_checks: list):
 
     :param list_of_checks: list of IntVars relative to each checkbox
     """
+    global top_main
+    if top_main:
+        top_main.destroy()
+
     top_main = tk.Toplevel(root)
     top_main.title("Mode combiné - résultats")
 
@@ -747,7 +753,8 @@ def show_mult_methods(list_of_checks: list):
                     case _:
                         func = "voting_manager." + var_method.__str__() + "(generate_profils())"
                         result = eval(func)
-                        tk.Label(top_main, text="Mode " + var_method.__str__().replace('_', ' ') + " :", anchor="w").pack(
+                        tk.Label(top_main, text="Mode " + var_method.__str__().replace('_', ' ') + " :",
+                                 anchor="w").pack(
                             fill="both")
                         tk.Label(top_main, text="Gagnant : " + result[0], anchor="w").pack(fill="both")
                         tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
