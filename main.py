@@ -1,5 +1,6 @@
 import math
 import random
+import string
 
 import tkinter as tk
 
@@ -717,6 +718,10 @@ def show_mult_methods(list_of_checks: list):
     if all(element.get() == 0 for element in list_of_checks) or not generate_profils():
         tk.Label(top_main, text="Aucun résultat a communiqué").pack()
     else:
+        tk.Label(top_main, text="Mode de vote").grid(row=0, column=0)
+        tk.Label(top_main, text="Gagnant").grid(row=0, column=1)
+        tk.Label(top_main, text="Départage ?").grid(row=0, column=2)
+        row_index = 1
         for var_method in list_of_checks:
             if var_method.get() == 1:
                 match var_method.__str__():
@@ -724,40 +729,82 @@ def show_mult_methods(list_of_checks: list):
                         result_approbation = voting_manager.approbation(generate_profils(),
                                                                         int(stringvar_approval_radius.get()) if stringvar_approval_radius.get() != "" else default_approval_radius
                                                                         )
-                        tk.Label(top_main, text="Mode approbation", anchor="w").pack(fill="both")
+                        tk.Label(top_main, text="Approbation", width=len("Approbation")).grid(row=row_index,
+                                                                                              column=0)
                         if result_approbation:
-                            tk.Label(top_main, text="Gagnant : " + result_approbation[0], anchor="w").pack(fill="both")
-                            tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
+                            tk.Label(top_main, text=str(result_approbation[0]), font=("Mistral", "22", "bold"),
+                                     width="5").grid(row=row_index, column=1)
+                            tk.Label(top_main,
+                                     text="Parmi " + str(result_approbation[2]) if result_approbation[1] else "Non",
+                                     width=str(len(str(result_approbation[2]))) if result_approbation[1] else "5").grid(
+                                row=row_index, column=2)
                         else:
-                            tk.Label(top_main, text="Pas de gagnant déterminé avec la valeur du rayon donné",
-                                     anchor="w").pack(fill="both")
-                            tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
+                            tk.Label(top_main, text="Pas de gagnant", font=("Mistral", "15", "bold"), width="10").grid(
+                                row=row_index, column=1)
+
+                        row_index += 1
                     case "borda":
                         borda_max = len(candidates)
                         result_borda = voting_manager.borda(generate_profils(),
                                                             int(stringvar_borda_max.get()) if stringvar_borda_max.get() != "" else borda_max,
                                                             int(stringvar_borda_step.get()) if stringvar_borda_step.get() != "" else 1
                                                             )
-                        tk.Label(top_main, text="Mode borda", anchor="w").pack(fill="both")
-                        tk.Label(top_main, text="Gagnant : " + result_borda[0], anchor="w").pack(fill="both")
-                        tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
+                        tk.Label(top_main, text="Borda", width=len("Borda")).grid(row=row_index,
+                                                                                  column=0)
+                        tk.Label(top_main, text=str(result_borda[0]), font=("Mistral", "22", "bold"), width="5").grid(
+                            row=row_index, column=1)
+                        tk.Label(top_main, text="Parmi " + str(result_borda[2]) if result_borda[1] else "Non",
+                                 width=str(len(str(result_borda[2]))) if result_borda[1] else "5").grid(
+                            row=row_index, column=2)
+                        row_index += 1
                     case "condorcet":
                         result_condorcet = voting_manager.condorcet(
                             generate_profils(),
                             CondorcetMethod(var_condorcet_method.get()),
                             CondorcetTieBreakingRule(var_condorcet_tie_breaking.get())
                         )
-                        tk.Label(top_main, text="Mode condorcet", anchor="w").pack(fill="both")
-                        tk.Label(top_main, text="Gagnant : " + result_condorcet[0], anchor="w").pack(fill="both")
-                        tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
+                        if not result_condorcet[1]:
+                            tk.Label(top_main, text="Condorcet", width=len("Condorcet")).grid(row=row_index,
+                                                                                              column=0)
+                            tk.Label(top_main, text=str(result_condorcet[0]), font=("Mistral", "22", "bold"),
+                                     width="5").grid(row=row_index, column=1)
+                            tk.Label(top_main, text="Non", width="5").grid(row=row_index, column=2)
+                            row_index += 1
+                        else:
+                            if not result_condorcet[2]:
+                                tk.Label(top_main, text="Condorcet", width=len("Condorcet")).grid(row=row_index,
+                                                                                                  column=0)
+                                tk.Label(top_main, text=str(result_condorcet[0]), font=("Mistral", "22", "bold"),
+                                         width="5").grid(row=row_index, column=1)
+                                tk.Label(top_main, text="Méthode de condorcet utilisée", width="20").grid(
+                                    row=row_index + 1, column=0)
+                                tk.Label(top_main, text=CondorcetMethod(var_condorcet_method.get()).name,
+                                         width="20").grid(row=row_index + 1, column=1)
+                                tk.Label(top_main, text="Non", width="5").grid(row=row_index, column=2)
+                                row_index += 2
+                            else:
+                                tk.Label(top_main, text="Condorcet", width=len("Condorcet")).grid(row=row_index,
+                                                                                                  column=0)
+                                tk.Label(top_main, text=str(result_condorcet[0]), font=("Mistral", "22", "bold"),
+                                         width="5").grid(row=row_index, column=1)
+                                tk.Label(top_main, text="Méthode de condorcet utilisée", width="25").grid(
+                                    row=row_index + 1, column=0)
+                                tk.Label(top_main, text=CondorcetMethod(var_condorcet_method.get()).name,
+                                         width="20").grid(row=row_index + 1, column=1)
+                                tk.Label(top_main, text=CondorcetTieBreakingRule(var_condorcet_tie_breaking.get()).name,
+                                         width="20").grid(row=row_index, column=2)
+                                row_index += 2
                     case _:
                         func = "voting_manager." + var_method.__str__() + "(generate_profils())"
                         result = eval(func)
-                        tk.Label(top_main, text="Mode " + var_method.__str__().replace('_', ' ') + " :",
-                                 anchor="w").pack(
-                            fill="both")
-                        tk.Label(top_main, text="Gagnant : " + result[0], anchor="w").pack(fill="both")
-                        tk.Label(top_main, text=" ", anchor="w").pack(fill="both")
+                        mode_text = string.capwords(var_method.__str__().replace('_', ' '))
+                        tk.Label(top_main, text=mode_text,
+                                 width=len(mode_text)).grid(row=row_index, column=0)
+                        tk.Label(top_main, text=str(result[0]), font=("Mistral", "22", "bold"), width="5").grid(
+                            row=row_index, column=1)
+                        tk.Label(top_main, text="Parmi " + str(result[2]) if result[1] else "Non",
+                                 width=str(len(str(result[2]))) if result[1] else "5").grid(row=row_index, column=2)
+                        row_index += 1
 
 
 def show_condorcet(profils):
