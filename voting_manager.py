@@ -202,7 +202,7 @@ class VotingManager:
 
         In this voting system, we start by generating pairs for each 2 candidates
         and organizing duels between them. In order to win, the candidate's score
-        must be strictly greater than his opponent's. In the case of equality,
+        must be strictly greater than his opponent's. In the case of a tie,
         neither the candidate nor their opponent are added to any of the "wins" or
         "losses" tables: we simply do nothing.
 
@@ -269,8 +269,11 @@ class VotingManager:
                 case CondorcetMethod.COPELAND:
                     winners = self.__condorcet_winners_copeland(duel_scores)
                 # Simpson method
-            #     case CondorcetMethod.SIMPSON:
-            #         # TODO: Implement Simpson
+                case CondorcetMethod.SIMPSON:
+                # TODO: Implement Simpson
+                    winners = self.__condorcet_winners_simpson(duel_scores)
+
+
 
             # If we have only one winner, return them
             if len(winners) == 1:
@@ -304,7 +307,7 @@ class VotingManager:
         scores = dict()
         for duel in duels:
             duel_items = list(duel.items())
-
+            
             # Assign a score of 0.5 to each candidate in  case of equality
             if duel_items[0][1] == duel_items[1][1]:
                 if duel_items[0][0] not in scores:
@@ -321,3 +324,48 @@ class VotingManager:
                 scores[duel_items[winner_index][0]] += 1
 
         return self.__find_winners(scores)
+
+
+    def __condorcet_winners_simpson(self, duels: list[dict[str, int]]) -> list[str]:
+        """
+        Condorcet voting system.
+        Simpson method.
+
+        The winner is the candidate whose highest defeat score in duels is the lowest among the other candidates.
+        :param duels: list(..., { candidate1_label: score, candidate2_label: score }, ...)
+        :return: list(winners)
+        """
+        defeatscores = dict() # type : { cand1:[difference des DEFAITES de cand1], ... , candN:[difference des DEFAITES de candn] }
+        duel_items = []
+ 
+        for duel in duels: #Loop on list
+            for k,v in duel.items() :
+                defeatscores[k] = []
+
+        for duel in duels:
+            duel_items = list(duel.items()) #Creating list of couples in a single duel -> list(tuple): 
+        
+            #Initializing the score differences list
+            if duel_items[0][1] < duel_items[1][1] :
+                defeatscores[duel_items[0][0]].append(abs(duel_items[0][1] - duel_items[1][1] ))
+            elif duel_items[0][1] > duel_items[1][1] :
+                defeatscores[duel_items[1][0]].append(abs(duel_items[0][1] - duel_items[1][1] ))
+            else :
+                defeatscores[duel_items[1][0]].append(0)
+                defeatscores[duel_items[0][0]].append(0)
+
+        winners = []
+        maxdefeat = dict()
+
+        for label, listscore in defeatscores.items() :
+            maxdefeat[label] = max(listscore)
+            
+        min_value = min(maxdefeat.values())
+        #min_key = min(maxdefeat, key=lambda k: maxdefeat[k])
+
+        for k, v in maxdefeat : 
+            if v == min_value :
+                winners.append(k)
+        
+        return (winners)
+        
