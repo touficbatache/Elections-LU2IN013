@@ -336,7 +336,8 @@ class VotingManager:
         :param duels: list(..., { candidate1_label: score, candidate2_label: score }, ...)
         :return: list(winners)
         """
-        defeatscores = defaultdict(list) # type : { cand1:[difference des DEFAITES de cand1], ... , candN:[difference des DEFAITES de candn] }
+        # type : { cand1:[difference des DEFAITES de cand1], ... , candN:[difference des DEFAITES de candn] }
+        defeatscores = defaultdict(list)
         duel_items = []
 
         for duel in duels:
