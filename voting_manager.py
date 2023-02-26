@@ -271,7 +271,6 @@ class VotingManager:
                     winners = self.__condorcet_winners_copeland(duel_scores)
                 # Simpson method
                 case CondorcetMethod.SIMPSON:
-                # TODO: Implement Simpson
                     winners = self.__condorcet_winners_simpson(duel_scores)
 
 
