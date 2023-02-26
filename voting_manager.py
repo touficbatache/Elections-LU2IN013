@@ -338,7 +338,6 @@ class VotingManager:
         """
         # type : { cand1:[difference des DEFAITES de cand1], ... , candN:[difference des DEFAITES de candn] }
         defeatscores = defaultdict(list)
-        duel_items = []
 
         for duel in duels:
             duel_items = list(duel.items()) #Creating list of couples in a single duel -> list(tuple): 
