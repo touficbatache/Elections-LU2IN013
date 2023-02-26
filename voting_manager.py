@@ -28,17 +28,18 @@ class VotingManager:
         """
         return sorted(candidate_labels, key=str.casefold, reverse=reverse)[0]
 
-    def __find_winners(self, results: dict) -> list[str]:
+    def __find_winners(self, results: dict, reverse:bool = True) -> list[str]:
         """
         Finds the winners in a dictionary of candidates and scores.
 
         :param results: dictionary of results (..., candidate_label : score, ...)
+        :param reverse: whether to select winners by max or min score
         :return: list(winners' labels)
         """
         return [
             candidate_label
             for candidate_label, score in results.items()
-            if score == sorted(results.values(), reverse=True)[0]
+            if score == sorted(results.values(), reverse=reverse)[0]
         ]
 
     def __find_winner(self, results: dict) -> tuple[str, bool, list]:
@@ -335,12 +336,8 @@ class VotingManager:
         :param duels: list(..., { candidate1_label: score, candidate2_label: score }, ...)
         :return: list(winners)
         """
-        defeatscores = dict() # type : { cand1:[difference des DEFAITES de cand1], ... , candN:[difference des DEFAITES de candn] }
+        defeatscores = defaultdict(list) # type : { cand1:[difference des DEFAITES de cand1], ... , candN:[difference des DEFAITES de candn] }
         duel_items = []
- 
-        for duel in duels: #Loop on list
-            for k,v in duel.items() :
-                defeatscores[k] = []
 
         for duel in duels:
             duel_items = list(duel.items()) #Creating list of couples in a single duel -> list(tuple): 
@@ -359,13 +356,6 @@ class VotingManager:
 
         for label, listscore in defeatscores.items() :
             maxdefeat[label] = max(listscore)
-            
-        min_value = min(maxdefeat.values())
-        #min_key = min(maxdefeat, key=lambda k: maxdefeat[k])
 
-        for k, v in maxdefeat : 
-            if v == min_value :
-                winners.append(k)
-        
-        return (winners)
+        return __find_winners(maxdefeat, reverse=False)
         
