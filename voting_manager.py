@@ -25,10 +25,12 @@ class VotingManager:
         Returns the first or last element of the alphabetically sorted list of candidates.
 
         :param candidate_labels: the list of candidate labels
+        :param reverse: reverse sorted() order used for elimination_successive
+        :return the winner's label according to alphabetical sorting
         """
         return sorted(candidate_labels, key=str.casefold, reverse=reverse)[0]
 
-    def __find_winners(self, results: dict, reverse:bool = True) -> list[str]:
+    def __find_winners(self, results: dict, reverse: bool = True) -> list[str]:
         """
         Finds the winners in a dictionary of candidates and scores.
 
@@ -182,7 +184,7 @@ class VotingManager:
         veto_scores = dict()
 
         for profil in profils.values():
-            if len(profil) == 1 :
+            if len(profil) == 1:
                 return profil[0][0], False, []
 
             for candidate_label, _ in profil[:-1]:
@@ -273,8 +275,6 @@ class VotingManager:
                 case CondorcetMethod.SIMPSON:
                     winners = self.__condorcet_winners_simpson(duel_scores)
 
-
-
             # If we have only one winner, return them
             if len(winners) == 1:
                 return winners[0], True, False, None
@@ -307,7 +307,7 @@ class VotingManager:
         scores = dict()
         for duel in duels:
             duel_items = list(duel.items())
-            
+
             # Assign a score of 0.5 to each candidate in  case of equality
             if duel_items[0][1] == duel_items[1][1]:
                 if duel_items[0][0] not in scores:
@@ -325,7 +325,6 @@ class VotingManager:
 
         return self.__find_winners(scores)
 
-
     def __condorcet_winners_simpson(self, duels: list[dict[str, int]]) -> list[str]:
         """
         Condorcet voting system.
@@ -339,22 +338,20 @@ class VotingManager:
         defeatscores = defaultdict(list)
 
         for duel in duels:
-            #Creating list of couples in a single duel -> list(tuple): 
+            # Creating list of couples in a single duel -> list(tuple):
             duel_items = list(duel.items())
-        
-            #Initializing the score differences list
-            if duel_items[0][1] < duel_items[1][1] :
-                defeatscores[duel_items[0][0]].append(abs(duel_items[0][1] - duel_items[1][1] ))
-            elif duel_items[0][1] > duel_items[1][1] :
-                defeatscores[duel_items[1][0]].append(abs(duel_items[0][1] - duel_items[1][1] ))
-            else :
+            # Initializing the score differences list
+            if duel_items[0][1] < duel_items[1][1]:
+                defeatscores[duel_items[0][0]].append(abs(duel_items[0][1] - duel_items[1][1]))
+            elif duel_items[0][1] > duel_items[1][1]:
+                defeatscores[duel_items[1][0]].append(abs(duel_items[0][1] - duel_items[1][1]))
+            else:
                 defeatscores[duel_items[1][0]].append(0)
                 defeatscores[duel_items[0][0]].append(0)
 
         maxdefeat = dict()
 
-        for label, listscore in defeatscores.items() :
+        for label, listscore in defeatscores.items():
             maxdefeat[label] = max(listscore)
 
         return self.__find_winners(maxdefeat, reverse=False)
-        
