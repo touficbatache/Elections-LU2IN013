@@ -771,29 +771,22 @@ def show_mult_methods(list_of_checks: list):
                             tk.Label(top_main, text="Non", width="5").grid(row=row_index, column=2)
                             row_index += 1
                         else:
+                            title = "Condorcet - " + CondorcetMethod(var_condorcet_method.get()).name
                             if not result_condorcet[2]:
-                                tk.Label(top_main, text="Condorcet", width=len("Condorcet")).grid(row=row_index,
+                                tk.Label(top_main, text=title, width=len(title)).grid(row=row_index,
                                                                                                   column=0)
                                 tk.Label(top_main, text=str(result_condorcet[0]), font=("Mistral", "22", "bold"),
                                          width="5").grid(row=row_index, column=1)
-                                tk.Label(top_main, text="Méthode de condorcet utilisée", width="20").grid(
-                                    row=row_index + 1, column=0)
-                                tk.Label(top_main, text=CondorcetMethod(var_condorcet_method.get()).name,
-                                         width="20").grid(row=row_index + 1, column=1)
                                 tk.Label(top_main, text="Non", width="5").grid(row=row_index, column=2)
-                                row_index += 2
+                                row_index += 1
                             else:
-                                tk.Label(top_main, text="Condorcet", width=len("Condorcet")).grid(row=row_index,
+                                tk.Label(top_main, text=title, width=len(title)).grid(row=row_index,
                                                                                                   column=0)
                                 tk.Label(top_main, text=str(result_condorcet[0]), font=("Mistral", "22", "bold"),
                                          width="5").grid(row=row_index, column=1)
-                                tk.Label(top_main, text="Méthode de condorcet utilisée", width="25").grid(
-                                    row=row_index + 1, column=0)
-                                tk.Label(top_main, text=CondorcetMethod(var_condorcet_method.get()).name,
-                                         width="20").grid(row=row_index + 1, column=1)
                                 tk.Label(top_main, text=CondorcetTieBreakingRule(var_condorcet_tie_breaking.get()).name,
                                          width="20").grid(row=row_index, column=2)
-                                row_index += 2
+                                row_index += 1
                     case _:
                         func = "voting_manager." + var_method.__str__() + "(generate_profils())"
                         result = eval(func)
