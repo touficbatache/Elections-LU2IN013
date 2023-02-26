@@ -340,7 +340,8 @@ class VotingManager:
         defeatscores = defaultdict(list)
 
         for duel in duels:
-            duel_items = list(duel.items()) #Creating list of couples in a single duel -> list(tuple): 
+            #Creating list of couples in a single duel -> list(tuple): 
+            duel_items = list(duel.items())
         
             #Initializing the score differences list
             if duel_items[0][1] < duel_items[1][1] :
