@@ -351,7 +351,6 @@ class VotingManager:
                 defeatscores[duel_items[1][0]].append(0)
                 defeatscores[duel_items[0][0]].append(0)
 
-        winners = []
         maxdefeat = dict()
 
         for label, listscore in defeatscores.items() :
