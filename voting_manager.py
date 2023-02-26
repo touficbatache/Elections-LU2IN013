@@ -357,5 +357,5 @@ class VotingManager:
         for label, listscore in defeatscores.items() :
             maxdefeat[label] = max(listscore)
 
-        return __find_winners(maxdefeat, reverse=False)
+        return self.__find_winners(maxdefeat, reverse=False)
         
