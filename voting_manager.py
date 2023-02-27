@@ -1,3 +1,4 @@
+import random
 from collections import defaultdict
 from enum import Enum
 
@@ -280,16 +281,11 @@ class VotingManager:
                 return winners[0], True, False, None
             # If not, use the tie-breaking rule given as an argument
             else:
-                # TODO: remove this return when the match is implemented
-                return winners[0], True, True, winners
-
-                # match tie_breaking_rule:
-                #     case CondorcetTieBreakingRule.ORDRE_LEXICO:
-                #         # TODO: Implement alphabetical order tie-breaking
-                #         return winners[0], True, winners
-                #     case CondorcetTieBreakingRule.RANDOM:
-                #         # TODO: Implement random tie-breaking
-                #         return winners[0], True, winners
+                match tie_breaking_rule:
+                    case CondorcetTieBreakingRule.ORDRE_LEXICO:
+                        return self.__departage(winners), True, True, winners
+                    case CondorcetTieBreakingRule.RANDOM:
+                        return random.choice(winners), True, True, winners
 
     def __condorcet_winners_copeland(self, duels: list[dict[str, int]]) -> list[str]:
         """
