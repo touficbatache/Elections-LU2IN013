@@ -368,12 +368,12 @@ def validate_approval_radius(*args):
 
 
 # Function to show a popup, handle the input and distribute candidates/voters
-def show_approbation(profils, multiple_method_bool):
+def show_approbation(profils, is_multiple_method):
     """
     Show a popup asking the user for the approval circle's radius.
 
     :param profils: Scores for each voter
-    :param multiple_method_bool: boolean to check if we need the "multiple method" version or not
+    :param is_multiple_method: boolean to check if we need the "multiple method" version or not
     """
     global top_approbation
     top_approbation = tk.Toplevel(root)
@@ -392,16 +392,16 @@ def show_approbation(profils, multiple_method_bool):
         text="Laisser vide pour valeur de défaut (" + str(default_approval_radius) + "%)"
     ).pack()
 
-    if multiple_method_bool:
-        tk.Button(
-            top_approbation, text="Valider", command=lambda: top_approbation.destroy()
-        ).pack()
+    button = tk.Button(
+        top_approbation, text="Valider", command=lambda: top_approbation.destroy()
+    )
+    button.pack()
 
+    if is_multiple_method:
+        button.configure(command=lambda: top_approbation.destroy())
         top_approbation.protocol("WM_DELETE_WINDOW", lambda: on_multiple_mode_option_closed("approbation"))
     else:
-        tk.Button(
-            top_approbation,
-            text="Définir",
+        button.configure(
             command=lambda: [
                 calculate_approbation(
                     profils,
@@ -409,7 +409,7 @@ def show_approbation(profils, multiple_method_bool):
                 ),
                 top_approbation.destroy()
             ]
-        ).pack()
+        )
 
 
 # Function to validate the input given (the number of candidates or voters)
@@ -430,11 +430,11 @@ def validate_borda(*args):
 
 
 # Function to show a popup, handle the input and distribute candidates/voters
-def show_borda(profils, multiple_method_bool):
+def show_borda(profils, is_multiple_method):
     """
     Show a popup asking the user for the maximum score attribution in borda.
 
-    :param multiple_method_bool: boolean to check if we need the "multiple method" version or not
+    :param is_multiple_method: boolean to check if we need the "multiple method" version or not
     :param profils: Scores for each voter
     """
     global top_borda
@@ -466,13 +466,14 @@ def show_borda(profils, multiple_method_bool):
         text="Laisser vide pour valeur de défaut (nombre de candidats=" + str(borda_max) + ", pas=1)"
     ).pack()
 
-    if multiple_method_bool:
-        tk.Button(top_borda, text="Valider", command=lambda: top_borda.destroy()).pack()
+    button = tk.Button(top_borda, text="Valider")
+    button.pack()
+
+    if is_multiple_method:
+        button.configure(command=lambda: top_borda.destroy())
         top_borda.protocol("WM_DELETE_WINDOW", lambda: on_multiple_mode_option_closed("borda"))
     else:
-        tk.Button(
-            top_borda,
-            text="Valider",
+        button.configure(
             command=lambda: [
                 display_winner(
                     voting_manager.borda(
@@ -483,7 +484,7 @@ def show_borda(profils, multiple_method_bool):
                 ),
                 top_borda.destroy()
             ]
-        ).pack()
+        )
 
 
 def calculate_approbation(profils, approval_radius):
@@ -775,31 +776,28 @@ def show_condorcet(profils, is_multiple_method):
         value=CondorcetTieBreakingRule.ORDRE_LEXICO.value, anchor="w"
     ).pack(fill="both")
 
-    if is_multiple_method:
-        tk.Button(
-            top_condorcet,
-            text="Valider",
-            command=lambda: top_condorcet.destroy() if var_condorcet_tie_breaking.get() != 0 and var_condorcet_method.get() != 0 else None
-        ).pack()
+    button = tk.Button(top_condorcet, text="Valider")
+    button.pack()
 
+    if is_multiple_method:
+        button.configure(
+            command=lambda: top_condorcet.destroy() if var_condorcet_tie_breaking.get() != 0 and var_condorcet_method.get() != 0 else None
+        )
         top_condorcet.protocol("WM_DELETE_WINDOW", lambda: on_multiple_mode_option_closed("condorcet"))
     else:
-        tk.Button(
-            top_condorcet,
-            text="Valider",
-            command=lambda: [
-                display_condorcet_winner(
-                    voting_manager.condorcet(
-                        profils,
-                        CondorcetMethod(var_condorcet_method.get()),
-                        CondorcetTieBreakingRule(var_condorcet_tie_breaking.get())
-                    ),
+        button.configure(command=lambda: [
+            display_condorcet_winner(
+                voting_manager.condorcet(
+                    profils,
                     CondorcetMethod(var_condorcet_method.get()),
                     CondorcetTieBreakingRule(var_condorcet_tie_breaking.get())
                 ),
-                top_condorcet.destroy(),
-            ],
-        ).pack()
+                CondorcetMethod(var_condorcet_method.get()),
+                CondorcetTieBreakingRule(var_condorcet_tie_breaking.get())
+            ),
+            top_condorcet.destroy()
+        ]
+                         )
 
 
 def show_voting_systems():
