@@ -25,20 +25,23 @@ class VotingManager:
         Returns the first or last element of the alphabetically sorted list of candidates.
 
         :param candidate_labels: the list of candidate labels
+        :param reverse: reverse sorted() order used for elimination_successive
+        :return the winner's label according to alphabetical sorting
         """
         return sorted(candidate_labels, key=str.casefold, reverse=reverse)[0]
 
-    def __find_winners(self, results: dict) -> list[str]:
+    def __find_winners(self, results: dict, reverse: bool = True) -> list[str]:
         """
         Finds the winners in a dictionary of candidates and scores.
 
         :param results: dictionary of results (..., candidate_label : score, ...)
+        :param reverse: whether to select winners by max or min score
         :return: list(winners' labels)
         """
         return [
             candidate_label
             for candidate_label, score in results.items()
-            if score == sorted(results.values(), reverse=True)[0]
+            if score == sorted(results.values(), reverse=reverse)[0]
         ]
 
     def __find_winner(self, results: dict) -> tuple[str, bool, list]:
@@ -181,7 +184,7 @@ class VotingManager:
         veto_scores = dict()
 
         for profil in profils.values():
-            if len(profil) == 1 :
+            if len(profil) == 1:
                 return profil[0][0], False, []
 
             for candidate_label, _ in profil[:-1]:
@@ -202,7 +205,7 @@ class VotingManager:
 
         In this voting system, we start by generating pairs for each 2 candidates
         and organizing duels between them. In order to win, the candidate's score
-        must be strictly greater than his opponent's. In the case of equality,
+        must be strictly greater than his opponent's. In the case of a tie,
         neither the candidate nor their opponent are added to any of the "wins" or
         "losses" tables: we simply do nothing.
 
@@ -269,8 +272,8 @@ class VotingManager:
                 case CondorcetMethod.COPELAND:
                     winners = self.__condorcet_winners_copeland(duel_scores)
                 # Simpson method
-            #     case CondorcetMethod.SIMPSON:
-            #         # TODO: Implement Simpson
+                case CondorcetMethod.SIMPSON:
+                    winners = self.__condorcet_winners_simpson(duel_scores)
 
             # If we have only one winner, return them
             if len(winners) == 1:
@@ -321,3 +324,34 @@ class VotingManager:
                 scores[duel_items[winner_index][0]] += 1
 
         return self.__find_winners(scores)
+
+    def __condorcet_winners_simpson(self, duels: list[dict[str, int]]) -> list[str]:
+        """
+        Condorcet voting system.
+        Simpson method.
+
+        The winner is the candidate whose highest defeat score in duels is the lowest among the other candidates.
+        :param duels: list(..., { candidate1_label: score, candidate2_label: score }, ...)
+        :return: list(winners)
+        """
+        # type : { cand1:[difference des DEFAITES de cand1], ... , candN:[difference des DEFAITES de candn] }
+        defeatscores = defaultdict(list)
+
+        for duel in duels:
+            # Creating list of couples in a single duel -> list(tuple):
+            duel_items = list(duel.items())
+            # Initializing the score differences list
+            if duel_items[0][1] < duel_items[1][1]:
+                defeatscores[duel_items[0][0]].append(abs(duel_items[0][1] - duel_items[1][1]))
+            elif duel_items[0][1] > duel_items[1][1]:
+                defeatscores[duel_items[1][0]].append(abs(duel_items[0][1] - duel_items[1][1]))
+            else:
+                defeatscores[duel_items[1][0]].append(0)
+                defeatscores[duel_items[0][0]].append(0)
+
+        maxdefeat = dict()
+
+        for label, listscore in defeatscores.items():
+            maxdefeat[label] = max(listscore)
+
+        return self.__find_winners(maxdefeat, reverse=False)
