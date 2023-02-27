@@ -93,7 +93,11 @@ class VotingManager:
                     return candidate, False, []
 
             # Find the list of labels of all candidates who had the lowest score
-            losers = [label for label, score in scores.items() if score == sorted(scores.values(), reverse=False)[0]]
+            losers = [
+                label
+                for label, score in scores.items()
+                if score == sorted(scores.values(), reverse=False)[0]
+            ]
 
             # Remove the candidate whose label is last in alphabetical order
             letter = self.__departage(losers, True)
@@ -105,7 +109,9 @@ class VotingManager:
                         profil.remove((candidate, _))
                         break
 
-    def approbation(self, profils: dict, approval_radius: int) -> tuple[str, bool, list] | None:
+    def approbation(
+        self, profils: dict, approval_radius: int
+    ) -> tuple[str, bool, list] | None:
         """
         Approval voting system (système de vote par approbation).
 

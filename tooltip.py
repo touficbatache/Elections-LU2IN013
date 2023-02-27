@@ -10,7 +10,7 @@ class Tooltip(object):
         self.text = None
 
     def show(self, text):
-        """Display text in tooltip window"""""
+        """Display text in tooltip window""" ""
         self.text = text
 
         if self.window or not self.text:
@@ -30,7 +30,7 @@ class Tooltip(object):
             background="#ffffff",
             relief=SOLID,
             borderwidth=1,
-            font=("Mistral", "13", "normal")
+            font=("Mistral", "13", "normal"),
         )
         label.pack(ipadx=4)
 
@@ -50,5 +50,5 @@ def bind_tooltip(widget, text):
     def leave(event):
         tooltip.hide()
 
-    widget.bind('<Enter>', enter)
-    widget.bind('<Leave>', leave)
+    widget.bind("<Enter>", enter)
+    widget.bind("<Leave>", leave)
