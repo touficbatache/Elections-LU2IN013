@@ -620,7 +620,7 @@ def on_closing(var):
         top_select_condorcet.destroy()
 
 
-def combined_modes():
+def show_combined_voting_systems_popup():
     """
     Allows user to select different modes and calls show_mult_methods to display the different winners.
     """
@@ -702,7 +702,7 @@ def combined_modes():
     button.pack()
 
 
-def show_mult_methods(list_of_checks: list):
+def display_multiple_voting_systems_winner(list_of_checks: list):
     """
     Displays the winners according to different voting methods according to selection in combined_modes()
 
@@ -905,10 +905,10 @@ def show_voting_systems():
         btn_condorcet.grid(row=2, column=1)
 
         # Combined mode button
-        btn_mult = tk.Button(
-            top, text="Modes combinés", height=7, width=45, command=combined_modes
+        btn_multiple_voting_systems = tk.Button(
+            top, text="Modes combinés", height=7, width=45, command=show_combined_voting_systems_popup
         )
-        btn_mult.grid(row=3, column=0, columnspan=2)
+        btn_multiple_voting_systems.grid(row=3, column=0, columnspan=2)
 
 
 def display_winner(winner: tuple[str, bool, list] | None, method: str):
