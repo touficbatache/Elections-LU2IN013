@@ -39,23 +39,50 @@ class GraphManager:
         self.__axes = self.__fig.add_subplot()
         self.__axes.set(xlim=(-1.1, 1.1), ylim=(-1.1, 1.1))
         # Add text on top, right, bottom and left side of graph respectively
-        self.__axes.text(0.5, 1.05, "Libéralisme culturel", transform=self.__axes.transAxes, ha="center", va="center")
-        self.__axes.text(1.05, 0.5, "Libéralisme économique", transform=self.__axes.transAxes, ha="center", va="center",
-                         rotation=270)
-        self.__axes.text(0.5, -0.05, "Conservatisme culturel", transform=self.__axes.transAxes, ha="center",
-                         va="center")
-        self.__axes.text(-0.05, 0.5, "Interventionnisme étatique", transform=self.__axes.transAxes, ha="center",
-                         va="center", rotation=90)
+        self.__axes.text(
+            0.5,
+            1.05,
+            "Libéralisme culturel",
+            transform=self.__axes.transAxes,
+            ha="center",
+            va="center",
+        )
+        self.__axes.text(
+            1.05,
+            0.5,
+            "Libéralisme économique",
+            transform=self.__axes.transAxes,
+            ha="center",
+            va="center",
+            rotation=270,
+        )
+        self.__axes.text(
+            0.5,
+            -0.05,
+            "Conservatisme culturel",
+            transform=self.__axes.transAxes,
+            ha="center",
+            va="center",
+        )
+        self.__axes.text(
+            -0.05,
+            0.5,
+            "Interventionnisme étatique",
+            transform=self.__axes.transAxes,
+            ha="center",
+            va="center",
+            rotation=90,
+        )
         # Remove value ticks from the x-axes and the y-axes
         self.__axes.set_xticks([])
         self.__axes.set_yticks([])
         # Change the position of the axes to the middle
-        self.__axes.spines['left'].set_position('center')
-        self.__axes.spines['bottom'].set_position('center')
-        self.__axes.spines['right'].set_color('none')
-        self.__axes.spines['top'].set_color('none')
-        self.__axes.xaxis.set_ticks_position('bottom')
-        self.__axes.yaxis.set_ticks_position('left')
+        self.__axes.spines["left"].set_position("center")
+        self.__axes.spines["bottom"].set_position("center")
+        self.__axes.spines["right"].set_color("none")
+        self.__axes.spines["top"].set_color("none")
+        self.__axes.xaxis.set_ticks_position("bottom")
+        self.__axes.yaxis.set_ticks_position("left")
 
         # Create a tkinter canvas to display the graph
         self.__canvas = FigureCanvasTkAgg(self.__fig, master=tk_root)
@@ -69,13 +96,19 @@ class GraphManager:
             return False
 
         # Plot the voter on the graph
-        point, = self.__axes.plot(voter.coordinates()[0], voter.coordinates()[1], 'o', color="black", zorder=10)
+        (point,) = self.__axes.plot(
+            voter.coordinates()[0],
+            voter.coordinates()[1],
+            "o",
+            color="black",
+            zorder=10,
+        )
         # Label the point on the graph
         annotation = self.__axes.annotate(
             text=voter.label(),
             xy=voter.coordinates(),
             xytext=(voter.coordinates()[0] - 0.02, voter.coordinates()[1] + 0.05),
-            zorder=11
+            zorder=11,
         )
         # Add voter to the dict
         self.__voters[voter.label()] = (point, annotation)
@@ -103,13 +136,18 @@ class GraphManager:
             return False
 
         # Plot the candidate on the graph
-        point, = self.__axes.plot(candidate.coordinates()[0], candidate.coordinates()[1], 's', zorder=10)
+        (point,) = self.__axes.plot(
+            candidate.coordinates()[0], candidate.coordinates()[1], "s", zorder=10
+        )
         # Label the point on the graph
         annotation = self.__axes.annotate(
             text=candidate.label(),
             xy=candidate.coordinates(),
-            xytext=(candidate.coordinates()[0] - 0.02, candidate.coordinates()[1] + 0.05),
-            zorder=11
+            xytext=(
+                candidate.coordinates()[0] - 0.02,
+                candidate.coordinates()[1] + 0.05,
+            ),
+            zorder=11,
         )
         # Add candidate to the dict
         self.__candidates[candidate.label()] = (point, annotation)
@@ -154,8 +192,8 @@ class GraphManager:
         Return the diagonal size of the graph.
         """
         return math.sqrt(
-            (int(self.__axes.get_xlim()[1]) - int(self.__axes.get_xlim()[0])) ** 2 +
-            (int(self.__axes.get_ylim()[1]) - int(self.__axes.get_ylim()[0])) ** 2
+            (int(self.__axes.get_xlim()[1]) - int(self.__axes.get_xlim()[0])) ** 2
+            + (int(self.__axes.get_ylim()[1]) - int(self.__axes.get_ylim()[0])) ** 2
         )
 
     def add_approbation_circles(self, approval_radius: int):
@@ -171,7 +209,11 @@ class GraphManager:
         # Calculate the multiplier in order to fill the diagonal:
         #   - radius multiplier: diagonal size / x-axis size
         #   - diameter multiplier: 2 * radius multiplier
-        multiplier = 2 * self.get_diagonal() / (int(self.__axes.get_xlim()[1]) - int(self.__axes.get_xlim()[0]))
+        multiplier = (
+            2
+            * self.get_diagonal()
+            / (int(self.__axes.get_xlim()[1]) - int(self.__axes.get_xlim()[0]))
+        )
 
         # For each candidate, plot the approval circles (color them accordingly)
         for candidate_label, (coordinates, _) in self.__candidates.items():
@@ -183,7 +225,7 @@ class GraphManager:
                 multiplier * approval_radius / 100,
                 color=coordinates.get_color(),
                 fill=False,
-                zorder=15
+                zorder=15,
             )
             self.__approbation_circles.append(circle)
             self.__axes.add_patch(circle)
