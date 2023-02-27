@@ -4,6 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class Voter:
     """Data class for keeping track of a voter."""
+
     __label: str
     __coordinates: tuple
 
