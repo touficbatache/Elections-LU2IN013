@@ -6,6 +6,7 @@ import tkinter as tk
 
 from candidate import Candidate
 from graph_manager import GraphManager
+from file_manager import FileManager
 from tooltip import bind_tooltip
 from voter import Voter
 from voting_manager import VotingManager, CondorcetMethod, CondorcetTieBreakingRule
@@ -154,6 +155,10 @@ def add_candidate_on_graph(coordinates: tuple) -> int:
         return len(candidates) - 1
 
     return -1
+
+
+# Create a file manager
+file_manager = FileManager(root, graph_manager, add_candidate_on_graph, add_voter_on_graph)
 
 
 # Function to handle the key press event
@@ -974,6 +979,14 @@ distribute_candidates = tk.Button(
     command=lambda: show_distribute_popup(stringvar_number_candidates, is_voter=False)
 )
 distribute_candidates.place(relx=0.75, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+
+# Import file on button click
+import_file = tk.Button(root, text="Lire des données", command=lambda: file_manager.import_from_file())
+import_file.place(relx=0.36, rely=0, relwidth=0.22, relheight=0.05)
+
+# Export file on button click
+export_file = tk.Button(root, text="Sauvegarder les données", command=lambda: file_manager.export_objects_to_file(candidates, voters))
+export_file.place(relx=0.14, rely=0, relwidth=0.22, relheight=0.05)
 
 # Start the tkinter event loop
 root.mainloop()
