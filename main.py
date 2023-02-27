@@ -737,12 +737,12 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
                         row_index += 1
 
 
-def show_condorcet(profils, multiple_method_bool):
+def show_condorcet(profils, is_multiple_method):
     """
     Show a popup asking the user to choose the Condorcet method and tie-breaking rule.
 
     :param profils: Scores for each voter
-    :param multiple_method_bool: boolean to check if we need the "multiple method" version or not
+    :param is_multiple_method: boolean to check if we need the "multiple method" version or not
     """
     global top_condorcet
     top_condorcet = tk.Toplevel(root)
@@ -775,7 +775,7 @@ def show_condorcet(profils, multiple_method_bool):
         value=CondorcetTieBreakingRule.ORDRE_LEXICO.value, anchor="w"
     ).pack(fill="both")
 
-    if multiple_method_bool:
+    if is_multiple_method:
         tk.Button(
             top_condorcet,
             text="Valider",
