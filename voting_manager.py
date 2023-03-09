@@ -1,3 +1,4 @@
+import random
 from collections import defaultdict
 from enum import Enum
 
@@ -92,7 +93,11 @@ class VotingManager:
                     return candidate, False, []
 
             # Find the list of labels of all candidates who had the lowest score
-            losers = [label for label, score in scores.items() if score == sorted(scores.values(), reverse=False)[0]]
+            losers = [
+                label
+                for label, score in scores.items()
+                if score == sorted(scores.values(), reverse=False)[0]
+            ]
 
             # Remove the candidate whose label is last in alphabetical order
             letter = self.__departage(losers, True)
@@ -104,7 +109,9 @@ class VotingManager:
                         profil.remove((candidate, _))
                         break
 
-    def approbation(self, profils: dict, approval_radius: int) -> tuple[str, bool, list] | None:
+    def approbation(
+        self, profils: dict, approval_radius: int
+    ) -> tuple[str, bool, list] | None:
         """
         Approval voting system (système de vote par approbation).
 
@@ -280,16 +287,11 @@ class VotingManager:
                 return winners[0], True, False, None
             # If not, use the tie-breaking rule given as an argument
             else:
-                # TODO: remove this return when the match is implemented
-                return winners[0], True, True, winners
-
-                # match tie_breaking_rule:
-                #     case CondorcetTieBreakingRule.ORDRE_LEXICO:
-                #         # TODO: Implement alphabetical order tie-breaking
-                #         return winners[0], True, winners
-                #     case CondorcetTieBreakingRule.RANDOM:
-                #         # TODO: Implement random tie-breaking
-                #         return winners[0], True, winners
+                match tie_breaking_rule:
+                    case CondorcetTieBreakingRule.ORDRE_LEXICO:
+                        return self.__departage(winners), True, True, winners
+                    case CondorcetTieBreakingRule.RANDOM:
+                        return random.choice(winners), True, True, winners
 
     def __condorcet_winners_copeland(self, duels: list[dict[str, int]]) -> list[str]:
         """
