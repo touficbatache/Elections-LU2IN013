@@ -1,9 +1,10 @@
 import math
-from tkinter import Tk, Canvas
+from tkinter import Widget, Canvas
 from typing import Callable
 
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.patheffects import withStroke
 
 from candidate import Candidate
 from voter import Voter
@@ -21,17 +22,17 @@ class GraphManager:
     """
 
     # Store the voters' data (points and annotations) in the form of:
-    # dict ({ str("voter_label") : tuple(point, annotation) })
-    __voters = dict()
+    # list (tuple(str("voter_label"), tuple(point, annotation)))
+    __voters = list()
 
     # Store the candidates' data (points and annotations) in the form of:
-    # dict ({ str("candidate_label") : tuple(point, annotation) })
-    __candidates = dict()
+    # list (tuple(str("candidate_label"), tuple(point, annotation)))
+    __candidates = list()
 
     # Store the plotted approbation approval circles
     __approbation_circles = list()
 
-    def __init__(self, tk_root: Tk):
+    def __init__(self, tk_root: Widget):
         # Create a figure
         self.__fig = plt.figure()
 
@@ -92,7 +93,7 @@ class GraphManager:
         Adds the voter to the graph (point and annotation), without building it.
         Calling build() is necessary to see the updated changes.
         """
-        if voter.label() in self.__voters:
+        if voter.get_label() in self.__voters:
             return False
 
         # Plot the voter on the graph
@@ -105,22 +106,46 @@ class GraphManager:
         )
         # Label the point on the graph
         annotation = self.__axes.annotate(
-            text=voter.label(),
+            text=voter.get_label(),
             xy=voter.coordinates(),
             xytext=(voter.coordinates()[0] - 0.02, voter.coordinates()[1] + 0.05),
             zorder=11,
         )
         # Add voter to the dict
-        self.__voters[voter.label()] = (point, annotation)
+        self.__voters.append((voter.get_label(), (point, annotation)))
 
         return True
+
+    def edit_voter_at(self, index: int, voter: Voter):
+        """
+        Edits the voter at a given index on the graph, without building it.
+        Calling build() is necessary to see the updated changes.
+
+        :param index: index of the desired voter
+        :param voter: new voter data
+        """
+        label, (point, annotation) = self.__voters[index]
+        point.remove()
+        annotation.remove()
+
+        # Plot the voter on the graph
+        point, = self.__axes.plot(voter.coordinates()[0], voter.coordinates()[1], 'o', color="black", zorder=10)
+        # Label the point on the graph
+        annotation = self.__axes.annotate(
+            text=voter.get_label(),
+            xy=voter.coordinates(),
+            xytext=(voter.coordinates()[0] - 0.02, voter.coordinates()[1] + 0.05),
+            zorder=10
+        )
+        # Replace voter in the dict
+        self.__voters[index] = (voter.get_label(), (point, annotation))
 
     def clear_voters(self):
         """
         Clears all the voters from the graph, without building it.
         Calling build() is necessary to see the updated changes.
         """
-        for (point, annotation) in self.__voters.values():
+        for (label, (point, annotation)) in self.__voters:
             point.remove()
             annotation.remove()
 
@@ -132,34 +157,57 @@ class GraphManager:
         Calling build() is necessary to see the updated changes.
         """
 
-        if candidate.label() in self.__candidates:
+        if candidate.get_label() in self.__candidates:
             return False
 
         # Plot the candidate on the graph
-        (point,) = self.__axes.plot(
-            candidate.coordinates()[0], candidate.coordinates()[1], "s", zorder=10
-        )
+        point, = self.__axes.plot(candidate.coordinates()[0], candidate.coordinates()[1], 's',
+                                  color=candidate.get_color(), zorder=11)
         # Label the point on the graph
         annotation = self.__axes.annotate(
-            text=candidate.label(),
+            text=candidate.get_label(),
             xy=candidate.coordinates(),
-            xytext=(
-                candidate.coordinates()[0] - 0.02,
-                candidate.coordinates()[1] + 0.05,
-            ),
+            xytext=(candidate.coordinates()[0] - 0.02, candidate.coordinates()[1] + 0.05),
             zorder=11,
+            path_effects=[withStroke(linewidth=2, foreground="white")]
         )
         # Add candidate to the dict
-        self.__candidates[candidate.label()] = (point, annotation)
+        self.__candidates.append((candidate.get_label(), (point, annotation)))
 
         return True
+
+    def edit_candidate_at(self, index: int, candidate: Candidate):
+        """
+        Edits the candidate at a given index on the graph, without building it.
+        Calling build() is necessary to see the updated changes.
+
+        :param index: index of the desired candidate
+        :param candidate: new candidate data
+        """
+        label, (point, annotation) = self.__candidates[index]
+        point.remove()
+        annotation.remove()
+
+        # Plot the candidate on the graph
+        point, = self.__axes.plot(candidate.coordinates()[0], candidate.coordinates()[1], 's',
+                                  color=candidate.get_color(), zorder=11)
+        # Label the point on the graph
+        annotation = self.__axes.annotate(
+            text=candidate.get_label(),
+            xy=candidate.coordinates(),
+            xytext=(candidate.coordinates()[0] - 0.02, candidate.coordinates()[1] + 0.05),
+            zorder=11,
+            path_effects=[withStroke(linewidth=2, foreground="white")]
+        )
+        # Replace candidate in the dict
+        self.__candidates[index] = (candidate.get_label(), (point, annotation))
 
     def clear_candidates(self):
         """
         Clears all the candidates from the graph, without building it.
         Calling build() is necessary to see the updated changes.
         """
-        for (point, annotation) in self.__candidates.values():
+        for (label, (point, annotation)) in self.__candidates:
             point.remove()
             annotation.remove()
 
@@ -216,7 +264,7 @@ class GraphManager:
         )
 
         # For each candidate, plot the approval circles (color them accordingly)
-        for candidate_label, (coordinates, _) in self.__candidates.items():
+        for (candidate_label, (coordinates, _)) in self.__candidates:
             xs, ys = coordinates.get_data()
 
             # Plot the approval circle
