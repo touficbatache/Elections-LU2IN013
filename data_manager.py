@@ -21,6 +21,9 @@ class DataManager:
     # Voters cleared callback
     __on_voters_cleared: Callable[[], None]
 
+    # Voter error callback
+    __on_voter_error: Callable[[str], None]
+
     # Store the candidates
     __candidates: list[Candidate] = []
 
@@ -32,6 +35,9 @@ class DataManager:
 
     # Candidates cleared callback
     __on_candidates_cleared: Callable[[], None]
+
+    # Candidate error callback
+    __on_candidate_error: Callable[[str], None]
 
     # Voter
 
@@ -89,8 +95,9 @@ class DataManager:
         """
 
         # Avoid duplicates (unique labels!)
-        for added_voter in self.__voters:
-            if added_voter.get_label() == label:
+        for added_index, added_voter in enumerate(self.__voters):
+            if added_voter.get_label() == label and added_index != index:
+                self.__on_voter_error("Un votant avec ce nom existe déjà.")
                 return False
 
         self.__voters[index].set_label(label)
@@ -140,6 +147,15 @@ class DataManager:
         :param callback: the callback function
         """
         self.__on_voters_cleared = callback
+
+    def set_voter_error_callback(self, callback: Callable[[str], None]):
+        """
+        Sets the (on voter error) callback, which is called when
+        an error occurs with a voter.
+
+        :param callback: the callback function
+        """
+        self.__on_voter_error = callback
 
     # Candidate
 
@@ -265,6 +281,7 @@ class DataManager:
         # Avoid duplicates (unique labels!)
         for added_index, added_candidate in enumerate(self.__candidates):
             if added_candidate.get_label() == label and added_index != index:
+                self.__on_candidate_error("Un candidat avec ce nom existe déjà.")
                 return False
 
         self.__candidates[index].set_label(label)
@@ -315,3 +332,12 @@ class DataManager:
         :param callback: the callback function
         """
         self.__on_candidates_cleared = callback
+
+    def set_candidate_error_callback(self, callback: Callable[[str], None]):
+        """
+        Sets the (on candidate error) callback, which is called when
+        an error occurs with a candidate.
+
+        :param callback: the callback function
+        """
+        self.__on_candidate_error = callback

@@ -202,12 +202,20 @@ def on_candidates_cleared():
     list_box__candidates.delete(0, tk.END)
 
 
+def on_candidate_error(error: str):
+    """
+    Callback function for when an error occurs with a candidate.
+    """
+    tk.messagebox.showerror(message=error)
+
+
 # Bind callback functions with Data Manager
 data_manager.set_voter_added_callback(on_voter_added)
 data_manager.set_voters_cleared_callback(on_voters_cleared)
 data_manager.set_candidate_added_callback(on_candidate_added)
 data_manager.set_candidate_edited_callback(on_candidate_edited)
 data_manager.set_candidates_cleared_callback(on_candidates_cleared)
+data_manager.set_candidate_error_callback(on_candidate_error)
 
 
 def on_key_press(event):
