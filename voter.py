@@ -12,13 +12,19 @@ class Voter:
         self.__label = label
         self.__coordinates = coordinates
 
-    def label(self) -> str:
+    def get_label(self) -> str:
         """
         :return: the voter's label
         """
         return self.__label
 
-    def coordinates(self) -> tuple:
+    def set_label(self, label: str):
+        """
+        :param label: the voter's new label
+        """
+        self.__label = label
+
+    def coordinates(self) -> tuple[float, float]:
         """
         :return: the voter's coordinates
         """
