@@ -22,6 +22,8 @@ class Candidate:
         colors = mcolors.XKCD_COLORS
         if "xkcd:black" in colors:
             colors.pop("xkcd:black")
+        if "xkcd:white" in colors:
+            colors.pop("xkcd:white")
         return cls(label, coordinates, random.choice(list(colors.values())))
 
     def get_label(self) -> str:
