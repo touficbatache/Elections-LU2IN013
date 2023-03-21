@@ -131,14 +131,11 @@ def show_edit_candidate_popup(event):
     button = tk.Button(
         edit_candidate_popup,
         text="Valider",
-        command=lambda: (
-            data_manager.edit_candidate_at(
-                index=clicked_candidate_index,
-                label=stringvar_edit_candidate_name.get(),
-                color=color_picker["bg"]
-            ),
-            edit_candidate_popup.destroy()
-        )
+        command=lambda: (edit_candidate_popup.destroy() if data_manager.edit_candidate_at(
+            index=clicked_candidate_index,
+            label=stringvar_edit_candidate_name.get(),
+            color=color_picker["bg"]
+        ) else None)
     )
     button.pack()
 

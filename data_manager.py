@@ -86,12 +86,13 @@ class DataManager:
 
         return self.__voters[index]
 
-    def edit_voter_at(self, index: int, label: str):
+    def edit_voter_at(self, index: int, label: str) -> bool:
         """
         Modifies the voter label at the given index.
 
         :param index: index of the desired voter
         :param label: voter's new label
+        :return: if the voter was edited successfully or not
         """
 
         # Avoid duplicates (unique labels!)
@@ -103,6 +104,8 @@ class DataManager:
         self.__voters[index].set_label(label)
         if self.__on_voter_edited is not None:
             self.__on_voter_edited(self.__voters[index], index)
+
+        return True
 
     def is_voters_empty(self) -> bool:
         """
@@ -269,13 +272,14 @@ class DataManager:
 
         return self.__candidates[index]
 
-    def edit_candidate_at(self, index: int, label: str, color: str):
+    def edit_candidate_at(self, index: int, label: str, color: str) -> bool:
         """
         Modifies the candidate label and color at the given index.
 
         :param index: index of the desired candidate
         :param label: candidate's new label
         :param color: candidate's new color
+        :return: if the candidate was edited successfully or not
         """
 
         # Avoid duplicates (unique labels!)
@@ -288,6 +292,8 @@ class DataManager:
         self.__candidates[index].set_color(color)
         if self.__on_candidate_edited is not None:
             self.__on_candidate_edited(self.__candidates[index], index)
+
+        return True
 
     def is_candidates_empty(self) -> bool:
         """
