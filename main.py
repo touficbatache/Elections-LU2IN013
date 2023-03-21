@@ -37,6 +37,7 @@ tk.Label(left_panel, text="Les candidats").pack(side=tk.TOP, pady=20)
 
 # 1.2. Add the candidates list
 list_box__candidates = tk.Listbox(left_panel)
+list_box__candidates.config(selectmode=tk.SINGLE)
 list_box__candidates.pack(side=tk.LEFT, fill=tk.BOTH)
 
 # 2. Lay out main panel which shows the graph and other stuff
@@ -53,6 +54,7 @@ is_shift_pressed = False
 # Variables to keep track of the popup windows
 top = None
 winner_dialog = None
+edit_candidate_popup = None
 
 # Create the StringVar used to hold the requested number of candidates
 stringvar_number_candidates = tk.StringVar(name="number_candidates")
@@ -79,17 +81,41 @@ var_condorcet_method = tk.IntVar(name="var_condorcet_method")
 var_condorcet_tie_breaking = tk.IntVar(name="var_condorcet_tie_breaking")
 
 
+def lift_window(window):
+    window.attributes('-topmost', True)
+    # disable the topmost attribute after it is at the front to prevent permanent focus
+    window.attributes('-topmost', False)
+    window.focus_force()
+    window.bell()
+
+
 def show_edit_candidate_popup(event):
     clicked_candidate_index, = list_box__candidates.curselection()
     clicked_candidate = data_manager.get_candidate_at(clicked_candidate_index)
 
-    top_main = tk.Toplevel(root)
-    top_main.title("Renommer le candidat")
+    global edit_candidate_popup
+    if edit_candidate_popup and edit_candidate_popup.winfo_exists():
+        lift_window(edit_candidate_popup)
+        if edit_candidate_popup.candidate_label == clicked_candidate.get_label():
+            return
 
-    label_title = tk.Label(top_main, text="Nom du candidat :")
+        discardOpenPopup = tk.messagebox.askyesno(
+            message="Un autre candidat est en cours de modification.\n"
+                    "Voulez-vous les ignorer et modifier le candidat sélectionné ?"
+        )
+        if discardOpenPopup:
+            edit_candidate_popup.destroy()
+        else:
+            return
+
+    edit_candidate_popup = tk.Toplevel(root)
+    edit_candidate_popup.candidate_label = clicked_candidate.get_label()
+    edit_candidate_popup.title("Modifier le candidat")
+
+    label_title = tk.Label(edit_candidate_popup, text="Nom du candidat :")
     label_title.pack()
 
-    stack_horizontal = tk.Frame(top_main)
+    stack_horizontal = tk.Frame(edit_candidate_popup)
     stack_horizontal.pack(padx=10)
 
     color_picker = tk.Frame(stack_horizontal, width=21, height=21, background=clicked_candidate.get_color())
@@ -103,7 +129,7 @@ def show_edit_candidate_popup(event):
     entry.pack(side=tk.RIGHT)
 
     button = tk.Button(
-        top_main,
+        edit_candidate_popup,
         text="Valider",
         command=lambda: (
             data_manager.edit_candidate_at(
@@ -111,7 +137,7 @@ def show_edit_candidate_popup(event):
                 label=stringvar_edit_candidate_name.get(),
                 color=color_picker["bg"]
             ),
-            top_main.destroy()
+            edit_candidate_popup.destroy()
         )
     )
     button.pack()
