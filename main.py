@@ -250,11 +250,34 @@ is_clicked_gaussienne = False
 is_voter_gaussienne = False
 
 
+def set_all_buttons(border, disable):
+    global reset_voters, reset_candidates, generate_profiles, \
+        btn_show_voting_systems, distribute_voters, distribute_candidates
+
+    list_buttons = [reset_voters, reset_candidates, generate_profiles,
+                    btn_show_voting_systems, distribute_voters, distribute_candidates]
+
+    for button in list_buttons:
+        if border:
+            button.configure(borderwidth=1)
+        else:
+            if disable:
+                button.configure(state=tk.DISABLED)
+            if not disable:
+                global is_clicked_gaussienne
+                is_clicked_gaussienne = False
+                button.configure(state=tk.NORMAL)
+
+    if disable:
+        root.bind("<Escape>", lambda e: set_all_buttons(False, False))
+
+
 def click_gaussienne(is_voter):
     global is_clicked_gaussienne
     is_clicked_gaussienne = True
     global is_voter_gaussienne
     is_voter_gaussienne = is_voter
+    set_all_buttons(False, True)
 
 
 def on_graph_click(event):
@@ -427,6 +450,7 @@ def distribute_gaussienne(x, y_value):
             i += 1
 
         graph_manager.build()
+        set_all_buttons(False, False)
 
 
 def show_profils_popup():
