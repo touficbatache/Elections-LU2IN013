@@ -2,6 +2,7 @@ import math
 import random
 import string
 
+import numpy as np
 import tkinter as tk
 from tkinter.colorchooser import askcolor
 
@@ -63,7 +64,8 @@ stringvar_number_candidates = tk.StringVar(name="number_candidates")
 stringvar_number_voters = tk.StringVar(name="number_voters")
 
 # Default value for nb candidates/voters
-default_nb_candidates_voters = 7
+default_nb_candidates_voters = 10
+default_gaussienne = 30
 
 # Create the StringVar used to hold the approval radius around candidates
 stringvar_approval_radius = tk.StringVar(name="approval_radius")
@@ -244,6 +246,17 @@ root.bind("<KeyPress>", on_key_press)
 root.bind("<KeyRelease>", on_key_release)
 
 
+is_clicked_gaussienne = False
+is_voter_gaussienne = False
+
+
+def click_gaussienne(is_voter):
+    global is_clicked_gaussienne
+    is_clicked_gaussienne = True
+    global is_voter_gaussienne
+    is_voter_gaussienne = is_voter
+
+
 def on_graph_click(event):
     """
     Callback function to handle clicking on the graph.
@@ -253,6 +266,12 @@ def on_graph_click(event):
     # Get the x and y coordinates of the click event
     x = event.xdata
     y = event.ydata
+
+    global is_clicked_gaussienne
+    if is_clicked_gaussienne:
+        is_clicked_gaussienne = False
+        distribute_gaussienne(x, y)
+        return
 
     # Add the point to the list of points, only if clicked inside the graph
     if x is not None and -1 <= x <= 1 and y is not None and -1 <= y <= 1:
@@ -319,32 +338,42 @@ def show_distribute_popup(is_voter: bool):
     """
     s = "votants" if is_voter else "candidats"
 
+    global is_clicked_gaussienne
+    is_clicked_gaussienne = False
+
     top_main = tk.Toplevel(root)
     top_main.title("Choisir le nombre de " + s)
-    top_main.geometry("250x150")
+    top_main.geometry("255x170")
 
     label_title = tk.Label(top_main, text="Donner le nombre de " + s + " :")
-    label_title.pack()
+    label_title.grid(row=0, column=0)
 
     global log
     log = tk.StringVar()
     stringvar_number = stringvar_number_voters if is_voter else stringvar_number_candidates
     stringvar_number.trace_variable("w", validate_candidates_voters_number)
     entry = tk.Entry(top_main, width=20, textvariable=stringvar_number)
-    entry.pack()
+    entry.grid(row=1, column=0)
 
     label_hint = tk.Label(
         top_main,
-        text="Laisser vide pour valeur de défaut (" + str(default_nb_candidates_voters) + ")"
+        text="Laisser vide pour valeur de défaut:\n" + str(default_nb_candidates_voters) + " pour distribution uniforme\n" + str(default_gaussienne) + " pour distribution gaussienne"
     )
-    label_hint.pack()
+    label_hint.grid(row=2, column=0)
 
-    button = tk.Button(
+    button_uniforme = tk.Button(
         top_main,
-        text="Distribuer les " + s,
+        text="Distribution uniforme des " + s,
         command=lambda: [distribute(is_voter), top_main.destroy()]
     )
-    button.pack()
+    button_uniforme.grid(row=3, column=0)
+
+    button_gaussienne = tk.Button(
+        top_main,
+        text="Distribution gaussienne des " + s,
+        command=lambda: [click_gaussienne(is_voter), top_main.destroy()]
+    )
+    button_gaussienne.grid(row=4, column=0)
 
 
 def distribute(is_voter: bool):
@@ -372,6 +401,32 @@ def distribute(is_voter: bool):
 
     # Build the graph: redraw the canvas
     graph_manager.build()
+
+
+def distribute_gaussienne(x, y_value):
+    stringvar_number = stringvar_number_voters if is_voter_gaussienne else stringvar_number_candidates
+    if stringvar_number.get() != "":
+        nb = int(stringvar_number.get())
+    else:
+        nb = default_gaussienne
+
+    if x is not None and -1 <= x <= 1 and y_value is not None and -1 <= y_value <= 1:
+        sample_x = np.random.normal(x, 0.22, 1000)
+        sample_y = np.random.normal(y_value, 0.22, 1000)
+
+        j = 0
+        i = 0
+        while j < nb:
+            if -1 <= sample_x[i] <= 1 and -1 <= sample_y[i] <= 1:
+                coordinates = (sample_x[i], sample_y[i])
+                if is_voter_gaussienne:
+                    data_manager.add_voter(coordinates)
+                else:
+                    data_manager.add_candidate(coordinates)
+                j += 1
+            i += 1
+
+        graph_manager.build()
 
 
 def show_profils_popup():
@@ -748,6 +803,8 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
     """
     global top_main
     if top_main:
+        global is_clicked_gaussienne
+        is_clicked_gaussienne = False
         top_main.destroy()
 
     top_main = tk.Toplevel(root)
