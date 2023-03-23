@@ -2,7 +2,7 @@ class KeyboardManager:
     """
     Class to manage all keyboard interactions.
     """
-    # Save key format in veriables
+    # Save key format in variables
     __tab: str = '<Tab>'
     __shift: str = '<Shift>'
     __shift_tab: str = '<Shift-Tab>'
@@ -11,7 +11,7 @@ class KeyboardManager:
 
     def enter_bind(self, frame, widget):
         """
-        Binds the Enter key to invoking the widgets for a certain frame.
+        Binds the Enter key to invoking the widget of a certain frame.
 
         :param frame: Frame in which the widget is present
         :param widget: Widget to be invoked by the Enter key
@@ -40,7 +40,7 @@ class KeyboardManager:
     def esc_bind(self, frame, event=''):
         """
         Binds the ESC to closing the frame using the event function.
-        If event is not given, the function destroys the frame.
+        If event is not given, the function destroys the frame usind detroy().
         Else, the function uses event to close the frame.
 
         :param frame: Frame that should be closed using ESC
@@ -54,10 +54,10 @@ class KeyboardManager:
     def tab_focus_change(self, frame, list_widgets, reverse=False):
         """
         Works with tab_bind() and shift_tab_bind(). This functions creates a focus
-        around the selected widget while tapping Tab key and binds this widget with
-        the Enter key using enter_bind(). If the user presses Shift + Tab, the function
-        works with reverse mechanism to alternate through widgets in reverse mode. Focus
-        is created using a gray highlight or default focus.
+        around the selected widget while tapping (Shift + ) Tab key(s) and binds this
+        widget with the Enter key using enter_bind(). If the user presses Shift + Tab,
+        the function works with reverse mechanism to alternate through widgets in
+        reverse mode. Focus is created using a gray highlight or default focus.
 
         :param frame: Frame in which widgets are in
         :param list_widgets: List of widgets to (reverse) alternate between using (Shift + ) Tab
@@ -76,11 +76,11 @@ class KeyboardManager:
                 list_widgets[nb_widgets] += 1
 
         widget = list_widgets[list_widgets[nb_widgets]]
-        self.set_all_buttons(list_widgets)
+        self.reset_all_buttons(list_widgets)
         widget.configure(highlightbackground="gray")
         self.enter_bind(frame, widget)
 
-    def set_all_buttons(self, list_widgets):
+    def reset_all_buttons(self, list_widgets):
         """
         Works with tab_focus_change(). Removes highlight focus from widgets.
 
