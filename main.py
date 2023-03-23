@@ -65,7 +65,7 @@ stringvar_number_voters = tk.StringVar(name="number_voters")
 
 # Default value for nb candidates/voters
 default_nb_candidates_voters = 10
-default_gaussian = 30
+gaussian_nb_candidates_voters = 30
 
 # Create the DoubleVar used to track the value of sigma for the gaussian distribution
 sigma_value = tk.DoubleVar()
@@ -253,11 +253,10 @@ root.bind("<KeyPress>", on_key_press)
 root.bind("<KeyRelease>", on_key_release)
 
 
-def set_all_buttons(border, disable):
+def disable_all_buttons(disable):
     """
     Function to modify the state of all buttons (enable or disable).
 
-    :param border: bool - if True, modify the borderwidth of all buttons, else do nothing
     :param disable: bool - if True, disable all buttons, else return them to normal state
     """
     global reset_voters, reset_candidates, generate_profiles, \
@@ -267,18 +266,18 @@ def set_all_buttons(border, disable):
                     btn_show_voting_systems, distribute_voters, distribute_candidates]
 
     for button in list_buttons:
-        if border:
-            button.configure(borderwidth=1)
+        if disable:
+            button.configure(state=tk.DISABLED, cursor="X_cursor")
         else:
-            if disable:
-                button.configure(state=tk.DISABLED)
+            global is_clicked_gaussian
+            is_clicked_gaussian = False
+            if button == reset_voters or button == reset_candidates:
+                button.configure(state=tk.NORMAL, cursor="exchange")
             else:
-                global is_clicked_gaussian
-                is_clicked_gaussian = False
-                button.configure(state=tk.NORMAL)
+                button.configure(state=tk.NORMAL, cursor="arrow")
 
     if disable:
-        root.bind("<Escape>", lambda e: set_all_buttons(False, False))
+        root.bind("<Escape>", lambda e: disable_all_buttons(False))
 
 
 def on_click_gaussian(is_voter):
@@ -294,7 +293,7 @@ def on_click_gaussian(is_voter):
     global is_voter_gaussian
     is_voter_gaussian = is_voter
 
-    set_all_buttons(False, True)
+    disable_all_buttons(True)
 
 
 def on_graph_click(event):
@@ -394,7 +393,7 @@ def show_distribute_popup(is_voter: bool):
 
     label_hint = tk.Label(
         top_main,
-        text="Laisser vide pour valeur de défaut:\n" + str(default_nb_candidates_voters) + " pour distribution uniforme\n" + str(default_gaussian) + " pour distribution gaussienne"
+        text="Laisser vide pour valeur de défaut:\n" + str(default_nb_candidates_voters) + " pour distribution uniforme\n" + str(gaussian_nb_candidates_voters) + " pour distribution gaussienne"
     )
     label_hint.grid(row=2, column=0)
 
@@ -457,7 +456,7 @@ def distribute_gaussian(x, y):
     if stringvar_number.get() != "":
         nb = int(stringvar_number.get())
     else:
-        nb = default_gaussian
+        nb = gaussian_nb_candidates_voters
 
     sigma = sigma_value.get()
 
@@ -478,7 +477,7 @@ def distribute_gaussian(x, y):
             i += 1
 
         graph_manager.build()
-        set_all_buttons(False, False)
+        disable_all_buttons(False)
 
 
 def show_profils_popup():
