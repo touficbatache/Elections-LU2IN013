@@ -872,7 +872,8 @@ def show_combined_voting_systems_popup():
     )
     button.pack()
 
-    list_widgets = [check_plualite_simple, check_approbation, check_borda, check_elim_succ, check_veto, check_condorcet, button, -1]
+    list_widgets = [check_plualite_simple, check_approbation, check_borda, check_elim_succ, check_veto, check_condorcet,
+                    button, -1]
     keyboard_manager.tab_bind(top_combined_mode, list_widgets)
     keyboard_manager.shift_tab_bind(top_combined_mode, list_widgets)
     keyboard_manager.esc_bind(top_combined_mode)
@@ -1124,7 +1125,8 @@ def show_voting_systems_popup():
         )
         btn_multiple_voting_systems.grid(row=3, column=0, columnspan=2)
 
-        list_buttons = [btn_pluralite_simple, btn_approbation, btn_borda, btn_elimination_successive, btn_veto, btn_condorcet, btn_multiple_voting_systems, -1]
+        list_buttons = [btn_pluralite_simple, btn_approbation, btn_borda, btn_elimination_successive, btn_veto,
+                        btn_condorcet, btn_multiple_voting_systems, -1]
         keyboard_manager.tab_bind(top, list_buttons)
         keyboard_manager.shift_tab_bind(top, list_buttons)
         keyboard_manager.esc_bind(top)
@@ -1192,7 +1194,9 @@ def show_winner_popup(winner: tuple[str, bool, list] | None, method: str):
         else:
             tk.Label(winner_dialog, text="Il n'y a pas eu de départage").grid(row=3, column=0, columnspan=2)
 
-    keyboard_manager.esc_bind_approbation(winner_dialog, graph_manager)
+    event = lambda e: [graph_manager.clear_approbation_circles(), graph_manager.build(),
+                       winner_dialog.destroy()]
+    keyboard_manager.esc_bind(winner_dialog, event)
 
 
 def display_condorcet_winner_popup(
