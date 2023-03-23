@@ -283,6 +283,7 @@ def disable_all_buttons(disable):
 def on_click_gaussian(is_voter):
     """
     Function to update the value of global variables once 'gaussian distribution' button is clicked.
+    These variables are then used to determine whether to plot a normal voter/candidate on click, or to apply a gaussian distribution.
     Disables all buttons until 'distribute_gaussian' function is called.
 
     :param is_voter: bool(voters?) - if True, distribute voters in gaussian distribution, else candidates
@@ -306,6 +307,7 @@ def on_graph_click(event):
     x = event.xdata
     y = event.ydata
 
+    # If gaussian distribution is activated, plot voters/candidates accordingly
     global is_clicked_gaussian
     if is_clicked_gaussian:
         is_clicked_gaussian = False
