@@ -65,7 +65,14 @@ stringvar_number_voters = tk.StringVar(name="number_voters")
 
 # Default value for nb candidates/voters
 default_nb_candidates_voters = 10
-default_gaussienne = 30
+default_gaussian = 30
+
+# Create the DoubleVar used to track the value of sigma for the gaussian distribution
+sigma_value = tk.DoubleVar()
+
+# Create the variables to keep track of the 'gaussian distribution' button press
+is_clicked_gaussian = False
+is_voter_gaussian = False
 
 # Create the StringVar used to hold the approval radius around candidates
 stringvar_approval_radius = tk.StringVar(name="approval_radius")
@@ -246,11 +253,13 @@ root.bind("<KeyPress>", on_key_press)
 root.bind("<KeyRelease>", on_key_release)
 
 
-is_clicked_gaussienne = False
-is_voter_gaussienne = False
-
-
 def set_all_buttons(border, disable):
+    """
+    Function to modify the state of all buttons (enable or disable).
+
+    :param border: bool - if True, modify the borderwidth of all buttons, else do nothing
+    :param disable: bool - if True, disable all buttons, else return them to normal state
+    """
     global reset_voters, reset_candidates, generate_profiles, \
         btn_show_voting_systems, distribute_voters, distribute_candidates
 
@@ -263,20 +272,28 @@ def set_all_buttons(border, disable):
         else:
             if disable:
                 button.configure(state=tk.DISABLED)
-            if not disable:
-                global is_clicked_gaussienne
-                is_clicked_gaussienne = False
+            else:
+                global is_clicked_gaussian
+                is_clicked_gaussian = False
                 button.configure(state=tk.NORMAL)
 
     if disable:
         root.bind("<Escape>", lambda e: set_all_buttons(False, False))
 
 
-def click_gaussienne(is_voter):
-    global is_clicked_gaussienne
-    is_clicked_gaussienne = True
-    global is_voter_gaussienne
-    is_voter_gaussienne = is_voter
+def on_click_gaussian(is_voter):
+    """
+    Function to update the value of global variables once 'gaussian distribution' button is clicked.
+    Disables all buttons until 'distribute_gaussian' function is called.
+
+    :param is_voter: bool(voters?) - if True, distribute voters in gaussian distribution, else candidates
+    """
+    global is_clicked_gaussian
+    is_clicked_gaussian = True
+
+    global is_voter_gaussian
+    is_voter_gaussian = is_voter
+
     set_all_buttons(False, True)
 
 
@@ -290,10 +307,10 @@ def on_graph_click(event):
     x = event.xdata
     y = event.ydata
 
-    global is_clicked_gaussienne
-    if is_clicked_gaussienne:
-        is_clicked_gaussienne = False
-        distribute_gaussienne(x, y)
+    global is_clicked_gaussian
+    if is_clicked_gaussian:
+        is_clicked_gaussian = False
+        distribute_gaussian(x, y)
         return
 
     # Add the point to the list of points, only if clicked inside the graph
@@ -361,12 +378,9 @@ def show_distribute_popup(is_voter: bool):
     """
     s = "votants" if is_voter else "candidats"
 
-    global is_clicked_gaussienne
-    is_clicked_gaussienne = False
-
     top_main = tk.Toplevel(root)
     top_main.title("Choisir le nombre de " + s)
-    top_main.geometry("255x170")
+    top_main.geometry("255x230")
 
     label_title = tk.Label(top_main, text="Donner le nombre de " + s + " :")
     label_title.grid(row=0, column=0)
@@ -380,7 +394,7 @@ def show_distribute_popup(is_voter: bool):
 
     label_hint = tk.Label(
         top_main,
-        text="Laisser vide pour valeur de défaut:\n" + str(default_nb_candidates_voters) + " pour distribution uniforme\n" + str(default_gaussienne) + " pour distribution gaussienne"
+        text="Laisser vide pour valeur de défaut:\n" + str(default_nb_candidates_voters) + " pour distribution uniforme\n" + str(default_gaussian) + " pour distribution gaussienne"
     )
     label_hint.grid(row=2, column=0)
 
@@ -391,12 +405,18 @@ def show_distribute_popup(is_voter: bool):
     )
     button_uniforme.grid(row=3, column=0)
 
-    button_gaussienne = tk.Button(
+    tk.Label(top_main, text="Choisir la valeur de l'écart-type :").grid(row=4, column=0)
+
+    sigma = tk.Scale(top_main, from_=0, to=0.5, digits=2, resolution=0.01, length=200, orient=tk.HORIZONTAL, variable=sigma_value)
+    sigma.set(0.22)
+    sigma.grid(row=5, column=0)
+
+    button_gaussian = tk.Button(
         top_main,
         text="Distribution gaussienne des " + s,
-        command=lambda: [click_gaussienne(is_voter), top_main.destroy()]
+        command=lambda: [on_click_gaussian(is_voter), top_main.destroy()]
     )
-    button_gaussienne.grid(row=4, column=0)
+    button_gaussian.grid(row=6, column=0)
 
 
 def distribute(is_voter: bool):
@@ -426,23 +446,31 @@ def distribute(is_voter: bool):
     graph_manager.build()
 
 
-def distribute_gaussienne(x, y_value):
-    stringvar_number = stringvar_number_voters if is_voter_gaussienne else stringvar_number_candidates
+def distribute_gaussian(x, y):
+    """
+    Function to distribute the candidates/voters on the graph from a normal (Gaussian) distribution.
+
+    :param x: the x coordinate of the mean (“centre”) of the distribution.
+    :param y: the y coordinate of the mean (“centre”) of the distribution.
+    """
+    stringvar_number = stringvar_number_voters if is_voter_gaussian else stringvar_number_candidates
     if stringvar_number.get() != "":
         nb = int(stringvar_number.get())
     else:
-        nb = default_gaussienne
+        nb = default_gaussian
 
-    if x is not None and -1 <= x <= 1 and y_value is not None and -1 <= y_value <= 1:
-        sample_x = np.random.normal(x, 0.22, 1000)
-        sample_y = np.random.normal(y_value, 0.22, 1000)
+    sigma = sigma_value.get()
+
+    if x is not None and -1 <= x <= 1 and y is not None and -1 <= y <= 1:
+        sample_x = np.random.normal(x, sigma, 10000)
+        sample_y = np.random.normal(y, sigma, 10000)
 
         j = 0
         i = 0
         while j < nb:
             if -1 <= sample_x[i] <= 1 and -1 <= sample_y[i] <= 1:
                 coordinates = (sample_x[i], sample_y[i])
-                if is_voter_gaussienne:
+                if is_voter_gaussian:
                     data_manager.add_voter(coordinates)
                 else:
                     data_manager.add_candidate(coordinates)
@@ -827,8 +855,6 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
     """
     global top_main
     if top_main:
-        global is_clicked_gaussienne
-        is_clicked_gaussienne = False
         top_main.destroy()
 
     top_main = tk.Toplevel(root)
