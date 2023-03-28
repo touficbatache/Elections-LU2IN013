@@ -6,6 +6,8 @@ import numpy as np
 import tkinter as tk
 from tkinter.colorchooser import askcolor
 
+from numpy import ndarray
+
 from candidate import Candidate
 from data_manager import DataManager
 from graph_manager import GraphManager
@@ -67,8 +69,11 @@ stringvar_number_voters = tk.StringVar(name="number_voters")
 default_nb_candidates_voters = 10
 gaussian_nb_candidates_voters = 30
 
-# Create the DoubleVar used to track the value of sigma for the gaussian distribution
-sigma_value = tk.DoubleVar()
+# Create the DoubleVar used to track the spread percentage for the gaussian distribution
+doublevar_spread_percentage_value = tk.DoubleVar(value=50)
+# Min and max values for the slider
+min_spread_percentage = 10
+max_spread_percentage = 100
 
 # Create the variables to keep track of the 'gaussian distribution' button press
 is_clicked_gaussian = False
@@ -393,7 +398,9 @@ def show_distribute_popup(is_voter: bool):
 
     label_hint = tk.Label(
         top_main,
-        text="Laisser vide pour valeur de défaut:\n" + str(default_nb_candidates_voters) + " pour distribution uniforme\n" + str(gaussian_nb_candidates_voters) + " pour distribution gaussienne"
+        text="Laisser vide pour valeur de défaut:\n" + str(
+            default_nb_candidates_voters) + " pour distribution uniforme\n" + str(
+            gaussian_nb_candidates_voters) + " pour distribution gaussienne"
     )
     label_hint.grid(row=2, column=0)
 
@@ -404,10 +411,10 @@ def show_distribute_popup(is_voter: bool):
     )
     button_uniforme.grid(row=3, column=0)
 
-    tk.Label(top_main, text="Choisir la valeur de l'écart-type :").grid(row=4, column=0)
+    tk.Label(top_main, text="Choisir la quantité de propagation (en %) :").grid(row=4, column=0)
 
-    sigma = tk.Scale(top_main, from_=0, to=0.5, digits=2, resolution=0.01, length=200, orient=tk.HORIZONTAL, variable=sigma_value)
-    sigma.set(0.22)
+    sigma = tk.Scale(top_main, from_=min_spread_percentage, to=max_spread_percentage, resolution=1, length=200,
+                     orient=tk.HORIZONTAL, variable=doublevar_spread_percentage_value)
     sigma.grid(row=5, column=0)
 
     button_gaussian = tk.Button(
@@ -458,26 +465,43 @@ def distribute_gaussian(x, y):
     else:
         nb = gaussian_nb_candidates_voters
 
-    sigma = sigma_value.get()
+    spread_percentage = doublevar_spread_percentage_value.get()
 
     if x is not None and -1 <= x <= 1 and y is not None and -1 <= y <= 1:
-        sample_x = np.random.normal(x, sigma, 10000)
-        sample_y = np.random.normal(y, sigma, 10000)
+        sigma_min = 0.1
+        sigma_max = 0.7
+        sigma = np.interp(spread_percentage, (min_spread_percentage, max_spread_percentage), (sigma_min, sigma_max))
 
-        j = 0
-        i = 0
-        while j < nb:
-            if -1 <= sample_x[i] <= 1 and -1 <= sample_y[i] <= 1:
-                coordinates = (sample_x[i], sample_y[i])
-                if is_voter_gaussian:
-                    data_manager.add_voter(coordinates)
-                else:
-                    data_manager.add_candidate(coordinates)
-                j += 1
-            i += 1
+        xs, xs_probas = generate_2d_gaussian(x, sigma, nb)
+        ys, ys_probas = generate_2d_gaussian(y, sigma, nb)
+
+        nb_output = np.sum(np.outer(xs_probas, ys_probas).flatten())
+
+        for x, x_proba in zip(xs, xs_probas):
+            for y, y_proba in zip(ys, ys_probas):
+                if random.random() < (x_proba * y_proba) * (nb / nb_output):
+                    if is_voter_gaussian:
+                        data_manager.add_voter((x, y))
+                    else:
+                        data_manager.add_candidate((x, y))
 
         graph_manager.build()
         disable_all_buttons(False)
+
+
+def generate_2d_gaussian(center: float, sigma: float, size: int) -> tuple[ndarray, ndarray]:
+    """
+    Function that generates the x and y of a 2D Gaussian using
+    the center point, a sigma and a size determining the arrays' size.
+
+    :param center: center point
+    :param sigma: sigma
+    :param size: generated arrays' size
+    :return: tuple(x values, y values)
+    """
+    x = np.sort(np.random.normal(center, sigma, size))
+    y = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(x - center) ** 2 / (2 * sigma ** 2))
+    return x, y
 
 
 def show_profils_popup():
