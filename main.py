@@ -5,6 +5,7 @@ import string
 import numpy as np
 import tkinter as tk
 from tkinter.colorchooser import askcolor
+from PIL import Image, ImageTk
 
 from numpy import ndarray
 
@@ -1119,20 +1120,54 @@ def show_winner_popup(winner: tuple[str, bool, list] | None, method: str):
                                     winner_dialog.destroy()])
     winner_dialog.title("Vainqueur selon " + method)
 
+    width_height = 25
+
+    details_image = ImageTk.PhotoImage(Image.open("icons/png_icons/details_icon.png").resize((width_height, width_height)))
+    details_button = tk.Button(winner_dialog, image=details_image)
+    details_button.image = details_image
+    bind_tooltip(widget=details_button, text="Voir le détail des votes")
+    details_button.grid(row=0, column=0, sticky=tk.W)
+
+    info_image = ImageTk.PhotoImage(Image.open("icons/png_icons/info_icon.png").resize((width_height, width_height)))
+    info_button = tk.Button(winner_dialog, image=info_image)
+    info_button.image = info_image
+    bind_tooltip(widget=info_button, text="Définition du mode de vote")
+    info_button.grid(row=0, column=1, sticky=tk.E)
+
+    if method == "Pluralité Simple":
+        info_button.configure(command=lambda: voting_manager.pluralite_simple_details(winner_dialog))
+        details_button.configure(command=lambda: voting_manager.pluralite_simple(generate_profils(), winner_dialog))
+    if method == "Borda":
+        maximum = int(stringvar_borda_max.get()) if stringvar_borda_max.get() != '' else len(data_manager.get_candidates())
+        step = int(stringvar_borda_step.get()) if stringvar_borda_step.get() != '' else 1
+        info_button.configure(command=lambda: voting_manager.borda_details(maximum, step, winner_dialog))
+        details_button.configure(command=lambda: voting_manager.borda(generate_profils(), maximum, step, winner_dialog))
+    if method == "Approbation":
+        radius = int(stringvar_approval_radius.get()) if stringvar_approval_radius.get() != '' else default_approval_radius
+        info_button.configure(command=lambda: voting_manager.approbation_datails(radius, winner_dialog))
+        details_button.configure(command=lambda: voting_manager.approbation(generate_profils(), radius, winner_dialog))
+    if method == "Élimination Successive (STV)":
+        info_button.configure(command=lambda: voting_manager.elimination_successive_details(winner_dialog))
+        details_button.configure(
+            command=lambda: voting_manager.elimination_successive(generate_profils(), winner_dialog))
+    if method == "Veto":
+        info_button.configure(command=lambda: voting_manager.veto_details(winner_dialog))
+        details_button.configure(command=lambda: voting_manager.veto(generate_profils(), winner_dialog))
+
     if winner is None:
-        tk.Label(winner_dialog, text="Il n'y a pas de gagnant").pack()
+        tk.Label(winner_dialog, text="Il n'y a pas de gagnant").grid(row=1, column=0, columnspan=2)
         winner_dialog.geometry("270x40")
     else:
-        tk.Label(winner_dialog, text="Le gagnant selon le système " + method + " est :").pack()
+        tk.Label(winner_dialog, text="Le gagnant selon le système " + method + " est :").grid(row=1, column=0, columnspan=2)
 
-        tk.Label(winner_dialog, text=winner[0], font=("Mistral", "25", "normal")).pack()
+        tk.Label(winner_dialog, text=winner[0], font=("Mistral", "25", "normal")).grid(row=2, column=0, columnspan=2)
 
         if winner[1]:
-            tk.Label(winner_dialog, text="Ce candidat a gagné par départage parmi les concurrents suivants :").pack()
-            tk.Label(winner_dialog, text=str(winner[2])).pack()
-            tk.Label(winner_dialog, text="La règle de départage utilisée correspond à l'ordre alphabétique").pack()
+            tk.Label(winner_dialog, text="Ce candidat a gagné par départage parmi les concurrents suivants :").grid(row=3, column=0, columnspan=2)
+            tk.Label(winner_dialog, text=str(winner[2])).grid(row=4, column=0, columnspan=2)
+            tk.Label(winner_dialog, text="La règle de départage utilisée correspond à l'ordre alphabétique").grid(row=5, column=0, columnspan=2)
         else:
-            tk.Label(winner_dialog, text="Il n'y a pas eu de départage").pack()
+            tk.Label(winner_dialog, text="Il n'y a pas eu de départage").grid(row=3, column=0, columnspan=2)
 
 
 def display_condorcet_winner_popup(
@@ -1162,24 +1197,38 @@ def display_condorcet_winner_popup(
     winner_dialog.protocol('WM_DELETE_WINDOW', lambda: winner_dialog.destroy())
     winner_dialog.title("Gagnant selon Condorcet")
 
+    width_height = 25
+
+    details_image = ImageTk.PhotoImage(Image.open("icons/png_icons/details_icon.png").resize((width_height, width_height)))
+    details_button = tk.Button(winner_dialog, image=details_image, command=lambda: voting_manager.condorcet(generate_profils(), method, tie_breaking_rule, winner_dialog))
+    details_button.image = details_image
+    bind_tooltip(widget=details_button, text="Voir le détail des votes")
+    details_button.grid(row=0, column=0, sticky=tk.W)
+
+    info_image = ImageTk.PhotoImage(Image.open("icons/png_icons/info_icon.png").resize((width_height, width_height)))
+    info_button = tk.Button(winner_dialog, image=info_image, command=lambda: voting_manager.condorcet_details(method, tie_breaking_rule, winner_dialog))
+    info_button.image = info_image
+    bind_tooltip(widget=info_button, text="Définition du mode de vote")
+    info_button.grid(row=0, column=1, sticky=tk.E)
+
     if not is_method_used:
-        tk.Label(winner_dialog, text="Il y a un vainqueur de Condorcet (gagne tous ses duels) :").pack()
-        tk.Label(winner_dialog, text=winner_label, font=("Mistral", "25", "normal")).pack()
+        tk.Label(winner_dialog, text="Il y a un vainqueur de Condorcet (gagne tous ses duels) :").grid(row=1, column=0, columnspan=2)
+        tk.Label(winner_dialog, text=winner_label, font=("Mistral", "25", "normal")).grid(row=2, column=0, columnspan=2)
     else:
         tk.Label(winner_dialog,
-                 text="Il n'y a pas eu de vainqueur de Condorcet, et la méthode utilisée est celle de " + method.name).pack()
+                 text="Il n'y a pas eu de vainqueur de Condorcet, et la méthode utilisée est celle de " + method.name).grid(row=1, column=0, columnspan=2)
 
         if not is_tie_breaking_used:
-            tk.Label(winner_dialog, text="Un unique candidat a gagné :").pack()
-            tk.Label(winner_dialog, text=winner_label, font=("Mistral", "25", "normal")).pack()
-            tk.Label(winner_dialog, text="Il n'y a pas eu de départage").pack()
+            tk.Label(winner_dialog, text="Un unique candidat a gagné :").grid(row=2, column=0, columnspan=2)
+            tk.Label(winner_dialog, text=winner_label, font=("Mistral", "25", "normal")).grid(row=3, column=0, columnspan=2)
+            tk.Label(winner_dialog, text="Il n'y a pas eu de départage").grid(row=4, column=0, columnspan=2)
         else:
-            tk.Label(winner_dialog, text="Un candidat a gagné par départage :").pack()
-            tk.Label(winner_dialog, text=winner_label, font=("Mistral", "25", "normal")).pack()
-            tk.Label(winner_dialog, text="La règle de départage utilisée est " + tie_breaking_rule.name).pack()
-            tk.Label(winner_dialog, text="Les concurrents suivants ont perdu à cause du départage :").pack()
+            tk.Label(winner_dialog, text="Un candidat a gagné par départage :").grid(row=2, column=0, columnspan=2)
+            tk.Label(winner_dialog, text=winner_label, font=("Mistral", "25", "normal")).grid(row=3, column=0, columnspan=2)
+            tk.Label(winner_dialog, text="La règle de départage utilisée est " + tie_breaking_rule.name).grid(row=4, column=0, columnspan=2)
+            tk.Label(winner_dialog, text="Les concurrents suivants ont perdu à cause du départage :").grid(row=5, column=0, columnspan=2)
             all_winners.remove(winner_label)
-            tk.Label(winner_dialog, text=str(all_winners)).pack()
+            tk.Label(winner_dialog, text=str(all_winners)).grid(row=6, column=0, columnspan=2)
 
 
 # Add the canvas to the tkinter window
