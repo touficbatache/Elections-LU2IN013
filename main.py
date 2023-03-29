@@ -474,22 +474,22 @@ def distribute_gaussian(x: float, y: float):
     :param x: the x coordinate of the mean (“centre”) of the distribution.
     :param y: the y coordinate of the mean (“centre”) of the distribution.
     """
-    stringvar_number = stringvar_number_voters if is_voter_gaussian else stringvar_number_candidates
-    if stringvar_number.get() != "":
-        nb = int(stringvar_number.get())
-    else:
-        if is_voter_gaussian:
-            nb = gaussian_nb_voters
-        else:
-            nb = default_nb_candidates_voters
-
-    spread_percentage = doublevar_spread_percentage_value.get()
-
-    sigma_min = 0.1
-    sigma_max = 0.7
-    sigma = np.interp(spread_percentage, (min_spread_percentage, max_spread_percentage), (sigma_min, sigma_max))
-
     if x is not None and y is not None and -1 <= x <= 1 and -1 <= y <= 1:
+        stringvar_number = stringvar_number_voters if is_voter_gaussian else stringvar_number_candidates
+        if stringvar_number.get() != "":
+            nb = int(stringvar_number.get())
+        else:
+            if is_voter_gaussian:
+                nb = gaussian_nb_voters
+            else:
+                nb = default_nb_candidates_voters
+
+        spread_percentage = doublevar_spread_percentage_value.get()
+
+        sigma_min = 0.1
+        sigma_max = 0.7
+        sigma = np.interp(spread_percentage, (min_spread_percentage, max_spread_percentage), (sigma_min, sigma_max))
+
         xs, xs_probas = generate_2d_gaussian(x, sigma, nb)
         ys, ys_probas = generate_2d_gaussian(y, sigma, nb)
 
@@ -503,6 +503,7 @@ def distribute_gaussian(x: float, y: float):
                     else:
                         data_manager.add_candidate((x, y))
         graph_manager.build()
+
     disable_all_buttons(False)
 
 
