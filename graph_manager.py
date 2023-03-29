@@ -32,6 +32,9 @@ class GraphManager:
     # Store the plotted approbation approval circles
     __approbation_circles = list()
 
+    # Font size for annotations
+    __font_size = 8
+
     def __init__(self, tk_root: Widget):
         # Create a figure
         self.__fig = plt.figure()
@@ -47,6 +50,7 @@ class GraphManager:
             transform=self.__axes.transAxes,
             ha="center",
             va="center",
+            fontsize=self.__font_size,
         )
         self.__axes.text(
             1.05,
@@ -55,6 +59,7 @@ class GraphManager:
             transform=self.__axes.transAxes,
             ha="center",
             va="center",
+            fontsize=self.__font_size,
             rotation=270,
         )
         self.__axes.text(
@@ -64,6 +69,7 @@ class GraphManager:
             transform=self.__axes.transAxes,
             ha="center",
             va="center",
+            fontsize=self.__font_size,
         )
         self.__axes.text(
             -0.05,
@@ -72,6 +78,7 @@ class GraphManager:
             transform=self.__axes.transAxes,
             ha="center",
             va="center",
+            fontsize=self.__font_size,
             rotation=90,
         )
         # Remove value ticks from the x-axes and the y-axes
@@ -101,6 +108,7 @@ class GraphManager:
             voter.coordinates()[0],
             voter.coordinates()[1],
             "o",
+            markersize=4,
             color="black",
             zorder=10,
         )
@@ -109,6 +117,7 @@ class GraphManager:
             text=voter.get_label(),
             xy=voter.coordinates(),
             xytext=(voter.coordinates()[0] - 0.02, voter.coordinates()[1] + 0.05),
+            fontsize=self.__font_size,
             zorder=11,
         )
         # Add voter to the dict
@@ -161,13 +170,19 @@ class GraphManager:
             return False
 
         # Plot the candidate on the graph
-        point, = self.__axes.plot(candidate.coordinates()[0], candidate.coordinates()[1], 's',
-                                  color=candidate.get_color(), zorder=11)
+        point, = self.__axes.plot(
+            candidate.coordinates()[0],
+            candidate.coordinates()[1],
+            's',
+            markersize=4,
+            color=candidate.get_color(),
+            zorder=11)
         # Label the point on the graph
         annotation = self.__axes.annotate(
             text=candidate.get_label(),
             xy=candidate.coordinates(),
             xytext=(candidate.coordinates()[0] - 0.02, candidate.coordinates()[1] + 0.05),
+            fontsize=self.__font_size,
             zorder=11,
             path_effects=[withStroke(linewidth=2, foreground="white")]
         )
