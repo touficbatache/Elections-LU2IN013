@@ -39,8 +39,7 @@ left_panel.pack(side=tk.LEFT, fill=tk.Y)
 tk.Label(left_panel, text="Les candidats").pack(side=tk.TOP, pady=20)
 
 # 1.2. Add the candidates list
-list_box__candidates = tk.Listbox(left_panel)
-list_box__candidates.config(selectmode=tk.SINGLE)
+list_box__candidates = tk.Listbox(left_panel, selectmode=tk.SINGLE)
 list_box__candidates.pack(side=tk.LEFT, fill=tk.BOTH)
 
 # 2. Lay out main panel which shows the graph and other stuff
@@ -114,11 +113,11 @@ def show_edit_candidate_popup(event):
         if edit_candidate_popup.candidate_label == clicked_candidate.get_label():
             return
 
-        discardOpenPopup = tk.messagebox.askyesno(
+        discard_open_popup = tk.messagebox.askyesno(
             message="Un autre candidat est en cours de modification.\n"
                     "Voulez-vous les ignorer et modifier le candidat sélectionné ?"
         )
-        if discardOpenPopup:
+        if discard_open_popup:
             edit_candidate_popup.destroy()
         else:
             return
@@ -133,13 +132,11 @@ def show_edit_candidate_popup(event):
     stack_horizontal = tk.Frame(edit_candidate_popup)
     stack_horizontal.pack(padx=10)
 
-    color_picker = tk.Frame(stack_horizontal, width=21, height=21, background=clicked_candidate.get_color())
+    color_picker = tk.Frame(stack_horizontal, width=21, height=21, background=clicked_candidate.get_color(), cursor="spraycan")
     color_picker.pack(side=tk.LEFT)
     color_picker.bind("<Button-1>", lambda e: e.widget.configure(bg=askcolor(color=e.widget["bg"])[1]))
-    color_picker.configure(cursor="spraycan")
 
-    stringvar_edit_candidate_name = tk.StringVar(name="edit_candidate_name")
-    stringvar_edit_candidate_name.set(clicked_candidate.get_label())
+    stringvar_edit_candidate_name = tk.StringVar(name="edit_candidate_name", value=clicked_candidate.get_label())
     entry = tk.Entry(stack_horizontal, width=20, textvariable=stringvar_edit_candidate_name)
     entry.pack(side=tk.RIGHT)
 
