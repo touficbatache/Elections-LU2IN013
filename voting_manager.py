@@ -20,6 +20,7 @@ class VotingManager:
 
     KEY_WINS = "wins"
     KEY_LOSSES = "losses"
+    KEY_DRAWS = "draws"
 
     def __departage(self, candidate_labels: list, reverse: bool = False) -> str:
         """
@@ -261,13 +262,16 @@ class VotingManager:
             if duel_score[winner] != duel_score[loser]:
                 duel_results[winner][self.KEY_WINS].append(loser)
                 duel_results[loser][self.KEY_LOSSES].append(winner)
+            else:
+                duel_results[winner][self.KEY_DRAWS].append(loser)
+                duel_results[loser][self.KEY_DRAWS].append(winner)
 
         try:
             # Condorcet winner success
             winner = next(
                 candidate_label
                 for candidate_label, results in duel_results.items()
-                if len(results[self.KEY_LOSSES]) == 0
+                if len(results[self.KEY_LOSSES]) == 0 and len(results[self.KEY_DRAWS]) == 0
             )
             return winner, False, False, None
         except StopIteration:
