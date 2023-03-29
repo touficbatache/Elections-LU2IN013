@@ -2,8 +2,11 @@ import math
 import random
 import string
 
+import numpy as np
 import tkinter as tk
 from tkinter.colorchooser import askcolor
+
+from numpy import ndarray
 
 from candidate import Candidate
 from data_manager import DataManager
@@ -36,8 +39,7 @@ left_panel.pack(side=tk.LEFT, fill=tk.Y)
 tk.Label(left_panel, text="Les candidats").pack(side=tk.TOP, pady=20)
 
 # 1.2. Add the candidates list
-list_box__candidates = tk.Listbox(left_panel)
-list_box__candidates.config(selectmode=tk.SINGLE)
+list_box__candidates = tk.Listbox(left_panel, selectmode=tk.SINGLE)
 list_box__candidates.pack(side=tk.LEFT, fill=tk.BOTH)
 
 # 2. Lay out main panel which shows the graph and other stuff
@@ -63,7 +65,19 @@ stringvar_number_candidates = tk.StringVar(name="number_candidates")
 stringvar_number_voters = tk.StringVar(name="number_voters")
 
 # Default value for nb candidates/voters
-default_nb_candidates_voters = 7
+default_nb_candidates_voters = 10
+gaussian_nb_voters = 50
+
+# Create the DoubleVar used to track the spread percentage for the gaussian distribution
+doublevar_spread_percentage_value = tk.DoubleVar(value=50)
+# Min and max values for the slider
+min_spread_percentage = 10
+max_spread_percentage = 100
+
+
+# Create the variables to keep track of the 'gaussian distribution' button press
+is_clicked_gaussian = False
+is_voter_gaussian = False
 
 # Create the StringVar used to hold the approval radius around candidates
 stringvar_approval_radius = tk.StringVar(name="approval_radius")
@@ -99,11 +113,11 @@ def show_edit_candidate_popup(event):
         if edit_candidate_popup.candidate_label == clicked_candidate.get_label():
             return
 
-        discardOpenPopup = tk.messagebox.askyesno(
+        discard_open_popup = tk.messagebox.askyesno(
             message="Un autre candidat est en cours de modification.\n"
                     "Voulez-vous les ignorer et modifier le candidat sélectionné ?"
         )
-        if discardOpenPopup:
+        if discard_open_popup:
             edit_candidate_popup.destroy()
         else:
             return
@@ -118,13 +132,11 @@ def show_edit_candidate_popup(event):
     stack_horizontal = tk.Frame(edit_candidate_popup)
     stack_horizontal.pack(padx=10)
 
-    color_picker = tk.Frame(stack_horizontal, width=21, height=21, background=clicked_candidate.get_color())
+    color_picker = tk.Frame(stack_horizontal, width=21, height=21, background=clicked_candidate.get_color(), cursor="spraycan")
     color_picker.pack(side=tk.LEFT)
     color_picker.bind("<Button-1>", lambda e: e.widget.configure(bg=askcolor(color=e.widget["bg"])[1]))
-    color_picker.configure(cursor="spraycan")
 
-    stringvar_edit_candidate_name = tk.StringVar(name="edit_candidate_name")
-    stringvar_edit_candidate_name.set(clicked_candidate.get_label())
+    stringvar_edit_candidate_name = tk.StringVar(name="edit_candidate_name", value=clicked_candidate.get_label())
     entry = tk.Entry(stack_horizontal, width=20, textvariable=stringvar_edit_candidate_name)
     entry.pack(side=tk.RIGHT)
 
@@ -244,6 +256,50 @@ root.bind("<KeyPress>", on_key_press)
 root.bind("<KeyRelease>", on_key_release)
 
 
+def disable_all_buttons(disable: bool):
+    """
+    Function to modify the state of all buttons (enable or disable).
+
+    :param disable: bool - if True, disable all buttons, else return them to normal state
+    """
+    global reset_voters, reset_candidates, generate_profiles, \
+        btn_show_voting_systems, distribute_voters, distribute_candidates
+
+    list_buttons = [reset_voters, reset_candidates, generate_profiles,
+                    btn_show_voting_systems, distribute_voters, distribute_candidates]
+
+    for button in list_buttons:
+        if disable:
+            button.configure(state=tk.DISABLED, cursor="X_cursor")
+        else:
+            global is_clicked_gaussian
+            is_clicked_gaussian = False
+            if button == reset_voters or button == reset_candidates:
+                button.configure(state=tk.NORMAL, cursor="exchange")
+            else:
+                button.configure(state=tk.NORMAL, cursor="arrow")
+
+    if disable:
+        root.bind("<Escape>", lambda e: disable_all_buttons(False))
+
+
+def on_click_gaussian(is_voter: bool):
+    """
+    Function to update the value of global variables once 'gaussian distribution' button is clicked.
+    These variables are then used to determine whether to plot a normal voter/candidate on click, or to apply a gaussian distribution.
+    Disables all buttons until 'distribute_gaussian' function is called.
+
+    :param is_voter: bool(voters?) - if True, distribute voters in gaussian distribution, else candidates
+    """
+    global is_clicked_gaussian
+    is_clicked_gaussian = True
+
+    global is_voter_gaussian
+    is_voter_gaussian = is_voter
+
+    disable_all_buttons(True)
+
+
 def on_graph_click(event):
     """
     Callback function to handle clicking on the graph.
@@ -253,6 +309,13 @@ def on_graph_click(event):
     # Get the x and y coordinates of the click event
     x = event.xdata
     y = event.ydata
+
+    # If gaussian distribution is activated, plot voters/candidates accordingly
+    global is_clicked_gaussian
+    if is_clicked_gaussian:
+        is_clicked_gaussian = False
+        distribute_gaussian(x, y)
+        return
 
     # Add the point to the list of points, only if clicked inside the graph
     if x is not None and -1 <= x <= 1 and y is not None and -1 <= y <= 1:
@@ -311,6 +374,9 @@ def reset(candidates: bool = False, voters: bool = False):
             data_manager.clear_voters()
 
 
+top_main = None
+
+
 def show_distribute_popup(is_voter: bool):
     """
     Function to show a popup, handle the input and distribute candidates/voters.
@@ -319,32 +385,56 @@ def show_distribute_popup(is_voter: bool):
     """
     s = "votants" if is_voter else "candidats"
 
+    global top_main
+    if top_main:
+        top_main.destroy()
+
     top_main = tk.Toplevel(root)
     top_main.title("Choisir le nombre de " + s)
-    top_main.geometry("250x150")
+    top_main.geometry("255x230")
 
     label_title = tk.Label(top_main, text="Donner le nombre de " + s + " :")
-    label_title.pack()
+    label_title.grid(row=0, column=0)
 
     global log
     log = tk.StringVar()
     stringvar_number = stringvar_number_voters if is_voter else stringvar_number_candidates
     stringvar_number.trace_variable("w", validate_candidates_voters_number)
     entry = tk.Entry(top_main, width=20, textvariable=stringvar_number)
-    entry.pack()
+    entry.grid(row=1, column=0)
+
+    if is_voter:
+        gaussian_nb = gaussian_nb_voters
+    else:
+        gaussian_nb = default_nb_candidates_voters
 
     label_hint = tk.Label(
         top_main,
-        text="Laisser vide pour valeur de défaut (" + str(default_nb_candidates_voters) + ")"
+        text="Laisser vide pour valeur de défaut:\n" + str(
+            default_nb_candidates_voters) + " pour distribution uniforme\n" + str(
+            gaussian_nb) + " pour distribution gaussienne"
     )
-    label_hint.pack()
+    label_hint.grid(row=2, column=0)
 
-    button = tk.Button(
+    button_uniforme = tk.Button(
         top_main,
-        text="Distribuer les " + s,
+        text="Distribution uniforme des " + s,
         command=lambda: [distribute(is_voter), top_main.destroy()]
     )
-    button.pack()
+    button_uniforme.grid(row=3, column=0)
+
+    tk.Label(top_main, text="Choisir la quantité de propagation (en %) :").grid(row=4, column=0)
+
+    sigma = tk.Scale(top_main, from_=min_spread_percentage, to=max_spread_percentage, resolution=1, length=200,
+                     orient=tk.HORIZONTAL, variable=doublevar_spread_percentage_value)
+    sigma.grid(row=5, column=0)
+
+    button_gaussian = tk.Button(
+        top_main,
+        text="Distribution gaussienne des " + s,
+        command=lambda: [on_click_gaussian(is_voter), top_main.destroy()]
+    )
+    button_gaussian.grid(row=6, column=0)
 
 
 def distribute(is_voter: bool):
@@ -372,6 +462,61 @@ def distribute(is_voter: bool):
 
     # Build the graph: redraw the canvas
     graph_manager.build()
+
+
+def distribute_gaussian(x: float, y: float):
+    """
+    Function to distribute the candidates/voters on the graph from a normal (Gaussian) distribution.
+
+    :param x: the x coordinate of the mean (“centre”) of the distribution.
+    :param y: the y coordinate of the mean (“centre”) of the distribution.
+    """
+    if x is not None and y is not None and -1 <= x <= 1 and -1 <= y <= 1:
+        stringvar_number = stringvar_number_voters if is_voter_gaussian else stringvar_number_candidates
+        if stringvar_number.get() != "":
+            nb = int(stringvar_number.get())
+        else:
+            if is_voter_gaussian:
+                nb = gaussian_nb_voters
+            else:
+                nb = default_nb_candidates_voters
+
+        spread_percentage = doublevar_spread_percentage_value.get()
+
+        sigma_min = 0.1
+        sigma_max = 0.7
+        sigma = np.interp(spread_percentage, (min_spread_percentage, max_spread_percentage), (sigma_min, sigma_max))
+
+        xs, xs_probas = generate_2d_gaussian(x, sigma, nb)
+        ys, ys_probas = generate_2d_gaussian(y, sigma, nb)
+
+        nb_output = np.sum(np.outer(xs_probas, ys_probas).flatten())
+
+        for x, x_proba in zip(xs, xs_probas):
+            for y, y_proba in zip(ys, ys_probas):
+                if random.random() < (x_proba * y_proba) * (nb / nb_output):
+                    if is_voter_gaussian:
+                        data_manager.add_voter((x, y))
+                    else:
+                        data_manager.add_candidate((x, y))
+        graph_manager.build()
+
+    disable_all_buttons(False)
+
+
+def generate_2d_gaussian(center: float, sigma: float, size: int) -> tuple[ndarray, ndarray]:
+    """
+    Function that generates the x and y of a 2D Gaussian using
+    the center point, a sigma and a size determining the arrays' size.
+
+    :param center: center point
+    :param sigma: sigma
+    :param size: generated arrays' size
+    :return: tuple(x values, y values)
+    """
+    x = np.sort(np.random.normal(center, sigma, size))
+    y = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(x - center) ** 2 / (2 * sigma ** 2))
+    return x, y
 
 
 def show_profils_popup():
