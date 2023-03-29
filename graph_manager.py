@@ -103,6 +103,7 @@ class GraphManager:
             "o",
             color="black",
             zorder=10,
+            markersize=4,
         )
         # Label the point on the graph
         annotation = self.__axes.annotate(
