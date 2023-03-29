@@ -22,6 +22,9 @@ data_manager = DataManager()
 # Create a Voting Manager
 voting_manager = VotingManager()
 
+# Create a Details Voting Manager
+voting_details_manager = voting_manager.voting_details_manager
+
 # Create the main tkinter window
 root = tk.Tk()
 root.title("Simulation Elections")
@@ -1123,7 +1126,7 @@ def show_winner_popup(winner: tuple[str, bool, list] | None, method: str):
     width_height = 25
 
     details_image = ImageTk.PhotoImage(Image.open("icons/png_icons/details_icon.png").resize((width_height, width_height)))
-    details_button = tk.Button(winner_dialog, image=details_image)
+    details_button = tk.Button(winner_dialog, image=details_image, command=lambda: voting_details_manager.show_remaining_methods_details(winner_dialog))
     details_button.image = details_image
     bind_tooltip(widget=details_button, text="Voir le détail des votes")
     details_button.grid(row=0, column=0, sticky=tk.W)
@@ -1135,24 +1138,20 @@ def show_winner_popup(winner: tuple[str, bool, list] | None, method: str):
     info_button.grid(row=0, column=1, sticky=tk.E)
 
     if method == "Pluralité Simple":
-        info_button.configure(command=lambda: voting_manager.pluralite_simple_details(winner_dialog))
-        details_button.configure(command=lambda: voting_manager.pluralite_simple(generate_profils(), winner_dialog))
+        info_button.configure(command=lambda: voting_details_manager.show_pluralite_simple_information(winner_dialog))
     if method == "Borda":
         maximum = int(stringvar_borda_max.get()) if stringvar_borda_max.get() != '' else len(data_manager.get_candidates())
         step = int(stringvar_borda_step.get()) if stringvar_borda_step.get() != '' else 1
-        info_button.configure(command=lambda: voting_manager.borda_details(maximum, step, winner_dialog))
-        details_button.configure(command=lambda: voting_manager.borda(generate_profils(), maximum, step, winner_dialog))
+        info_button.configure(command=lambda: voting_details_manager.show_borda_information(maximum, step, winner_dialog))
     if method == "Approbation":
         radius = int(stringvar_approval_radius.get()) if stringvar_approval_radius.get() != '' else default_approval_radius
-        info_button.configure(command=lambda: voting_manager.approbation_datails(radius, winner_dialog))
-        details_button.configure(command=lambda: voting_manager.approbation(generate_profils(), radius, winner_dialog))
+        info_button.configure(command=lambda: voting_details_manager.show_approbation_information(radius, winner_dialog))
     if method == "Élimination Successive (STV)":
-        info_button.configure(command=lambda: voting_manager.elimination_successive_details(winner_dialog))
+        info_button.configure(command=lambda: voting_details_manager.show_elimination_successive_information(winner_dialog))
         details_button.configure(
-            command=lambda: voting_manager.elimination_successive(generate_profils(), winner_dialog))
+            command=lambda: voting_details_manager.show_elimination_successive_steps(winner_dialog))
     if method == "Veto":
-        info_button.configure(command=lambda: voting_manager.veto_details(winner_dialog))
-        details_button.configure(command=lambda: voting_manager.veto(generate_profils(), winner_dialog))
+        info_button.configure(command=lambda: voting_details_manager.veto_info(winner_dialog))
 
     if winner is None:
         tk.Label(winner_dialog, text="Il n'y a pas de gagnant").grid(row=1, column=0, columnspan=2)
@@ -1200,13 +1199,13 @@ def display_condorcet_winner_popup(
     width_height = 25
 
     details_image = ImageTk.PhotoImage(Image.open("icons/png_icons/details_icon.png").resize((width_height, width_height)))
-    details_button = tk.Button(winner_dialog, image=details_image, command=lambda: voting_manager.condorcet(generate_profils(), method, tie_breaking_rule, winner_dialog))
+    details_button = tk.Button(winner_dialog, image=details_image, command=lambda: voting_details_manager.show_condorcet_steps(winner_dialog))
     details_button.image = details_image
     bind_tooltip(widget=details_button, text="Voir le détail des votes")
     details_button.grid(row=0, column=0, sticky=tk.W)
 
     info_image = ImageTk.PhotoImage(Image.open("icons/png_icons/info_icon.png").resize((width_height, width_height)))
-    info_button = tk.Button(winner_dialog, image=info_image, command=lambda: voting_manager.condorcet_details(method, tie_breaking_rule, winner_dialog))
+    info_button = tk.Button(winner_dialog, image=info_image, command=lambda: voting_details_manager.condorcet_info(method, tie_breaking_rule, winner_dialog))
     info_button.image = info_image
     bind_tooltip(widget=info_button, text="Définition du mode de vote")
     info_button.grid(row=0, column=1, sticky=tk.E)
