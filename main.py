@@ -486,7 +486,8 @@ def distribute_gaussian(x, y):
                         data_manager.add_candidate((x, y))
 
         graph_manager.build()
-        disable_all_buttons(False)
+
+    disable_all_buttons(False)
 
 
 def generate_2d_gaussian(center: float, sigma: float, size: int) -> tuple[ndarray, ndarray]:
@@ -499,7 +500,7 @@ def generate_2d_gaussian(center: float, sigma: float, size: int) -> tuple[ndarra
     :param size: generated arrays' size
     :return: tuple(x values, y values)
     """
-    x = np.sort(np.random.normal(center, sigma, size))
+    x = np.random.normal(center, sigma, size)
     y = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(x - center) ** 2 / (2 * sigma ** 2))
     return x, y
 
