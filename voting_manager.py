@@ -341,8 +341,8 @@ class VotingManager:
         candidates_labels_scores = ""
         for candidate_label, results in sorted(duel_results.items()):
             if candidate_label in winners:
-                label_win_lose_draw_string += candidate_label + str(len(results[self.KEY_WINS])) + str(len(results[self.KEY_LOSSES])) + str(len(results[self.KEY_DRAWS]))
-        hashed_string = hashlib.sha256(label_win_lose_draw_string.encode()).hexdigest()
+                candidates_labels_scores += candidate_label + str(len(results[self.KEY_WINS])) + str(len(results[self.KEY_LOSSES])) + str(len(results[self.KEY_DRAWS]))
+        hashed_string = hashlib.sha256(candidates_labels_scores.encode()).hexdigest()
         ord_of_hash_characters = 0
         for character in hashed_string:
             ord_of_hash_characters += ord(character)
