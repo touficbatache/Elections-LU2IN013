@@ -334,11 +334,11 @@ class VotingManager:
         These ints are added together and the function returns the label of the candidate with
         index : sum_of_ints % len(winners)
 
-        :param winners: List of winners to determine from who is the winner
-        :param duel_results: Dictionary storing for each winner the number of wins, losses, and draws
+        :param winners: List of winners to choose the winner from
+        :param duel_results: Dictionary of the duel results for each winner
         :return: winner's label
         """
-        label_win_lose_draw_string = ""
+        candidates_labels_scores = ""
         for candidate_label, results in sorted(duel_results.items()):
             if candidate_label in winners:
                 label_win_lose_draw_string += candidate_label + str(len(results[self.KEY_WINS])) + str(len(results[self.KEY_LOSSES])) + str(len(results[self.KEY_DRAWS]))

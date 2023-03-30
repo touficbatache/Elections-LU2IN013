@@ -25,7 +25,7 @@ class VotingDetails:
 
     def set_condorcet_details(self, value: list):
         """
-        Initialize the value of condorcet_details.
+        Sets the value of condorcet_details.
 
         :param value: The value to affect
         """
@@ -33,7 +33,7 @@ class VotingDetails:
 
     def set_elimination_successive_details(self, value: list):
         """
-        Initialize the value of elimination_successive_details.
+        Sets the value of elimination_successive_details.
 
         :param value: The value to affect
         """
@@ -41,9 +41,9 @@ class VotingDetails:
 
     def set_remaining_methods_details(self, value: list):
         """
-        Initialize the value of remaining_methods_details.
-        This functions sets the data list for the Veto, Borda, Approbation,
-        and Simple plurality.
+        Sets the value of remaining_methods_details.
+        This functions initializes the data list for the Veto, Borda, Approbation,
+        and Simple plurality voting methods.
 
         :param value: The value to affect
         """
@@ -51,9 +51,9 @@ class VotingDetails:
 
     def __create_scrollbar(self, frame: Toplevel):
         """
-        Create a scrollbar frame to store the details in
+        Creates a scrollbar frame to store the details in.
 
-        :param frame: Frame in which scrollbar should be created
+        :param frame: The frame in which scrollbar should be created
         """
         # Create a Frame container to put in it the results and make it scrollable in case of multiple round
         container = ttk.Frame(frame, width=480, height=300)
@@ -72,7 +72,7 @@ class VotingDetails:
         """
         Gives a definition of STV voting system.
 
-        :param frame: Frame from which voting method details popup should generate
+        :param frame: The frame used to show the details of the voting method
         """
         global top_details
         if top_details:
@@ -96,7 +96,7 @@ class VotingDetails:
         Gives a definition of Approbation voting system.
 
         :param approval_radius: Radius of the approval circle
-        :param frame: Frame from which voting method details popup should generate
+        :param frame: The frame used to show the details of the voting method
         """
         global top_details
         if top_details:
@@ -120,7 +120,7 @@ class VotingDetails:
         """
         Gives a definition of simple plurality voting system.
 
-        :param frame: Frame from which voting method details popup should generate
+        :param frame: The frame used to show the details of the voting method
         """
         global top_details
         if top_details:
@@ -141,9 +141,11 @@ class VotingDetails:
         """
         Gives a definition of Borda voting system.
 
-        :param step: step between two scores (ex: if max=100 and step=5, score attribution: 100, 95, 90, ...)
+        :param step: Step between two scores (ex: if max=100 and step=5, score attribution: 100, 95, 90, ...)
         :param maximum: maximum score to attribute to the top candidate
         :param frame: Frame from which vote method details details popup should generate
+        :param maximum: Maximum score to attribute to the top candidate
+        :param frame: The frame used to show the details of the voting method
         """
         global top_details
         if top_details:
@@ -166,7 +168,7 @@ class VotingDetails:
         """
         Gives a definition of Veto voting system.
 
-        :param frame: Frame from which vote method details popup should generate
+        :param frame: The frame used to show the details of the voting method
         """
         global top_details
         if top_details:
@@ -188,8 +190,8 @@ class VotingDetails:
         Gives a definition of condorcet voting system.
 
         :param method: Method to use in case there is no Condorcet winner
-        :param tie_breaking_rule: Tie-breaking rule to use in order to decide who wins
-        :param frame: Frame from which vote method details popup should generate
+        :param tie_breaking_rule: Tie-breaking rule to use to decide who wins
+        :param frame: The frame used to show the details of the voting method
         """
         global top_details
         if top_details:
@@ -242,9 +244,9 @@ class VotingDetails:
 
     def show_remaining_methods_details(self, frame: Toplevel):
         """
-        Displays score details for Veto, Borda, Approbation and Simple purality.
+        Displays score details for Veto, Borda, Approbation and Simple plurality.
 
-        :param frame: Frame to fill with labels with score details
+        :param frame: Frame to build popup on
         """
         global top_step
         if top_step:
@@ -287,7 +289,7 @@ class VotingDetails:
         """
         Displays score details for Condorcet.
 
-        :param frame: Frame on which popup should build
+        :param frame: Frame to build popup on
         """
         global top_step_condorcet
         if top_step_condorcet:
@@ -358,7 +360,7 @@ class VotingDetails:
         """
         Displays score details for STV.
 
-        :param frame: Frame on which popup should build
+        :param frame: Frame to build popup on
         """
         global top_step_elimination
         if top_step_elimination:
