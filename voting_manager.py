@@ -88,7 +88,7 @@ class VotingManager:
         :param profils: dictionary of the scores of each voter
         :return: tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
         """
-        elim_succ_data = []
+        elimination_successive_data = []
 
         scores = self.__count_scores(profils)
         majority = len(profils) / 2
@@ -102,10 +102,10 @@ class VotingManager:
             for candidate, points in scores.items():
                 if points > majority:
                     winner = candidate, False, []
-                    elim_succ_data.append(all_scores)
-                    elim_succ_data.append(majority)
-                    elim_succ_data.append(winner)
-                    self.voting_details_manager.set_elimination_successive_details(elim_succ_data)
+                    elimination_successive_data.append(all_scores)
+                    elimination_successive_data.append(majority)
+                    elimination_successive_data.append(winner)
+                    self.voting_details_manager.set_elimination_successive_details(elimination_successive_data)
                     return winner
 
             # Find the list of labels of all candidates who had the lowest score
@@ -318,23 +318,35 @@ class VotingManager:
                         case CondorcetTieBreakingRule.ORDRE_LEXICO:
                             winner = self.__departage(winners), True, True, winners
                         case CondorcetTieBreakingRule.RANDOM:
-                            print(winners)
                             winner = self.__random_choose_winner(winners, duel_results), True, True, winners
-                            print(winners)
 
         self.voting_details_manager.set_condorcet_details([winner, duel_scores, duel_results, method, tie_breaking_rule, candidate_labels, winners])
         return winner
 
-    def __random_choose_winner(self, liste: list, duel_results: dict):
-        win_lose_list = ""
+    def __random_choose_winner(self, winners: list, duel_results: dict) -> str:
+        """
+        Randomly chooses the winner in case of equality in Condorcet method and
+        RAMDOM tie-breaking method is selected.
+        The function creates a string in the following format :
+            winner1_label + nb_wins + nb_losses + nb_draws + winner2_label + ...
+        This string is then hashed to create a unique encryption for the voting case.
+        The string's characters are then converted to an int according to the unicode code.
+        These ints are added together and the function returns the label of the candidate with
+        index : sum_of_ints % len(winners)
+
+        :param winners: List of winners to determine from who is the winner
+        :param duel_results: Dictionary storing for each winner the number of wins, losses, and draws
+        :return: winner's label
+        """
+        label_win_lose_draw_string = ""
         for candidate_label, results in sorted(duel_results.items()):
-            if candidate_label in liste:
-                win_lose_list += candidate_label + str(len(results[self.KEY_WINS])) + str(len(results[self.KEY_LOSSES])) + str(len(results[self.KEY_DRAWS]))
-        hashed_text = hashlib.sha256(win_lose_list.encode()).hexdigest()
-        ord_of_hash = 0
-        for caracter in hashed_text:
-            ord_of_hash += ord(caracter)
-        return liste[ord_of_hash % len(liste)]
+            if candidate_label in winners:
+                label_win_lose_draw_string += candidate_label + str(len(results[self.KEY_WINS])) + str(len(results[self.KEY_LOSSES])) + str(len(results[self.KEY_DRAWS]))
+        hashed_string = hashlib.sha256(label_win_lose_draw_string.encode()).hexdigest()
+        ord_of_hash_characters = 0
+        for character in hashed_string:
+            ord_of_hash_characters += ord(character)
+        return winners[ord_of_hash_characters % len(winners)]
 
     def __condorcet_winners_copeland(self, duels: list[dict[str, int]]) -> list[str]:
         """

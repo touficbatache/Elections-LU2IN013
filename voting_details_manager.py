@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, Toplevel
 from data_manager import DataManager
 
 top_step = None
@@ -23,7 +23,7 @@ class VotingDetails:
     __data_manager = DataManager()
     __candidates = __data_manager.get_candidates()
 
-    def set_condorcet_details(self, value):
+    def set_condorcet_details(self, value: list):
         """
         Initialize the value of condorcet_details.
 
@@ -31,7 +31,7 @@ class VotingDetails:
         """
         self.condorcet_details = value
 
-    def set_elimination_successive_details(self, value):
+    def set_elimination_successive_details(self, value: list):
         """
         Initialize the value of elimination_successive_details.
 
@@ -39,7 +39,7 @@ class VotingDetails:
         """
         self.elimination_successive_details = value
 
-    def set_remaining_methods_details(self, value):
+    def set_remaining_methods_details(self, value: list):
         """
         Initialize the value of remaining_methods_details.
         This functions sets the data list for the Veto, Borda, Approbation,
@@ -49,7 +49,7 @@ class VotingDetails:
         """
         self.remaining_methods_details = value
 
-    def __create_scrollbar(self, frame):
+    def __create_scrollbar(self, frame: Toplevel):
         """
         Create a scrollbar frame to store the details in
 
@@ -68,7 +68,7 @@ class VotingDetails:
         scrollbar.pack(side="right", fill="y")
         return scrollable_frame
 
-    def show_elimination_successive_information(self, frame):
+    def show_elimination_successive_information(self, frame: Toplevel):
         """
         Gives a definition of STV voting system.
 
@@ -91,7 +91,7 @@ class VotingDetails:
                       "premier par une majorité de votants.",
                  wraplength=250).grid(row=1, column=0)
 
-    def show_approbation_information(self, approval_radius: int, frame):
+    def show_approbation_information(self, approval_radius: int, frame: Toplevel):
         """
         Gives a definition of Approbation voting system.
 
@@ -116,7 +116,7 @@ class VotingDetails:
                       "croissant (A -> Z).",
                  wraplength=250).grid(row=1, column=0)
 
-    def show_pluralite_simple_information(self, frame):
+    def show_pluralite_simple_information(self, frame: Toplevel):
         """
         Gives a definition of simple plurality voting system.
 
@@ -137,7 +137,7 @@ class VotingDetails:
                       "par ordre lexicographique croissant (A -> Z).",
                  wraplength=250).grid(row=1, column=0)
 
-    def show_borda_information(self, maximum: int, step: int, frame):
+    def show_borda_information(self, maximum: int, step: int, frame: Toplevel):
         """
         Gives a definition of Borda voting system.
 
@@ -162,7 +162,7 @@ class VotingDetails:
                       "le plus élevé gagne les éléctions. En cas d'égalité, le gagnant est départagé par ordre lexicographique croissant (A -> Z).",
                  wraplength=250).grid(row=1, column=0)
 
-    def veto_info(self, frame):
+    def veto_info(self, frame: Toplevel):
         """
         Gives a definition of Veto voting system.
 
@@ -173,7 +173,7 @@ class VotingDetails:
             top_details.destroy()
 
         top_details = tk.Toplevel(frame)
-        top_details.title("Veto - Déscription")
+        top_details.title("Veto - Définition")
 
         tk.Label(top_details, text="Description du mode de vote :", font=("Mistral", "15", "bold")).grid(row=0, column=0)
         tk.Label(top_details,
@@ -183,7 +183,7 @@ class VotingDetails:
                       "élevé gagne les éléctions. En cas d'égalité, le gagnant est départagé par ordre lexicographique croissant (A -> Z).",
                  wraplength=250).grid(row=1, column=0)
 
-    def condorcet_info(self,  method, tie_breaking_rule, frame):
+    def condorcet_info(self,  method, tie_breaking_rule, frame: Toplevel):
         """
         Gives a definition of condorcet voting system.
 
@@ -213,9 +213,7 @@ class VotingDetails:
                 tk.Label(top_details,
                          text="Si aucun candidat ne remporte tous ses duels, on peut avoir recours à différentes méthodes. Dans "
                               "ce cas, on utilise la méthode de Copeland qui cherche le candidat qui a gagné le plus de "
-                              "confrontations. Ce candidat serait donc le vainqueur. Par contre, s'il existe des conflits, "
-                              "le candidat vainqueur est choisi au hasard parmi les différents candidats vérifiant la méthode "
-                              "de Copeland, suivant des probabilités particulières optimales.",
+                              "confrontations. Ce candidat serait donc le vainqueur.",
                          wraplength=250).grid(row=2, column=0)
             case "CondorcetMethod.COPELAND", "CondorcetTieBreakingRule.ORDRE_LEXICO":
                 tk.Label(top_details,
@@ -242,7 +240,7 @@ class VotingDetails:
                               "candidats vérifiant la méthode de Simpson.",
                          wraplength=250).grid(row=2, column=0)
 
-    def show_remaining_methods_details(self, frame):
+    def show_remaining_methods_details(self, frame: Toplevel):
         """
         Displays score details for Veto, Borda, Approbation and Simple purality.
 
@@ -285,7 +283,7 @@ class VotingDetails:
             tk.Label(top_step, text="Aucun gagnant trouvé", font=("Mistral", "15", "bold")).grid(row=row_upgrade, columnspan=nb_candidates if nb_candidates < 12 else 12, column=0)
             tk.Label(top_step, text="Avec les données fournis, aucun gagnant peut être déterminé.", wraplength=nb_candidates*30 if nb_candidates < 12 else 360).grid(row=row_upgrade + 1, columnspan=nb_candidates if nb_candidates < 12 else 12, column=0)
 
-    def show_condorcet_steps(self, frame):
+    def show_condorcet_steps(self, frame: Toplevel):
         """
         Displays score details for Condorcet.
 
@@ -356,7 +354,7 @@ class VotingDetails:
                     ttk.Label(scrollable_frame, text=self.condorcet_details[0][0], font=("Mistral", "15", "bold")).grid(row=row_manager + 1, column=0)
             return
 
-    def show_elimination_successive_steps(self, frame):
+    def show_elimination_successive_steps(self, frame: Toplevel):
         """
         Displays score details for STV.
 
