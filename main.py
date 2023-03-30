@@ -1151,7 +1151,7 @@ def show_winner_popup(winner: tuple[str, bool, list] | None, method: str):
         details_button.configure(
             command=lambda: voting_details_manager.show_elimination_successive_steps(winner_dialog))
     if method == "Veto":
-        info_button.configure(command=lambda: voting_details_manager.veto_info(winner_dialog))
+        info_button.configure(command=lambda: voting_details_manager.show_veto_information(winner_dialog))
 
     if winner is None:
         tk.Label(winner_dialog, text="Il n'y a pas de gagnant").grid(row=1, column=0, columnspan=2)
@@ -1205,7 +1205,7 @@ def display_condorcet_winner_popup(
     details_button.grid(row=0, column=0, sticky=tk.W)
 
     info_image = ImageTk.PhotoImage(Image.open("icons/png_icons/info_icon.png").resize((width_height, width_height)))
-    info_button = tk.Button(winner_dialog, image=info_image, command=lambda: voting_details_manager.condorcet_info(method, tie_breaking_rule, winner_dialog))
+    info_button = tk.Button(winner_dialog, image=info_image, command=lambda: voting_details_manager.show_condorcet_information(method, tie_breaking_rule, winner_dialog))
     info_button.image = info_image
     bind_tooltip(widget=info_button, text="Définition du mode de vote")
     info_button.grid(row=0, column=1, sticky=tk.E)

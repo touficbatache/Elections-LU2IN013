@@ -164,7 +164,7 @@ class VotingDetails:
                       "le plus élevé gagne les éléctions. En cas d'égalité, le gagnant est départagé par ordre lexicographique croissant (A -> Z).",
                  wraplength=250).grid(row=1, column=0)
 
-    def veto_info(self, frame: Toplevel):
+    def show_veto_information(self, frame: Toplevel):
         """
         Gives a definition of Veto voting system.
 
@@ -185,7 +185,7 @@ class VotingDetails:
                       "élevé gagne les éléctions. En cas d'égalité, le gagnant est départagé par ordre lexicographique croissant (A -> Z).",
                  wraplength=250).grid(row=1, column=0)
 
-    def condorcet_info(self,  method, tie_breaking_rule, frame: Toplevel):
+    def show_condorcet_information(self, method, tie_breaking_rule, frame: Toplevel):
         """
         Gives a definition of condorcet voting system.
 
