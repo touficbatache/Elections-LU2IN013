@@ -83,7 +83,7 @@ class VotingDetails:
 
         tk.Label(top_details, text="Description du mode de vote :", font=("Mistral", "15", "bold")).grid(row=0, column=0)
         tk.Label(top_details,
-                 text="Le vote par Elimination succéssive est un vote itérative. S'il existe un "
+                 text="Le vote par Elimination succéssive est un vote itératif. S'il existe un "
                       "candidat classé premier par une majorité de votants alors il est élu "
                       "directement gagnant. Sinon, le candidat classé premier par le moins de votants "
                       "est  éliminé de tous les votes. Les votes de ce candidat sont transférés au meilleur "
@@ -108,9 +108,9 @@ class VotingDetails:
         tk.Label(top_details, text="Description du mode de vote :", font=("Mistral", "15", "bold")).grid(row=0, column=0)
         tk.Label(top_details,
                  text="Le vote par approbation est un vote similaire à une situation de Oui ou Non. Les candidats présents "
-                      "dans la zone d'approbation du voteur (dans ce cas : " + str(approval_radius) + "% de la distance maximale) "
-                      "recoivent un (1) point de la part du voteur. Les candidats en dehors de cette zone recoivent par conséquent "
-                      "un score de zéro. Les scores des différents voteurs sont ensuite ajoutés pour déterminer le vainqueur. "
+                      "dans la zone d'approbation du votant (dans ce cas : " + str(approval_radius) + "% de la distance maximale) "
+                      "reçoivent un (1) point de la part du votant. Les candidats en dehors de cette zone reçoivent par conséquent "
+                      "un score de zéro. Les scores des différents votants sont ensuite ajoutés pour déterminer le vainqueur. "
                       "Le candidat ayant le score le plus élevé gagne les éléctions. Si tous les candidats se trouvent hors des zones "
                       "d'approbation, aucun candidat gagne. En cas d'égalité, le gagnant est départagé par ordre lexicographique "
                       "croissant (A -> Z).",
@@ -131,8 +131,8 @@ class VotingDetails:
 
         tk.Label(top_details, text="Description du mode de vote :", font=("Mistral", "15", "bold")).grid(row=0, column=0)
         tk.Label(top_details,
-                 text="Le vote par pluralité simple est un vote qui prend en compte le premier vote de chaque voteur. "
-                      "Le candidat le mieux classé gagne un (1) point dans chaque profil de vote et les scores sont ajoutés. "
+                 text="Le vote par pluralité simple est un vote qui prend en compte le premier vote de chaque votant. "
+                      "Le candidat le mieux classé gagne un (1) point dans chaque profil de vote et son scores est la somme de tous ses points gagnés. "
                       "Le candidat ayant le score le plus élevé gagne les éléctions. En cas d'égalité, le gagnant est départagé "
                       "par ordre lexicographique croissant (A -> Z).",
                  wraplength=250).grid(row=1, column=0)
@@ -156,11 +156,11 @@ class VotingDetails:
 
         tk.Label(top_details, text="Description du mode de vote :", font=("Mistral", "15", "bold")).grid(row=0, column=0)
         tk.Label(top_details,
-                 text="La méthode de Borda est un vote qui attribu à chaque candidat d'un profil de vote un score. "
-                      "Le candidat le mieux classé gagne un nombre maximum de point(s) (dans ce cas : " + str(maximum) + "). "
-                      "Le candidat suivant recoit un score inférieur au premier en supprimant " + str(step) + " point(s) du score du précédent. "
-                      "Les scores sont calculés simultanément. Si le nombre de candidat est supérieur au nombre de scores à attribuer "
-                      "les candidats restant obtiennent le score de zéro (0). Suite à l'ajout des différents scores, le candidat ayant le score "
+                 text="La méthode de Borda est un vote qui attribut à chaque candidat un score dans chaque profil de vote. "
+                      "Le candidat le mieux classé gagne un nombre maximum de points (dans ce cas : " + str(maximum) + "). "
+                      "Le candidat suivant reçoit un score inférieur au premier en supprimant " + str(step) + " point(s) du score du précédent. "
+                      "Les scores sont calculés simultanément. Si le nombre de candidats est supérieur au nombre de scores à attribuer, "
+                      "les candidats restants obtiennent le score de zéro (0). Suite à l'ajout des différents scores, le candidat ayant le score "
                       "le plus élevé gagne les éléctions. En cas d'égalité, le gagnant est départagé par ordre lexicographique croissant (A -> Z).",
                  wraplength=250).grid(row=1, column=0)
 
@@ -179,9 +179,9 @@ class VotingDetails:
 
         tk.Label(top_details, text="Description du mode de vote :", font=("Mistral", "15", "bold")).grid(row=0, column=0)
         tk.Label(top_details,
-                 text="Le vote avec la méthode de Veto est un vote qui attribu à chaque candidat d'un profil de vote le score d'un "
-                      "(1) point. Par contre le candidat le plus mal classé obtient le score de zéro (0). Les scores des "
-                      "différents profils sont ajoutés pour pouvoir déterminer qui est le gagnant. le candidat ayant le score le plus "
+                 text="La méthode de Veto est un vote qui attribut à chaque candidat dans un profil de vote un "
+                      "(1) point. Par contre, le candidat le plus mal classé obtient le score de zéro (0). Les scores des "
+                      "différents profils sont ajoutés pour pouvoir déterminer qui est le gagnant. Le candidat ayant le score le plus "
                       "élevé gagne les éléctions. En cas d'égalité, le gagnant est départagé par ordre lexicographique croissant (A -> Z).",
                  wraplength=250).grid(row=1, column=0)
 
@@ -203,8 +203,8 @@ class VotingDetails:
         tk.Label(top_details, text="Description du mode de vote :", font=("Mistral", "15", "bold")).grid(row=0, column=0)
         tk.Label(top_details,
                  text="Le vote par Condorcet revient à simuler l'ensemble des duels possibles parmi les "
-                      "différents candidats: pour chaque paire de candidats, on détermine le nombre d'électeurs "
-                      "ayant voté pour l'un ou l'autre en vérifiant, sur chaque bulletin de vote, comment l'un a "
+                      "différents candidats: pour chaque paire de candidats, on détermine le nombre de votants "
+                      "ayant voté pour l'un ou l'autre en vérifiant, sur chaque profil de vote, comment l'un a "
                       "été classé par rapport à l'autre. Ainsi pour chaque duel, il y a un candidat vainqueur. "
                       "S'il y a un unique candidat qui remporte tous ses duels : il s'agit du vainqueur de Condorcet.",
                  wraplength=250).grid(row=1, column=0)
