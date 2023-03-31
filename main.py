@@ -272,10 +272,10 @@ def disable_all_buttons(disable: bool):
 
     :param disable: bool - if True, disable all buttons, else return them to normal state
     """
-    global reset_voters, reset_candidates, generate_profiles, btn_show_voting_systems, \
+    global reset_voters, reset_candidates, generate_utility, btn_show_voting_systems, \
         distribute_voters, distribute_candidates, export_file, import_file
 
-    list_buttons = [reset_voters, reset_candidates, generate_profiles, btn_show_voting_systems,
+    list_buttons = [reset_voters, reset_candidates, generate_utility, btn_show_voting_systems,
                     distribute_voters, distribute_candidates, export_file, import_file]
 
     for button in list_buttons:
@@ -1344,6 +1344,60 @@ def toggle(event):
 on = tk.PhotoImage(file="icons/png_icons/on.png")
 off = tk.PhotoImage(file="icons/png_icons/off.png")
 
+def candidate_utility(candidate):
+    voters = data_manager.get_voters()
+    return sum(math.dist(candidate.coordinates(), voter.coordinates())**2 for voter in voters) / (len(voters) ** 2)
+
+
+def find_max_utility():
+    """
+    Finds the max utility between all candidates
+
+    :return: max utility value
+    """
+    max_utility = 100000
+
+    for candidate in data_manager.get_candidates():
+        voters = data_manager.get_voters()
+        distance_sum = sum(math.dist(candidate.coordinates(), voter.coordinates())**2 for voter in voters)
+        utility = distance_sum/(len(voters) ** 2)
+
+        if utility < max_utility:
+            max_utility = utility
+
+    return max_utility
+
+
+top_utility = None
+
+
+def show_candidates_utility():
+    global top_utility
+    if top_utility:
+        top_utility.destroy()
+
+    top_utility = tk.Toplevel()
+    top_utility.title("Utilité des candidats")
+
+    max_utility = find_max_utility()
+
+    row_upgrade = -2
+    column_upgrade = 0
+    for candidate_number, candidate in enumerate(data_manager.get_candidates()):
+        if candidate_number % 5 == 0:
+            row_upgrade += 2
+            column_upgrade = 0
+        tk.Label(top_utility, text=candidate.get_label(), font=("Mistral", "15", "bold")).grid(row=row_upgrade, column=column_upgrade)
+        c_utility = candidate_utility(candidate)
+        if max_utility == 0 and c_utility == max_utility:
+            tk.Label(top_utility, text="MAX", font=("Mistral", "15", "bold")).grid(row=row_upgrade + 1, column=column_upgrade)
+        elif c_utility == max_utility:
+            tk.Label(top_utility, text=str(round(1 / c_utility)), font=("Mistral", "15", "bold")).grid(row=row_upgrade + 1, column=column_upgrade)
+        else:
+            tk.Label(top_utility, text=str(round(1 / c_utility)), font=("Mistral", "15", "normal")).grid(row=row_upgrade + 1, column=column_upgrade)
+        column_upgrade += 1
+
+
 # Add the canvas to the tkinter window
 graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
@@ -1366,9 +1420,9 @@ reset_candidates = tk.Button(main_panel, text="Réinitialiser les candidats", co
 reset_candidates.place(relx=0.75, rely=0, relwidth=button_width, relheight=button_height)
 reset_candidates.configure(cursor="exchange")
 
-# Generate the profiles on button click
-generate_profiles = tk.Button(main_panel, text="Générer les profils", command=show_profils_popup)
-generate_profiles.place(relx=0, rely=1 - button_height, relwidth=button_width, relheight=button_height)
+# Generate the utilities on button click
+generate_utility = tk.Button(main_panel, text="Générer les utilités", command=show_candidates_utility)
+generate_utility.place(relx=0, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Generate the profiles on button click
 btn_show_voting_systems = tk.Button(main_panel, text="Systèmes de vote", command=show_voting_systems_popup)
