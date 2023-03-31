@@ -1,6 +1,9 @@
-import random
+import hashlib
 from collections import defaultdict
 from enum import Enum
+
+from data_manager import DataManager
+from voting_details_manager import VotingDetails
 
 
 class CondorcetMethod(Enum):
@@ -21,6 +24,9 @@ class VotingManager:
     KEY_WINS = "wins"
     KEY_LOSSES = "losses"
     KEY_DRAWS = "draws"
+
+    data_manager = DataManager()
+    voting_details_manager = VotingDetails()
 
     def __departage(self, candidate_labels: list, reverse: bool = False) -> str:
         """
@@ -70,9 +76,8 @@ class VotingManager:
         for _, preferences in profils.items():
             label = preferences[0][0]
             if label not in scores:
-                scores[label] = 1
-            else:
-                scores[label] += 1
+                scores[label] = 0
+            scores[label] += 1
         return scores
 
     def elimination_successive(self, profils: dict) -> tuple[str, bool, list]:
@@ -83,15 +88,25 @@ class VotingManager:
         :param profils: dictionary of the scores of each voter
         :return: tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
         """
+        elimination_successive_data = []
+
         scores = self.__count_scores(profils)
         majority = len(profils) / 2
 
+        round_number = 1
+        all_scores = dict()
+
         while scores:
             scores = self.__count_scores(profils)
-
+            all_scores[round_number] = [scores.copy(), ""]
             for candidate, points in scores.items():
                 if points > majority:
-                    return candidate, False, []
+                    winner = candidate, False, []
+                    elimination_successive_data.append(all_scores)
+                    elimination_successive_data.append(majority)
+                    elimination_successive_data.append(winner)
+                    self.voting_details_manager.set_elimination_successive_details(elimination_successive_data)
+                    return winner
 
             # Find the list of labels of all candidates who had the lowest score
             losers = [
@@ -104,15 +119,17 @@ class VotingManager:
             letter = self.__departage(losers, True)
             scores.pop(letter)
 
+            all_scores[round_number][1] = letter
+
             for _, profil in profils.items():
                 for candidate, _ in profil:
                     if candidate == letter:
                         profil.remove((candidate, _))
                         break
 
-    def approbation(
-        self, profils: dict, approval_radius: int
-    ) -> tuple[str, bool, list] | None:
+            round_number += 1
+
+    def approbation(self, profils: dict, approval_radius: int) -> tuple[str, bool, list] | None:
         """
         Approval voting system (système de vote par approbation).
 
@@ -125,6 +142,7 @@ class VotingManager:
         :return: tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
         """
         results = dict()
+
         for voter_label, profil in profils.items():
             for candidate_label, score in profil:
                 if (score * 100) >= 100 - approval_radius:
@@ -133,9 +151,12 @@ class VotingManager:
                     results[candidate_label] += 1
 
         if len(results) == 0:
-            return None
+            winner = None
+        else:
+            winner = self.__find_winner(results)
 
-        return self.__find_winner(results)
+        self.voting_details_manager.set_remaining_methods_details([winner, results])
+        return winner
 
     def pluralite_simple(self, profils: dict) -> tuple[str, bool, list]:
         """
@@ -153,7 +174,9 @@ class VotingManager:
                 points_association[candidate_label] = 0
             points_association[candidate_label] += 1
 
-        return self.__find_winner(points_association)
+        winner = self.__find_winner(points_association)
+        self.voting_details_manager.set_remaining_methods_details([winner, points_association])
+        return winner
 
     def borda(self, profils: dict, maximum: int, step: int) -> tuple[str, bool, list]:
         """
@@ -179,7 +202,9 @@ class VotingManager:
                 if (maximum - (i * step)) > 0:
                     points_association[candidate_label] += maximum - (i * step)
 
-        return self.__find_winner(points_association)
+        winner = self.__find_winner(points_association)
+        self.voting_details_manager.set_remaining_methods_details([winner, points_association])
+        return winner
 
     def veto(self, profils: dict) -> tuple[str, bool, list]:
         """
@@ -188,7 +213,6 @@ class VotingManager:
         :param profils: dictionary of votes registered by the voters
         :return: tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
         """
-
         veto_scores = dict()
 
         for profil in profils.values():
@@ -200,14 +224,11 @@ class VotingManager:
                     veto_scores[candidate_label] = 0
                 veto_scores[candidate_label] += 1
 
-        return self.__find_winner(veto_scores)
+        winner = self.__find_winner(veto_scores)
+        self.voting_details_manager.set_remaining_methods_details([winner, veto_scores])
+        return winner
 
-    def condorcet(
-            self,
-            profils: dict,
-            method: CondorcetMethod,
-            tie_breaking_rule: CondorcetTieBreakingRule
-    ) -> tuple[str, bool, bool, list | None]:
+    def condorcet(self, profils: dict, method: CondorcetMethod, tie_breaking_rule: CondorcetTieBreakingRule) -> tuple[str, bool, bool, list | None] | None:
         """
         Condorcet voting system.
 
@@ -235,67 +256,97 @@ class VotingManager:
         """
         # Candidate labels list
         candidate_labels = [candidate_label for candidate_label, _ in list(profils.values())[0]]
+        duel_scores = None
+        duel_results = None
+        winners = None
 
         # Give the winner directly if there's one candidate
         if len(candidate_labels) == 1:
-            return candidate_labels[0], False, False, None
+            winner = candidate_labels[0], False, False, None
+        else:
+            # We organise duels and calculate scores
+            duel_scores = list()
+            for candidate1_label in candidate_labels:
+                for candidate2_label in candidate_labels:
+                    # so that we have unique pairs (combination)
+                    if candidate2_label > candidate1_label:
+                        current_duel = {candidate1_label: 0, candidate2_label: 0}
+                        for profil in profils.values():
+                            for candidate_label, _ in profil:
+                                if candidate_label in current_duel:
+                                    current_duel[candidate_label] += 1
+                                    break
+                        duel_scores.append(current_duel)
 
-        # We organise duels and calculate scores
-        duel_scores = list()
-        for candidate1_label in candidate_labels:
-            for candidate2_label in candidate_labels:
-                # so that we have unique pairs (combination)
-                if candidate2_label > candidate1_label:
-                    current_duel = {candidate1_label: 0, candidate2_label: 0}
-                    for profil in profils.values():
-                        for candidate_label, _ in profil:
-                            if candidate_label in current_duel:
-                                current_duel[candidate_label] += 1
-                                break
-                    duel_scores.append(current_duel)
+            # We try and see if there's a Condorcet winner
+            duel_results = defaultdict(lambda: defaultdict(list))
+            for duel_score in duel_scores:
+                loser, winner = sorted(duel_score.keys(), key=lambda k: duel_score[k])
 
-        # We try and see if there's a Condorcet winner
-        duel_results = defaultdict(lambda: defaultdict(list))
-        for duel_score in duel_scores:
-            loser, winner = sorted(duel_score.keys(), key=lambda k: duel_score[k])
+                if duel_score[winner] != duel_score[loser]:
+                    duel_results[winner][self.KEY_WINS].append(loser)
+                    duel_results[loser][self.KEY_LOSSES].append(winner)
+                else:
+                    duel_results[winner][self.KEY_DRAWS].append(loser)
+                    duel_results[loser][self.KEY_DRAWS].append(winner)
+            try:
+                # Condorcet winner success
+                winner_label = next(
+                    candidate_label
+                    for candidate_label, results in duel_results.items()
+                    if len(results[self.KEY_LOSSES]) == 0 and len(results[self.KEY_DRAWS]) == 0
+                )
+                winner = winner_label, False, False, None
+            except StopIteration:
+                # Condorcet winner fail: there's no Condorcet winner
+                # We have to use method given as an argument
+                winners = None
+                match method:
+                    # Copeland method
+                    case CondorcetMethod.COPELAND:
+                        winners = self.__condorcet_winners_copeland(duel_scores)
+                    # Simpson method
+                    case CondorcetMethod.SIMPSON:
+                        winners = self.__condorcet_winners_simpson(duel_scores)
 
-            if duel_score[winner] != duel_score[loser]:
-                duel_results[winner][self.KEY_WINS].append(loser)
-                duel_results[loser][self.KEY_LOSSES].append(winner)
-            else:
-                duel_results[winner][self.KEY_DRAWS].append(loser)
-                duel_results[loser][self.KEY_DRAWS].append(winner)
+                # If we have only one winner, return them
+                if len(winners) == 1:
+                    winner = winners[0], True, False, None
+                # If not, use the tie-breaking rule given as an argument
+                else:
+                    match tie_breaking_rule:
+                        case CondorcetTieBreakingRule.ORDRE_LEXICO:
+                            winner = self.__departage(winners), True, True, winners
+                        case CondorcetTieBreakingRule.RANDOM:
+                            winner = self.__random_choose_winner(winners, duel_results), True, True, winners
 
-        try:
-            # Condorcet winner success
-            winner = next(
-                candidate_label
-                for candidate_label, results in duel_results.items()
-                if len(results[self.KEY_LOSSES]) == 0 and len(results[self.KEY_DRAWS]) == 0
-            )
-            return winner, False, False, None
-        except StopIteration:
-            # Condorcet winner fail: there's no Condorcet winner
-            # We have to use method given as an argument
-            winners = None
-            match method:
-                # Copeland method
-                case CondorcetMethod.COPELAND:
-                    winners = self.__condorcet_winners_copeland(duel_scores)
-                # Simpson method
-                case CondorcetMethod.SIMPSON:
-                    winners = self.__condorcet_winners_simpson(duel_scores)
+        self.voting_details_manager.set_condorcet_details([winner, duel_scores, duel_results, method, tie_breaking_rule, candidate_labels, winners])
+        return winner
 
-            # If we have only one winner, return them
-            if len(winners) == 1:
-                return winners[0], True, False, None
-            # If not, use the tie-breaking rule given as an argument
-            else:
-                match tie_breaking_rule:
-                    case CondorcetTieBreakingRule.ORDRE_LEXICO:
-                        return self.__departage(winners), True, True, winners
-                    case CondorcetTieBreakingRule.RANDOM:
-                        return random.choice(winners), True, True, winners
+    def __random_choose_winner(self, winners: list, duel_results: dict) -> str:
+        """
+        Randomly chooses the winner in case of equality in Condorcet method and
+        RAMDOM tie-breaking method is selected.
+        The function creates a string in the following format :
+            winner1_label + nb_wins + nb_losses + nb_draws + winner2_label + ...
+        This string is then hashed to create a unique encryption for the voting case.
+        The string's characters are then converted to an int according to the unicode code.
+        These ints are added together and the function returns the label of the candidate with
+        index : sum_of_ints % len(winners)
+
+        :param winners: List of winners to choose the winner from
+        :param duel_results: Dictionary of the duel results for each winner
+        :return: winner's label
+        """
+        candidates_labels_scores = ""
+        for candidate_label, results in sorted(duel_results.items()):
+            if candidate_label in winners:
+                candidates_labels_scores += candidate_label + str(len(results[self.KEY_WINS])) + str(len(results[self.KEY_LOSSES])) + str(len(results[self.KEY_DRAWS]))
+        hashed_string = hashlib.sha256(candidates_labels_scores.encode()).hexdigest()
+        ord_of_hash_characters = 0
+        for character in hashed_string:
+            ord_of_hash_characters += ord(character)
+        return winners[ord_of_hash_characters % len(winners)]
 
     def __condorcet_winners_copeland(self, duels: list[dict[str, int]]) -> list[str]:
         """
