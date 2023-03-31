@@ -111,9 +111,9 @@ class VotingDetails:
                       "dans la zone d'approbation du votant (dans ce cas : " + str(approval_radius) + "% de la distance maximale) "
                       "reçoivent un (1) point de la part du votant. Les candidats en dehors de cette zone reçoivent par conséquent "
                       "un score de zéro. Les scores des différents votants sont ensuite ajoutés pour déterminer le vainqueur. "
-                      "Le candidat ayant le score le plus élevé gagne les éléctions. Si tous les candidats se trouvent hors des zones "
-                      "d'approbation, aucun candidat gagne. En cas d'égalité, le gagnant est départagé par ordre lexicographique "
-                      "croissant (A -> Z).",
+                      "Le candidat ayant le score le plus élevé gagne les éléctions. En cas d'égalité, le gagnant est départagé "
+                      "par ordre lexicographique croissant (A -> Z). Si tous les candidats se trouvent hors des zones "
+                      "d'approbation, aucun candidat gagne.",
                  wraplength=250).grid(row=1, column=0)
 
     def show_pluralite_simple_information(self, frame: Toplevel):
@@ -215,7 +215,9 @@ class VotingDetails:
                 tk.Label(top_details,
                          text="Si aucun candidat ne remporte tous ses duels, on peut avoir recours à différentes méthodes. Dans "
                               "ce cas, on utilise la méthode de Copeland qui cherche le candidat qui a gagné le plus de "
-                              "confrontations. Ce candidat serait donc le vainqueur.",
+                              "confrontations. Ce candidat serait donc le vainqueur. Par contre, s'il existe "
+                              "des conflits, le candidat vainqueur est choisi au hasard parmi les différents candidats vérifiant "
+                              "la méthode de Simpson, suivant des probabilités particulières optimales.",
                          wraplength=250).grid(row=2, column=0)
             case "CondorcetMethod.COPELAND", "CondorcetTieBreakingRule.ORDRE_LEXICO":
                 tk.Label(top_details,
