@@ -78,7 +78,6 @@ doublevar_spread_percentage_value = tk.DoubleVar(value=50)
 min_spread_percentage = 10
 max_spread_percentage = 100
 
-
 # Create the variables to keep track of the 'gaussian distribution' button press
 is_clicked_gaussian = False
 is_voter_gaussian = False
@@ -1230,6 +1229,20 @@ def display_condorcet_winner_popup(
             tk.Label(winner_dialog, text=str(all_winners)).grid(row=6, column=0, columnspan=2)
 
 
+def toggle(event):
+    if graph_manager.get_toggle_state():
+        toggle_annotations.config(image=off)
+        graph_manager.set_toggle_state(False)
+    else:
+        toggle_annotations.config(image=on)
+        graph_manager.set_toggle_state(True)
+    graph_manager.build()
+
+
+# Define On/Off Images
+on = tk.PhotoImage(file="icons/png_icons/on.png")
+off = tk.PhotoImage(file="icons/png_icons/off.png")
+
 # Add the canvas to the tkinter window
 graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
@@ -1267,6 +1280,11 @@ distribute_candidates = tk.Button(
     command=lambda: show_distribute_popup(is_voter=False)
 )
 distribute_candidates.place(relx=0.75, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+
+# Toggle annotations of voters on button click
+toggle_annotations = tk.Label(main_panel, image=on, borderwidth=0, background="white", height=35, width=60, cursor="exchange")
+toggle_annotations.bind('<Button>', toggle)
+toggle_annotations.place(relx=0.91, rely=0.06)
 
 # Start the tkinter event loop
 root.mainloop()

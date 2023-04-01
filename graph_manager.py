@@ -35,6 +35,9 @@ class GraphManager:
     # Font size for annotations
     __font_size = 8
 
+    # Variable to keep track of the toggle button state
+    __toggle_state = True
+
     def __init__(self, tk_root: Widget):
         # Create a figure
         self.__fig = plt.figure()
@@ -233,7 +236,28 @@ class GraphManager:
         """
         Builds the updated graph by calling canvas.draw().
         """
+        if self.__toggle_state:
+            # Shows annotations
+            for (_, (_, annotation)) in self.__voters:
+                annotation.set_visible(True)
+        else:
+            # Hides annotations
+            for (_, (_, annotation)) in self.__voters:
+                annotation.set_visible(False)
         self.__canvas.draw()
+
+    def get_toggle_state(self):
+        """
+        Return the boolean value of toggle_state
+        :return: True if __toggle_state == True, False otherwise
+        """
+        return self.__toggle_state
+
+    def set_toggle_state(self, toggle_state: bool):
+        """
+        Return the boolean value of toggle_state
+        """
+        self.__toggle_state = toggle_state
 
     def get_tk_widget(self) -> Canvas:
         """
