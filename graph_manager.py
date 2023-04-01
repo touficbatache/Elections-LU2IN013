@@ -253,11 +253,11 @@ class GraphManager:
         """
         return self.__toggle_state
 
-    def set_toggle_state(self, toggle_state: bool):
+    def set_toggle_state(self, value: bool):
         """
-        Return the boolean value of toggle_state
+        Sets the boolean value of toggle_state to that of value
         """
-        self.__toggle_state = toggle_state
+        self.__toggle_state = value
 
     def get_tk_widget(self) -> Canvas:
         """

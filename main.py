@@ -1230,6 +1230,10 @@ def display_condorcet_winner_popup(
 
 
 def toggle(event):
+    """
+    Function to toggle the image shown on the toggle_annotations button depending on its state
+    """
+    # If toggle_annotations button is on
     if graph_manager.get_toggle_state():
         toggle_annotations.config(image=off)
         graph_manager.set_toggle_state(False)
