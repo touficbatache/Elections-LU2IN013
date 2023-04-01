@@ -234,6 +234,7 @@ class GraphManager:
 
     def build(self):
         """
+        Toggles the visibility of the annotations of all voters based on the value of __toggle_state.
         Builds the updated graph by calling canvas.draw().
         """
         if self.__toggle_state:
@@ -246,7 +247,7 @@ class GraphManager:
                 annotation.set_visible(False)
         self.__canvas.draw()
 
-    def get_toggle_state(self):
+    def get_toggle_state(self) -> bool:
         """
         Return the boolean value of toggle_state
         :return: True if __toggle_state == True, False otherwise
