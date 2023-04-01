@@ -1,4 +1,5 @@
 import csv
+import random
 import itertools
 import tkinter as tk
 
@@ -14,7 +15,7 @@ def CandidatestoCSV():
     """
     with open('CandidatsPresidentll.csv', 'w', newline='') as cfile:
         writer = csv.writer(cfile)
-        candNames = dict()
+        candNamesPos = dict()
         #First Candidate's index on the row : 18 then every 6 rows
         candIndex = 18
         f = csv.reader(open(off_data))
@@ -24,15 +25,15 @@ def CandidatestoCSV():
             #Iterate on all rows(89) untill the end of line
             while(candIndex + 6 < 89) :
                 #set names of candidates with an empty list which will have the postion
-                candNames[ f_row[candIndex] ] = []
+                candNamesPos[ f_row[candIndex] ] = []
                 candIndex += 6
         
         #---------SET APPROX VALUES OF CANDIDATES' POSITIONS----------#
 
-        for name, coord in candNames.items() :
+        for name, coord in candNamesPos.items() :
             writer.writerow([coord[0], coord[1], name])
 
-    return cfile,
+    return cfile,candNamesPos
 
 
 def makeProfilsbyDEP(generationfile, votersbyDep):
@@ -44,8 +45,12 @@ def makeProfilsbyDEP(generationfile, votersbyDep):
         :param votersbyDep
         :return: csv file to generate candidate profils on graph
     """
+    #Dict like {name : [x,y]}
+    _ ,candNamesPos = CandidatestoCSV()
+
     nbRowMax = 107
     nbColMax = 89
+
     with open(off_data, newline='') as csvfile:
         reader = csv.reader(csvfile)
         next(reader)
@@ -59,21 +64,41 @@ def makeProfilsbyDEP(generationfile, votersbyDep):
                 percentage = row[i+3]
                 # Do something with the department, candidate, and percentage
                 print(f"{department}: {candidate} - {percentage}")
+    
+
+    #----------------------------------------------------------------------------------
+    #Load voting percentages for each candidate by department from CSV file
+    dept_votes = {}
+    with open('resultats-par-niveau-dpt-t1-france-entiere.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        next(reader)
+        for row in reader:
+            deptcode = row['Code du département']
+            if deptcode not in dept_votes:
+                dept_votes[deptcode] = []
+            for name in candNamesPos.keys() :
+                cand = name
+                pct = float(row[f'% Voix/Exp Candidat {i}'].replace(',', '.'))
+                dept_votes[deptcode].append((cand, pct))
+
+    # Generate voter positions for each department
+    writer = csv.writer(generationfile)
+    for dept, votes in dept_votes.items():
+        for i in range(votersbyDep):
+            total_votes = sum(pct for _, pct in votes)
+
+            # randomly select candidate based on vote percentage
+            candidate = random.choices(votes, [pct/total_votes for _, pct in votes])[0][0] 
+            # use candidate's x and y position
+            x, y = candidates[candidate - 1]  
+            # add random noise to x and y positions
+            x += random.uniform(-0.05, 0.05)  
+            y += random.uniform(-0.05, 0.05)
+            writer.writerow([x, y, dept, candidate])
 
 
+    return generationfile
 
 
-    #df = pd.read_csv('resultats-par-niveau-dpt-t1-france-entiere.csv')
-    #renamecolumnN = 23
-    #for i in range(11*5) :
-    #    df.rename( columns={renamecolumnN :'Sexe'}, inplace=True )
-    #    df.rename( columns={renamecolumnN+1 :'Nom'}, inplace=True )
-    #    df.rename( columns={renamecolumnN+2 :'Prénom'}, inplace=True )
-    #    df.rename( columns={renamecolumnN+3 :'% Voix/Ins'}, inplace=True )
-    #    df.rename( columns={renamecolumnN+4 :'% Voix/Exp'}, inplace=True )
-    #    renamecolumnN = renamecolumnN + 5
-
-    #print("\nReading the CSV file ...\n",df)
-
-#Test
+#--------------------------------------Main--------------------------------------------------
 CandidatestoCSV()
