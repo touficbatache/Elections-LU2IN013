@@ -7,9 +7,12 @@ import tkinter as tk
 off_data = 'resultats-par-niveau-dpt-t1-france-entiere.csv'
 #nbRowMax = 107
 #nbColMax = 89
-    
 
-def CandidatestoCSV():
+
+#-----------------------------------------------------------------------------------------------------------
+
+
+def CandidatestoCSV(off_data):
     """
         Returns the csv file with the french presidential
         elections candidates, locations inspired by La Boussole Presidentielle
@@ -37,6 +40,9 @@ def CandidatestoCSV():
             writer.writerow([coord[0], coord[1], name])
 
     return cfile,candNamesPos
+
+
+#-----------------------------------------------------------------------------------------------------------
 
 
 def generate_voters_by_department(off_data, voters_by_dep, radius, generation_files):
@@ -91,5 +97,11 @@ def generate_voters_by_department(off_data, voters_by_dep, radius, generation_fi
             writer.writerows(voters)
 
 
-#--------------------------------------Main--------------------------------------------------
-CandidatestoCSV()
+#-----------------------------------------------------------------------------------------------------------
+
+
+
+
+
+#------------------------------------------------Main-------------------------------------------------------
+CandidatestoCSV(off_data)
