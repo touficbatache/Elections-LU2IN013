@@ -32,8 +32,9 @@ class GraphManager:
     # Store the plotted approbation approval circles
     __approbation_circles = list()
 
-    # Font size for annotations
+    # Font and marker size for annotations
     __font_size = 8
+    __marker_size = 4
 
     # Variable to keep track of the toggle button state
     __toggle_state = True
@@ -107,11 +108,11 @@ class GraphManager:
             return False
 
         # Plot the voter on the graph
-        (point,) = self.__axes.plot(
+        point, = self.__axes.plot(
             voter.coordinates()[0],
             voter.coordinates()[1],
             "o",
-            markersize=4,
+            markersize=self.__marker_size,
             color="black",
             zorder=10,
         )
@@ -141,12 +142,20 @@ class GraphManager:
         annotation.remove()
 
         # Plot the voter on the graph
-        point, = self.__axes.plot(voter.coordinates()[0], voter.coordinates()[1], 'o', color="black", zorder=10)
+        point, = self.__axes.plot(
+            voter.coordinates()[0],
+            voter.coordinates()[1],
+            'o',
+            markersize=self.__marker_size,
+            color="black",
+            zorder=10
+        )
         # Label the point on the graph
         annotation = self.__axes.annotate(
             text=voter.get_label(),
             xy=voter.coordinates(),
             xytext=(voter.coordinates()[0] - 0.02, voter.coordinates()[1] + 0.05),
+            fontsize=self.__font_size,
             zorder=10
         )
         # Replace voter in the dict
@@ -177,7 +186,7 @@ class GraphManager:
             candidate.coordinates()[0],
             candidate.coordinates()[1],
             's',
-            markersize=4,
+            markersize=self.__marker_size,
             color=candidate.get_color(),
             zorder=11
         )
@@ -213,7 +222,7 @@ class GraphManager:
             candidate.coordinates()[0],
             candidate.coordinates()[1],
             's',
-            markersize=4,
+            markersize=self.__marker_size,
             color=candidate.get_color(),
             zorder=11
         )
