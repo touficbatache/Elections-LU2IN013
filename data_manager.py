@@ -247,8 +247,8 @@ class DataManager:
         added_labels = [added_candidate.get_label() for added_candidate in self.__candidates]
         label_offset = 0
         while label in added_labels:
-            label_offset += 1
             label = self.__get_label_for(len(self.__candidates) + label_offset)
+            label_offset += 1
 
         # Create a new candidate
         if color is None or color not in mcolors.XKCD_COLORS.values():

@@ -1,5 +1,6 @@
 import csv
 import time
+import os
 
 from typing import Callable
 
@@ -60,7 +61,6 @@ class FileManager:
     ) -> int:
         """
         Imports the coordinates of candidates and/or voters from file and plots them on the graph.
-        If no file is given, the default one is used.
 
         :param filename: name of the file to import from
         :param on_error: error callback
@@ -140,6 +140,8 @@ class FileManager:
             return -1
 
         filename = "donnees-" + time.strftime("%d%m%Y-%H%M%S") + ".csv"
+        if not os.path.isdir("./files/"):
+            os.mkdir("./files/")
         file = open("./files/" + filename, "w")
 
         if candidates:

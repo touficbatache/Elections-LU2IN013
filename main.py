@@ -1225,6 +1225,8 @@ def import_file_callback(frame):
         ('csv files', '*.csv'),
     )
     name = fd.askopenfilename(initialdir='./files/', filetypes=filetypes)
+    if name == '':
+        return
     file_manager.import_objects_from_file(name, show_error, on_import_file_success)
     frame.destroy()
 
@@ -1246,13 +1248,14 @@ def show_import_file_popup():
     top_file.title("Lecture d'un fichier")
     top_file.geometry("560x490")
 
-    file_format = tk.Label(
+    tk.Label(
         top_file,
         text="Pour importer des données d'un fichier, il doit suivre le format suivant dans toutes ses lignes:\n\n" +
         "La premiere ligne est soit \"Candidats\" soit \"Votants\".\n" +
-        "Celles qui suivent doivent avoir ce format: x,y,nom_candidat,couleur\n" +
-        "Pour les votants et les candidats, les colonnes x et y sont nécessaires et les coordonnées x et y doivent être comprises entre [-1,1].\n" +
-        "Pour les candidats, les colonnes nom_candidat et couleur peuvent aussi être fournies. Elles sont optionnelles.\n\n" +
+        "Celles qui suivent doivent avoir un format bien determiné selon le cas:\n" +
+        "- Pour les candidats, le format est: \"x,y,nom_candidat,couleur\" avec nom_candidat et couleur des colonnes optionnelles (peuvent être non initialisées).\n" +
+        "- Pour les votants, le format est: \"x,y\".\n" +
+        "Les colonnes x et y représentent les coordonnées x et y qui doivent être comprises entre [-1,1].\n\n" +
         "Voici un example de fichier valable:\n\n" +
         "Candidats\n" +
         "0.9461039811039915,-0.7889275229678154,A,#ffa62b \
@@ -1273,16 +1276,13 @@ def show_import_file_popup():
         0.20846774193548367,-0.15238095238095206",
         wraplength=530,
         justify="left"
-    )
-    file_format.pack()
+    ).pack()
 
-    button = tk.Button(
+    tk.Button(
         top_file,
         text='Choisir un fichier',
         command=lambda: import_file_callback(top_file)
-    )
-
-    button.pack()
+    ).pack()
 
 
 def on_import_file_success(file_voters: list[tuple[float, float]], file_candidates: list[tuple[float, float, str, str]]):
@@ -1292,8 +1292,7 @@ def on_import_file_success(file_voters: list[tuple[float, float]], file_candidat
     :param file_voters: list of voters to add on graph
     :param file_candidates: list of candidates to add on graph
     """
-    for candidate in file_candidates:
-        x, y, label, color = candidate
+    for x, y, label, color in file_candidates:
         data_manager.add_candidate((x, y), label=label, color=color)
     for voter in file_voters:
         data_manager.add_voter(voter)
@@ -1349,6 +1348,14 @@ off = tk.PhotoImage(file="icons/png_icons/off.png")
 graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
 
+# Import file on button click
+import_file = tk.Button(main_panel, text="Lire des données", command=lambda: show_import_file_popup())
+import_file.place(relx=0, rely=0, relwidth=button_width, relheight=button_height)
+
+# Export file on button click
+export_file = tk.Button(main_panel, text="Sauvegarder les données", command=lambda: call_export_file())
+export_file.place(relx=0.25, rely=0, relwidth=button_width, relheight=button_height)
+
 # Reset the voters on button click
 reset_voters = tk.Button(main_panel, text="Réinitialiser les votants", command=lambda: reset(voters=True))
 reset_voters.place(relx=0.5, rely=0, relwidth=button_width, relheight=button_height)
@@ -1382,15 +1389,6 @@ distribute_candidates = tk.Button(
     command=lambda: show_distribute_popup(is_voter=False)
 )
 distribute_candidates.place(relx=0.75, rely=1 - button_height, relwidth=button_width, relheight=button_height)
-
-# Import file on button click
-import_file = tk.Button(main_panel, text="Lire des données", command=lambda: show_import_file_popup())
-import_file.place(relx=0, rely=0, relwidth=button_width, relheight=button_height)
-
-# Export file on button click
-export_file = tk.Button(main_panel, text="Sauvegarder les données", command=lambda: call_export_file())
-export_file.place(relx=0.25, rely=0, relwidth=button_width, relheight=button_height)
-
 
 # Toggle annotations of voters on button click
 toggle_annotations = tk.Label(main_panel, image=on, borderwidth=0, background="white", height=35, width=60, cursor="target")

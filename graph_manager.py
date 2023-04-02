@@ -32,8 +32,9 @@ class GraphManager:
     # Store the plotted approbation approval circles
     __approbation_circles = list()
 
-    # Font size for annotations
+    # Font and marker size for annotations
     __font_size = 8
+    __marker_size = 4
 
     # Variable to keep track of the toggle button state
     __toggle_state = True
@@ -111,7 +112,7 @@ class GraphManager:
             voter.coordinates()[0],
             voter.coordinates()[1],
             "o",
-            markersize=4,
+            markersize=self.__marker_size,
             color="black",
             zorder=10,
         )
@@ -145,7 +146,7 @@ class GraphManager:
             voter.coordinates()[0],
             voter.coordinates()[1],
             'o',
-            markersize=4,
+            markersize=self.__marker_size,
             color="black",
             zorder=10
         )
@@ -185,7 +186,7 @@ class GraphManager:
             candidate.coordinates()[0],
             candidate.coordinates()[1],
             's',
-            markersize=4,
+            markersize=self.__marker_size,
             color=candidate.get_color(),
             zorder=11
         )
@@ -221,7 +222,7 @@ class GraphManager:
             candidate.coordinates()[0],
             candidate.coordinates()[1],
             's',
-            markersize=4,
+            markersize=self.__marker_size,
             color=candidate.get_color(),
             zorder=11
         )
