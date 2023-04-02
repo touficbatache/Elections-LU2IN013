@@ -35,6 +35,9 @@ class GraphManager:
     # Font size for annotations
     __font_size = 8
 
+    # Variable to keep track of the toggle button state
+    __toggle_state = True
+
     def __init__(self, tk_root: Widget):
         # Create a figure
         self.__fig = plt.figure()
@@ -176,7 +179,9 @@ class GraphManager:
             's',
             markersize=4,
             color=candidate.get_color(),
-            zorder=11)
+            zorder=11
+        )
+        
         # Label the point on the graph
         annotation = self.__axes.annotate(
             text=candidate.get_label(),
@@ -204,13 +209,21 @@ class GraphManager:
         annotation.remove()
 
         # Plot the candidate on the graph
-        point, = self.__axes.plot(candidate.coordinates()[0], candidate.coordinates()[1], 's',
-                                  color=candidate.get_color(), zorder=11)
+        point, = self.__axes.plot(
+            candidate.coordinates()[0],
+            candidate.coordinates()[1],
+            's',
+            markersize=4,
+            color=candidate.get_color(),
+            zorder=11
+        )
+
         # Label the point on the graph
         annotation = self.__axes.annotate(
             text=candidate.get_label(),
             xy=candidate.coordinates(),
             xytext=(candidate.coordinates()[0] - 0.02, candidate.coordinates()[1] + 0.05),
+            fontsize=self.__font_size,
             zorder=11,
             path_effects=[withStroke(linewidth=2, foreground="white")]
         )
@@ -231,9 +244,31 @@ class GraphManager:
 
     def build(self):
         """
+        Toggles the visibility of the annotations of all voters based on the value of __toggle_state.
         Builds the updated graph by calling canvas.draw().
         """
+        if self.__toggle_state:
+            # Shows annotations
+            for (_, (_, annotation)) in self.__voters:
+                annotation.set_visible(True)
+        else:
+            # Hides annotations
+            for (_, (_, annotation)) in self.__voters:
+                annotation.set_visible(False)
         self.__canvas.draw()
+
+    def get_toggle_state(self) -> bool:
+        """
+        Return the boolean value of toggle_state
+        :return: True if __toggle_state == True, False otherwise
+        """
+        return self.__toggle_state
+
+    def set_toggle_state(self, value: bool):
+        """
+        Sets the boolean value of toggle_state to that of value
+        """
+        self.__toggle_state = value
 
     def get_tk_widget(self) -> Canvas:
         """
