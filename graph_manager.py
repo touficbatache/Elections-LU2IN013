@@ -107,7 +107,7 @@ class GraphManager:
             return False
 
         # Plot the voter on the graph
-        (point,) = self.__axes.plot(
+        point, = self.__axes.plot(
             voter.coordinates()[0],
             voter.coordinates()[1],
             "o",
@@ -141,12 +141,20 @@ class GraphManager:
         annotation.remove()
 
         # Plot the voter on the graph
-        point, = self.__axes.plot(voter.coordinates()[0], voter.coordinates()[1], 'o', color="black", zorder=10)
+        point, = self.__axes.plot(
+            voter.coordinates()[0],
+            voter.coordinates()[1],
+            'o',
+            markersize=4,
+            color="black",
+            zorder=10
+        )
         # Label the point on the graph
         annotation = self.__axes.annotate(
             text=voter.get_label(),
             xy=voter.coordinates(),
             xytext=(voter.coordinates()[0] - 0.02, voter.coordinates()[1] + 0.05),
+            fontsize=self.__font_size,
             zorder=10
         )
         # Replace voter in the dict

@@ -1,5 +1,7 @@
 from typing import Callable
 
+import matplotlib.colors as mcolors
+
 from candidate import Candidate
 from voter import Voter
 
@@ -227,16 +229,19 @@ class DataManager:
 
         return label
 
-    def add_candidate(self, coordinates: tuple[float, float]) -> bool:
+    def add_candidate(self, coordinates: tuple[float, float], label=None, color=None) -> bool:
         """
         Adds a candidate to the data.
 
         :param coordinates: candidate's coordinates
+        :param label: candidate's label
+        :param color: candidate's color
         :return: whether the candidate has been added or not
         """
 
         # Generate label
-        label = self.__get_label_for(len(self.__candidates))
+        if label is None:
+            label = self.__get_label_for(len(self.__candidates))
 
         # Avoid duplicates (unique labels!)
         added_labels = [added_candidate.get_label() for added_candidate in self.__candidates]
@@ -246,7 +251,10 @@ class DataManager:
             label = self.__get_label_for(len(self.__candidates) + label_offset)
 
         # Create a new candidate
-        candidate = Candidate.random_color(label=label, coordinates=coordinates)
+        if color is None or color not in mcolors.XKCD_COLORS.values():
+            candidate = Candidate.random_color(label=label, coordinates=coordinates)
+        else:
+            candidate = Candidate(label, coordinates, color)
 
         self.__candidates.append(candidate)
         if self.__on_candidate_added is not None:
