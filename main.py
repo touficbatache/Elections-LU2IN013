@@ -272,11 +272,11 @@ def disable_all_buttons(disable: bool):
 
     :param disable: bool - if True, disable all buttons, else return them to normal state
     """
-    global reset_voters, reset_candidates, generate_profiles, \
-        btn_show_voting_systems, distribute_voters, distribute_candidates
+    global reset_voters, reset_candidates, generate_profiles, btn_show_voting_systems, \
+        distribute_voters, distribute_candidates, export_file, import_file
 
-    list_buttons = [reset_voters, reset_candidates, generate_profiles,
-                    btn_show_voting_systems, distribute_voters, distribute_candidates]
+    list_buttons = [reset_voters, reset_candidates, generate_profiles, btn_show_voting_systems,
+                    distribute_voters, distribute_candidates, export_file, import_file]
 
     for button in list_buttons:
         if disable:
