@@ -4,14 +4,14 @@ import string
 
 import numpy as np
 import tkinter as tk
+from tkinter import filedialog as fd
 from tkinter.colorchooser import askcolor
 from PIL import Image, ImageTk
-
-from numpy import ndarray
 
 from candidate import Candidate
 from data_manager import DataManager
 from graph_manager import GraphManager
+from file_manager import FileManager
 from tooltip import bind_tooltip
 from voter import Voter
 from voting_manager import VotingManager, CondorcetMethod, CondorcetTieBreakingRule
@@ -21,6 +21,9 @@ data_manager = DataManager()
 
 # Create a Voting Manager
 voting_manager = VotingManager()
+
+# Create a File Manager
+file_manager = FileManager()
 
 # Create a Details Voting Manager
 voting_details_manager = voting_manager.voting_details_manager
@@ -81,6 +84,10 @@ max_spread_percentage = 100
 # Create the variables to keep track of the 'gaussian distribution' button press
 is_clicked_gaussian = False
 is_voter_gaussian = False
+
+# Variables to keep track of height and width of buttons
+button_height = 0.05
+button_width = 0.25
 
 # Create the StringVar used to hold the approval radius around candidates
 stringvar_approval_radius = tk.StringVar(name="approval_radius")
@@ -265,11 +272,11 @@ def disable_all_buttons(disable: bool):
 
     :param disable: bool - if True, disable all buttons, else return them to normal state
     """
-    global reset_voters, reset_candidates, generate_profiles, \
-        btn_show_voting_systems, distribute_voters, distribute_candidates
+    global reset_voters, reset_candidates, generate_profiles, btn_show_voting_systems, \
+        distribute_voters, distribute_candidates, export_file, import_file
 
-    list_buttons = [reset_voters, reset_candidates, generate_profiles,
-                    btn_show_voting_systems, distribute_voters, distribute_candidates]
+    list_buttons = [reset_voters, reset_candidates, generate_profiles, btn_show_voting_systems,
+                    distribute_voters, distribute_candidates, export_file, import_file]
 
     for button in list_buttons:
         if disable:
@@ -486,40 +493,24 @@ def distribute_gaussian(x: float, y: float):
 
         spread_percentage = doublevar_spread_percentage_value.get()
 
-        sigma_min = 0.1
-        sigma_max = 0.7
-        sigma = np.interp(spread_percentage, (min_spread_percentage, max_spread_percentage), (sigma_min, sigma_max))
+        sigma = np.interp(spread_percentage, (min_spread_percentage, max_spread_percentage), (0.1, 0.7))
 
-        xs, xs_probas = generate_2d_gaussian(x, sigma, nb)
-        ys, ys_probas = generate_2d_gaussian(y, sigma, nb)
+        x_values = np.random.normal(x, sigma, nb**2)
+        y_values = np.random.normal(y, sigma, nb**2)
 
-        nb_output = np.sum(np.outer(xs_probas, ys_probas).flatten())
-
-        for x, x_proba in zip(xs, xs_probas):
-            for y, y_proba in zip(ys, ys_probas):
-                if random.random() < (x_proba * y_proba) * (nb / nb_output):
-                    if is_voter_gaussian:
-                        data_manager.add_voter((x, y))
-                    else:
-                        data_manager.add_candidate((x, y))
+        i = 0
+        for xs, ys in zip(x_values, y_values):
+            if i == nb:
+                break
+            if -1 <= xs <= 1 and -1 <= ys <= 1:
+                if is_voter_gaussian:
+                    data_manager.add_voter((xs, ys))
+                else:
+                    data_manager.add_candidate((xs, ys))
+                i += 1
         graph_manager.build()
 
     disable_all_buttons(False)
-
-
-def generate_2d_gaussian(center: float, sigma: float, size: int) -> tuple[ndarray, ndarray]:
-    """
-    Function that generates the x and y of a 2D Gaussian using
-    the center point, a sigma and a size determining the arrays' size.
-
-    :param center: center point
-    :param sigma: sigma
-    :param size: generated arrays' size
-    :return: tuple(x values, y values)
-    """
-    x = np.sort(np.random.normal(center, sigma, size))
-    y = 1 / (sigma * np.sqrt(2 * np.pi)) * np.exp(-(x - center) ** 2 / (2 * sigma ** 2))
-    return x, y
 
 
 def show_profils_popup():
@@ -1229,6 +1220,112 @@ def display_condorcet_winner_popup(
             tk.Label(winner_dialog, text=str(all_winners)).grid(row=6, column=0, columnspan=2)
 
 
+def import_file_callback(frame):
+    filetypes = (
+        ('csv files', '*.csv'),
+    )
+    name = fd.askopenfilename(initialdir='./files/', filetypes=filetypes)
+    if name == '':
+        return
+    file_manager.import_objects_from_file(name, show_error, on_import_file_success)
+    frame.destroy()
+
+
+top_file = None
+
+
+def show_import_file_popup():
+    """
+    Shows popup explaining the format of the file to import.
+    Handles user input.
+    Calls import_objects_from_file() and gives it the name of a file as input.
+    """
+    global top_file
+    if top_file:
+        top_file.destroy()
+
+    top_file = tk.Toplevel(root)
+    top_file.title("Lecture d'un fichier")
+    top_file.geometry("560x490")
+
+    tk.Label(
+        top_file,
+        text="Pour importer des données d'un fichier, il doit suivre le format suivant dans toutes ses lignes:\n\n" +
+        "La premiere ligne est soit \"Candidats\" soit \"Votants\".\n" +
+        "Celles qui suivent doivent avoir un format bien determiné selon le cas:\n" +
+        "- Pour les candidats, le format est: \"x,y,nom_candidat,couleur\" avec nom_candidat et couleur des colonnes optionnelles (peuvent être non initialisées).\n" +
+        "- Pour les votants, le format est: \"x,y\".\n" +
+        "Les colonnes x et y représentent les coordonnées x et y qui doivent être comprises entre [-1,1].\n\n" +
+        "Voici un example de fichier valable:\n\n" +
+        "Candidats\n" +
+        "0.9461039811039915,-0.7889275229678154,A,#ffa62b \
+        0.042005706554823385,0.2998445121641913,B \
+        0.08606445736472024,-0.5626141086518681 \
+        -0.2690871826009764,-0.2698714634871553,D,rien \
+        -0.258171091230772,-0.5569398723595189,E,#87a922 \
+        -0.29257873438932536,0.7092589293675524,E,#95a3a6 \
+        0.8782258064516126,-0.21785714285714275,G,#a87900\n\n" +
+        "Votants\n" +
+        "-0.6254032258064518,-0.8666666666666666 \
+        -0.8471774193548389,0.466666666666667 \
+        0.3370967741935482,0.7880952380952386 \
+        0.7096774193548385,0.2345238095238098 \
+        0.4391129032258063,-0.5809523809523809 \
+        -0.3459677419354841,0.317857142857143 \
+        -0.554435483870968,-0.2952380952380951 \
+        0.20846774193548367,-0.15238095238095206",
+        wraplength=530,
+        justify="left"
+    ).pack()
+
+    tk.Button(
+        top_file,
+        text='Choisir un fichier',
+        command=lambda: import_file_callback(top_file)
+    ).pack()
+
+
+def on_import_file_success(file_voters: list[tuple[float, float]], file_candidates: list[tuple[float, float, str, str]]):
+    """
+    Function called when file is successfully imported. The list of variables/candidates is added on graph.
+
+    :param file_voters: list of voters to add on graph
+    :param file_candidates: list of candidates to add on graph
+    """
+    for x, y, label, color in file_candidates:
+        data_manager.add_candidate((x, y), label=label, color=color)
+    for voter in file_voters:
+        data_manager.add_voter(voter)
+    graph_manager.build()
+
+
+def call_export_file():
+    """
+    Function that calls export_objects_to_file function in file_manager
+    """
+    file_manager.export_objects_to_file(data_manager.get_candidates(), data_manager.get_voters(), show_error, show_success)
+
+
+def show_error(title: str, message: str):
+    """
+    Function to show error message.
+
+    :param title: the title of message box
+    :param message: the message to show in error box
+    """
+    tk.messagebox.showwarning(title=title, message=message)
+
+
+def show_success(title: str, message: str):
+    """
+    Function to show success message.
+
+    :param title: the title of message box
+    :param message: the message to show in success box
+    """
+    tk.messagebox.showinfo(title=title, message=message)
+
+
 def toggle(event):
     """
     Function to toggle the image shown on the toggle_annotations button depending on its state
@@ -1251,23 +1348,31 @@ off = tk.PhotoImage(file="icons/png_icons/off.png")
 graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
 
+# Import file on button click
+import_file = tk.Button(main_panel, text="Lire des données", command=lambda: show_import_file_popup())
+import_file.place(relx=0, rely=0, relwidth=button_width, relheight=button_height)
+
+# Export file on button click
+export_file = tk.Button(main_panel, text="Sauvegarder les données", command=lambda: call_export_file())
+export_file.place(relx=0.25, rely=0, relwidth=button_width, relheight=button_height)
+
 # Reset the voters on button click
 reset_voters = tk.Button(main_panel, text="Réinitialiser les votants", command=lambda: reset(voters=True))
-reset_voters.place(relx=0.58, rely=0, relwidth=0.2, relheight=0.05)
+reset_voters.place(relx=0.5, rely=0, relwidth=button_width, relheight=button_height)
 reset_voters.configure(cursor="exchange")
 
 # Reset the candidates on button click
 reset_candidates = tk.Button(main_panel, text="Réinitialiser les candidats", command=lambda: reset(candidates=True))
-reset_candidates.place(relx=0.78, rely=0, relwidth=0.22, relheight=0.05)
+reset_candidates.place(relx=0.75, rely=0, relwidth=button_width, relheight=button_height)
 reset_candidates.configure(cursor="exchange")
 
 # Generate the profiles on button click
 generate_profiles = tk.Button(main_panel, text="Générer les profils", command=show_profils_popup)
-generate_profiles.place(relx=0, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+generate_profiles.place(relx=0, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Generate the profiles on button click
 btn_show_voting_systems = tk.Button(main_panel, text="Systèmes de vote", command=show_voting_systems_popup)
-btn_show_voting_systems.place(relx=0.25, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+btn_show_voting_systems.place(relx=0.25, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Distribute the voters on button click
 distribute_voters = tk.Button(
@@ -1275,7 +1380,7 @@ distribute_voters = tk.Button(
     text="Distribuer les votants",
     command=lambda: show_distribute_popup(is_voter=True)
 )
-distribute_voters.place(relx=0.5, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+distribute_voters.place(relx=0.5, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Distribute the candidates on button click
 distribute_candidates = tk.Button(
@@ -1283,7 +1388,7 @@ distribute_candidates = tk.Button(
     text="Distribuer les candidats",
     command=lambda: show_distribute_popup(is_voter=False)
 )
-distribute_candidates.place(relx=0.75, rely=1 - 0.05, relwidth=0.25, relheight=0.05)
+distribute_candidates.place(relx=0.75, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Toggle annotations of voters on button click
 toggle_annotations = tk.Label(main_panel, image=on, borderwidth=0, background="white", height=35, width=60, cursor="target")
