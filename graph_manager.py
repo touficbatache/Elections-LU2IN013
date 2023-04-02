@@ -179,7 +179,9 @@ class GraphManager:
             's',
             markersize=4,
             color=candidate.get_color(),
-            zorder=11)
+            zorder=11
+        )
+        
         # Label the point on the graph
         annotation = self.__axes.annotate(
             text=candidate.get_label(),
@@ -207,13 +209,21 @@ class GraphManager:
         annotation.remove()
 
         # Plot the candidate on the graph
-        point, = self.__axes.plot(candidate.coordinates()[0], candidate.coordinates()[1], 's',
-                                  color=candidate.get_color(), zorder=11)
+        point, = self.__axes.plot(
+            candidate.coordinates()[0],
+            candidate.coordinates()[1],
+            's',
+            markersize=4,
+            color=candidate.get_color(),
+            zorder=11
+        )
+
         # Label the point on the graph
         annotation = self.__axes.annotate(
             text=candidate.get_label(),
             xy=candidate.coordinates(),
             xytext=(candidate.coordinates()[0] - 0.02, candidate.coordinates()[1] + 0.05),
+            fontsize=self.__font_size,
             zorder=11,
             path_effects=[withStroke(linewidth=2, foreground="white")]
         )
