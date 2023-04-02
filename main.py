@@ -1470,50 +1470,46 @@ graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
 
 # Import file on button click
-import_file = tk.Button(main_panel, text="Lire des données", command=lambda: show_import_file_popup())
+import_file = tk.Button(main_panel, text="Lire des données", takefocus=0, highlightbackground="black", borderwidth=1,
+                        command=lambda: show_import_file_popup())
 import_file.place(relx=0, rely=0, relwidth=button_width, relheight=button_height)
 
 # Export file on button click
-export_file = tk.Button(main_panel, text="Sauvegarder les données", command=lambda: call_export_file())
+export_file = tk.Button(main_panel, text="Sauvegarder les données", takefocus=0, highlightbackground="black", borderwidth=1,
+                        command=lambda: call_export_file())
 export_file.place(relx=0.25, rely=0, relwidth=button_width, relheight=button_height)
 
 # Reset the voters on button click
-reset_voters = tk.Button(main_panel, text="Réinitialiser les votants", takefocus=0, borderwidth=1,
+reset_voters = tk.Button(main_panel, text="Réinitialiser les votants", takefocus=0, highlightbackground="black", borderwidth=1,
                          command=lambda: reset(voters=True))
 reset_voters.place(relx=0.5, rely=0, relwidth=button_width, relheight=button_height)
 reset_voters.configure(cursor="exchange")
 
 # Reset the candidates on button click
-reset_candidates = tk.Button(main_panel, text="Réinitialiser les candidats", takefocus=0, borderwidth=1,
+reset_candidates = tk.Button(main_panel, text="Réinitialiser les candidats", takefocus=0, highlightbackground="black", borderwidth=1,
                              command=lambda: reset(candidates=True))
 reset_candidates.place(relx=0.75, rely=0, relwidth=button_width, relheight=button_height)
 reset_candidates.configure(cursor="exchange")
 
 # Generate the utilities on button click
-generate_utility = tk.Button(main_panel, text="Générer les utilités", command=show_candidates_utility)
+generate_utility = tk.Button(main_panel, text="Générer les utilités", takefocus=0, highlightbackground="black", borderwidth=1,
+                             command=show_candidates_utility)
 generate_utility.place(relx=0, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Generate the profiles on button click
-btn_show_voting_systems = tk.Button(main_panel, text="Systèmes de vote", command=show_voting_systems_popup)
+btn_show_voting_systems = tk.Button(main_panel, text="Systèmes de vote", takefocus=0, highlightbackground="black", borderwidth=1,
+                                    command=show_voting_systems_popup)
 btn_show_voting_systems.place(relx=0.25, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Distribute the voters on button click
-distribute_voters = tk.Button(
-    main_panel,
-    text="Distribuer les votants",
-    borderwidth=1,
-    takefocus=0,
-    command=lambda: show_distribute_popup(is_voter=True)
+distribute_voters = tk.Button(main_panel, text="Distribuer les votants", takefocus=0, highlightbackground="black", borderwidth=1,
+                              command=lambda: show_distribute_popup(is_voter=True)
 )
 distribute_voters.place(relx=0.5, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Distribute the candidates on button click
-distribute_candidates = tk.Button(
-    main_panel,
-    text="Distribuer les candidats",
-    borderwidth=1,
-    takefocus=0,
-    command=lambda: show_distribute_popup(is_voter=False)
+distribute_candidates = tk.Button(main_panel, text="Distribuer les candidats", takefocus=0, highlightbackground="black", borderwidth=1,
+                                  command=lambda: show_distribute_popup(is_voter=False)
 )
 distribute_candidates.place(relx=0.75, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
@@ -1523,7 +1519,7 @@ toggle_annotations.bind('<Button>', toggle)
 bind_tooltip(toggle_annotations, text="Afficher/Masquer les annotations des votants")
 toggle_annotations.place(relx=0.91, rely=0.06)
 
-list_buttons = [reset_voters, reset_candidates, generate_profiles,
+list_buttons = [import_file, export_file, reset_voters, reset_candidates, generate_utility,
                 btn_show_voting_systems, distribute_voters, distribute_candidates, -1]
 keyboard_manager.tab_bind(root, list_buttons)
 keyboard_manager.shift_tab_bind(root, list_buttons)
