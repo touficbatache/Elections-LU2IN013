@@ -1362,38 +1362,13 @@ def candidate_utility(candidate: Candidate) -> tuple[Candidate, float]:
     return candidate, utility
 
 
-# def find_min_utility() -> float:
-#     """
-#     Finds the min utility between all candidates.
-#
-#     :return: min utility value
-#     """
-#     min_utility = 1000
-#
-#     for candidate in data_manager.get_candidates():
-#         utility = candidate_utility(candidate)
-#         if utility < min_utility:
-#             min_utility = utility
-#
-#     return min_utility
-#
-#
-# def find_max_utility() -> float:
-#     """
-#     Finds the max utility between all candidates.
-#
-#     :return: max utility value
-#     """
-#     max_utility = 0
-#
-#     for candidate in data_manager.get_candidates():
-#         utility = candidate_utility(candidate)
-#         if utility > max_utility:
-#             max_utility = utility
-#
-#     return max_utility
-
 def percentage_utility(candidate: Candidate) -> str:
+    """
+    Converts the utility of a candidate to a percentage for display.
+
+    :param candidate: Candidate whose utility percentage is to be determined
+    :return: the percentage in string format
+    """
     utilities = [utility for _, utility in map(candidate_utility, data_manager.get_candidates())]
     min_utility, max_utility = min(utilities), max(utilities)
     range_utility = max_utility - min_utility
@@ -1442,7 +1417,6 @@ def show_candidates_utility():
                 tk.Label(top_utility, text="MAX", font=("Mistral", "15", font_style)).grid(row=candidate_number, column=3)
             else:
                 tk.Label(top_utility, text=str(round(1/c_utility, 2)), font=("Mistral", "15", font_style)).grid(row=candidate_number, column=3)
-
 
 
 # Add the canvas to the tkinter window
