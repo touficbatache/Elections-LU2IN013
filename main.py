@@ -272,10 +272,10 @@ def disable_all_buttons(disable: bool):
 
     :param disable: bool - if True, disable all buttons, else return them to normal state
     """
-    global reset_voters, reset_candidates, generate_profiles, btn_show_voting_systems, \
+    global reset_voters, reset_candidates, generate_utility, btn_show_voting_systems, \
         distribute_voters, distribute_candidates, export_file, import_file
 
-    list_buttons = [reset_voters, reset_candidates, generate_profiles, btn_show_voting_systems,
+    list_buttons = [reset_voters, reset_candidates, generate_utility, btn_show_voting_systems,
                     distribute_voters, distribute_candidates, export_file, import_file]
 
     for button in list_buttons:
@@ -1344,6 +1344,81 @@ def toggle(event):
 on = tk.PhotoImage(file="icons/png_icons/on.png")
 off = tk.PhotoImage(file="icons/png_icons/off.png")
 
+
+def candidate_utility(candidate: Candidate) -> tuple[Candidate, float]:
+    """
+    Calculates the utility of the candidate given in parameters.
+    Utility formula is :
+        U = sum_forall_v_in_V(distance(c, v)^2) ÷ len(V)^2
+    with : c - position of candidate
+           v - position of voter
+           V - list of voters
+
+    :param candidate: Candidate whose utility is to be determined
+    :return: candidate's utility or "MAX" if utility value is infinite
+    """
+    voters = data_manager.get_voters()
+    utility = sum(math.dist(candidate.coordinates(), voter.coordinates())**2 for voter in voters) / (len(voters) ** 2)
+    return candidate, utility
+
+
+def percentage_utility(candidate: Candidate) -> str:
+    """
+    Converts the utility of a candidate to a percentage for display.
+
+    :param candidate: Candidate whose utility percentage is to be determined
+    :return: the percentage in string format
+    """
+    utilities = [utility for _, utility in map(candidate_utility, data_manager.get_candidates())]
+    min_utility, max_utility = min(utilities), max(utilities)
+    range_utility = max_utility - min_utility
+    if range_utility == 0:
+        percentage = 100
+    else:
+        percentage = 100 - round(((candidate_utility(candidate)[1] - min_utility) / range_utility) * 100)
+    return str(percentage) + "%"
+
+
+top_utility = None
+
+
+def show_candidates_utility():
+    """
+    Display popup with all candidates' utilities.
+    The maximum utility is displayed in bold.
+    """
+    global top_utility
+    if top_utility:
+        top_utility.destroy()
+
+    if data_manager.is_voters_empty() or data_manager.is_candidates_empty():
+        tk.messagebox.showwarning(
+            title="Données insuffisantes",
+            message="Données insuffisantes. Veuillez ajouter des votants et/ou des candidats."
+        )
+    else:
+        top_utility = tk.Toplevel()
+        top_utility.title("Utilité des candidats")
+
+        list_utilities = sorted([candidate_utility(c) for c in data_manager.get_candidates()], key=lambda x: x[1])
+        tk.Label(top_utility, text="Rang", font=("Mistral", "15", "bold")).grid(row=0, column=0)
+        tk.Label(top_utility, text="Candidat", font=("Mistral", "15", "bold")).grid(row=0, column=1)
+        tk.Label(top_utility, text="Pourcentage", font=("Mistral", "15", "bold")).grid(row=0, column=2)
+        tk.Label(top_utility, text="Utilité", font=("Mistral", "15", "bold")).grid(row=0, column=3)
+
+        for candidate_number, (candidate, c_utility) in enumerate(list_utilities, start=1):
+            font_style = "normal"
+            if percentage_utility(candidate) == "100%":
+                font_style = "bold"
+            tk.Label(top_utility, text=str(candidate_number), font=("Mistral", "15", font_style)).grid(row=candidate_number, column=0)
+            tk.Label(top_utility, text=candidate.get_label(), font=("Mistral", "15", font_style)).grid(row=candidate_number, column=1)
+            tk.Label(top_utility, text=str(percentage_utility(candidate)), font=("Mistral", "15", font_style)).grid(row=candidate_number, column=2)
+            if c_utility == 0:
+                tk.Label(top_utility, text="MAX", font=("Mistral", "15", font_style)).grid(row=candidate_number, column=3)
+            else:
+                tk.Label(top_utility, text=str(round(1/c_utility, 2)), font=("Mistral", "15", font_style)).grid(row=candidate_number, column=3)
+
+
 # Add the canvas to the tkinter window
 graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
@@ -1366,9 +1441,9 @@ reset_candidates = tk.Button(main_panel, text="Réinitialiser les candidats", co
 reset_candidates.place(relx=0.75, rely=0, relwidth=button_width, relheight=button_height)
 reset_candidates.configure(cursor="exchange")
 
-# Generate the profiles on button click
-generate_profiles = tk.Button(main_panel, text="Générer les profils", command=show_profils_popup)
-generate_profiles.place(relx=0, rely=1 - button_height, relwidth=button_width, relheight=button_height)
+# Generate the utilities on button click
+generate_utility = tk.Button(main_panel, text="Générer les utilités", command=show_candidates_utility)
+generate_utility.place(relx=0, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Generate the profiles on button click
 btn_show_voting_systems = tk.Button(main_panel, text="Systèmes de vote", command=show_voting_systems_popup)
