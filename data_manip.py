@@ -51,8 +51,8 @@ def CandidatestoCSV(off_data, webplot):
                 x = float(str_x[:4])
                 y = float(str_y[:4])
 
-                candNamesPos[candidat].append(x)
-                candNamesPos[candidat].append(y)
+                candNamesPos[candidat].append(x/2)
+                candNamesPos[candidat].append(y/2)
        
         for name, coord in candNamesPos.items() :
             writer.writerow([coord[0], coord[1], name])
@@ -63,7 +63,7 @@ def CandidatestoCSV(off_data, webplot):
 #-----------------------------------------------------------------------------------------------------------
 
 
-def generate_voters_by_department(off_data, voters_by_dep, radius, generation_files):
+def generate_voters_by_department(off_data, webplot, voters_by_dep, radius, generation_files):
     """
         Generates a csv file for each department with 'votersbyDep' number of voters' positions randomly distributed 
         around each candidate's position, determined by the percentage of votes they received in that department.
@@ -79,7 +79,7 @@ def generate_voters_by_department(off_data, voters_by_dep, radius, generation_fi
         :return: None
     """
     # load candidate positions CandidatestoCSV()
-    _,candidate_positions = CandidatestoCSV() #Just { name : [x,y] }, not the csv file
+    _,candidate_positions = CandidatestoCSV(off_data, webplot) #Just { name : [x,y] }, not the csv file
     
     # load departements and corresponding exprimés values
     Code_DEP = {row['Code du département']: int(row['Libellé du département']) for row in off_data}
@@ -118,7 +118,7 @@ def generate_voters_by_department(off_data, voters_by_dep, radius, generation_fi
 #-----------------------------------------------------------------------------------------------------------
 
 
-def shift_voters(from_dep, to_cand, from_cand, voters_by_dep, radius, generation_files):
+def shift_voters(off_data, webplot, from_dep, to_cand, from_cand, voters_by_dep, radius, generation_files):
     """
     Shifts a percentage of voters from one candidate to another within a specific department, and updates the corresponding
     CSV file containing the voters' positions.
@@ -134,7 +134,7 @@ def shift_voters(from_dep, to_cand, from_cand, voters_by_dep, radius, generation
     :return: None
     """
 
-    _,candidate_positions = CandidatestoCSV() #Just { name : [x,y] }, not the csv file
+    _,candidate_positions = CandidatestoCSV(off_data, webplot) #Just { name : [x,y] }, not the csv file
 
     # load departements and corresponding exprimés values
     Code_DEP = {row['Code du département']: int(row['Libellé du département']) for row in off_data}
@@ -177,6 +177,6 @@ def shift_voters(from_dep, to_cand, from_cand, voters_by_dep, radius, generation
 
 #------------------------------------------------Main-------------------------------------------------------
 CandidatestoCSV(off_data, webplot)
-generate_voters_by_department
-shift_voters
+resultsgenrated = dict()
+generate_voters_by_department(off_data,webplot, 8, 0.5, resultsgenrated)
 #shift_voters('75', 'LASSALLE', 'ARTHAUD', 1, 0.01, {'75': 'voters75.csv'})
