@@ -1345,39 +1345,63 @@ on = tk.PhotoImage(file="icons/png_icons/on.png")
 off = tk.PhotoImage(file="icons/png_icons/off.png")
 
 
-def candidate_utility(candidate : Candidate) -> float | str:
+def candidate_utility(candidate: Candidate) -> tuple[Candidate, float]:
     """
-    Calculates the utility for the candidate given in parameters.
+    Calculates the utility of the candidate given in parameters.
     Utility formula is :
         U = sum_forall_v_in_V(distance(c, v)^2) ÷ len(V)^2
     with : c - position of candidate
            v - position of voter
            V - list of voters
 
-    :param candidate: Candidate to determine his utility
+    :param candidate: Candidate whose utility is to be determined
     :return: candidate's utility or "MAX" if utility value is infinite
     """
     voters = data_manager.get_voters()
     utility = sum(math.dist(candidate.coordinates(), voter.coordinates())**2 for voter in voters) / (len(voters) ** 2)
-    return "MAX" if utility == 0 else 1 / utility
+    return candidate, utility
 
 
-def find_max_utility() -> float | str:
-    """
-    Finds the max utility between all candidates
+# def find_min_utility() -> float:
+#     """
+#     Finds the min utility between all candidates.
+#
+#     :return: min utility value
+#     """
+#     min_utility = 1000
+#
+#     for candidate in data_manager.get_candidates():
+#         utility = candidate_utility(candidate)
+#         if utility < min_utility:
+#             min_utility = utility
+#
+#     return min_utility
+#
+#
+# def find_max_utility() -> float:
+#     """
+#     Finds the max utility between all candidates.
+#
+#     :return: max utility value
+#     """
+#     max_utility = 0
+#
+#     for candidate in data_manager.get_candidates():
+#         utility = candidate_utility(candidate)
+#         if utility > max_utility:
+#             max_utility = utility
+#
+#     return max_utility
 
-    :return: max utility value or "MAX" if max utility value is infinite
-    """
-    max_utility = 0
-
-    for candidate in data_manager.get_candidates():
-        utility = candidate_utility(candidate)
-        if utility == "MAX":
-            return "MAX"
-        if utility > max_utility:
-            max_utility = utility
-
-    return max_utility
+def percentage_utility(candidate: Candidate) -> str:
+    utilities = [utility for _, utility in map(candidate_utility, data_manager.get_candidates())]
+    min_utility, max_utility = min(utilities), max(utilities)
+    range_utility = max_utility - min_utility
+    if range_utility == 0:
+        percentage = 100
+    else:
+        percentage = 100 - round(((candidate_utility(candidate)[1] - min_utility) / range_utility) * 100)
+    return str(percentage) + "%"
 
 
 top_utility = None
@@ -1401,27 +1425,24 @@ def show_candidates_utility():
         top_utility = tk.Toplevel()
         top_utility.title("Utilité des candidats")
 
-        max_utility = find_max_utility()
+        list_utilities = sorted([candidate_utility(c) for c in data_manager.get_candidates()], key=lambda x: x[1])
+        tk.Label(top_utility, text="Rang", font=("Mistral", "15", "bold")).grid(row=0, column=0)
+        tk.Label(top_utility, text="Candidat", font=("Mistral", "15", "bold")).grid(row=0, column=1)
+        tk.Label(top_utility, text="Pourcentage", font=("Mistral", "15", "bold")).grid(row=0, column=2)
+        tk.Label(top_utility, text="Utilité", font=("Mistral", "15", "bold")).grid(row=0, column=3)
 
-        row_upgrade = -2
-        column_upgrade = 0
-        for candidate_number, candidate in enumerate(data_manager.get_candidates()):
-            if candidate_number % 5 == 0:
-                row_upgrade += 2
-                column_upgrade = 0
-            tk.Label(top_utility, text=candidate.get_label(), font=("Mistral", "15", "bold")).grid(row=row_upgrade, column=column_upgrade)
-            c_utility = candidate_utility(candidate)
-            if c_utility == max_utility and max_utility == "MAX":
-                tk.Label(top_utility, text=c_utility, font=("Mistral", "15", "bold")).grid(row=row_upgrade + 1, column=column_upgrade)
-            elif c_utility == max_utility:
-                tk.Label(top_utility, text=str(round(c_utility)), font=("Mistral", "15", "bold")).grid(row=row_upgrade + 1, column=column_upgrade)
+        for candidate_number, (candidate, c_utility) in enumerate(list_utilities, start=1):
+            font_style = "normal"
+            if percentage_utility(candidate) == "100%":
+                font_style = "bold"
+            tk.Label(top_utility, text=str(candidate_number), font=("Mistral", "15", font_style)).grid(row=candidate_number, column=0)
+            tk.Label(top_utility, text=candidate.get_label(), font=("Mistral", "15", font_style)).grid(row=candidate_number, column=1)
+            tk.Label(top_utility, text=str(percentage_utility(candidate)), font=("Mistral", "15", font_style)).grid(row=candidate_number, column=2)
+            if c_utility == 0:
+                tk.Label(top_utility, text="MAX", font=("Mistral", "15", font_style)).grid(row=candidate_number, column=3)
             else:
-                tk.Label(top_utility, text=str(round(c_utility)), font=("Mistral", "15", "normal")).grid(row=row_upgrade + 1, column=column_upgrade)
-            column_upgrade += 1
-        tk.Label(top_utility, text="L'utilité d'un candidat est un entier positif. "
-                                   "Plus cet entier est grand, plus l'utilité du candidat est importante. "
-                                   "Le candidat le plus utile est affiché en gras. ",
-                 font=("Mistral", "15", "normal"), wraplength=300).grid(row=row_upgrade + 2, column=0, columnspan=5)
+                tk.Label(top_utility, text=str(round(1/c_utility, 2)), font=("Mistral", "15", font_style)).grid(row=candidate_number, column=3)
+
 
 
 # Add the canvas to the tkinter window
