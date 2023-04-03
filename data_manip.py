@@ -36,7 +36,6 @@ def CandidatestoCSV(off_data, webplot):
                 #set names of candidates with an empty list which will have the postion
                 candNamesPos[ f_row[candIndex] ] = []
                 candIndex += 6
-        print(candNamesPos)
 
         #---------SET APPROX VALUES OF CANDIDATES' POSITIONS----------#
 
@@ -45,12 +44,10 @@ def CandidatestoCSV(off_data, webplot):
             for row, candidat in zip(reader,candNamesPos.keys()):
                 # Ignore first and third columns
                 # Cut the string at 4 caracters
-                str_x = row[1]
-                str_x = str_x.replace(",", ".")
+                str_x = row[0] + "." + row[1][:2].replace(",", "")
 
-                str_y = row[3]
-                str_y = str_y.replace(",", ".")
-
+                str_y = row[2] + "." + row[3][:2].replace(",", "")
+                
                 x = float(str_x[:4])
                 y = float(str_y[:4])
 
@@ -180,4 +177,6 @@ def shift_voters(from_dep, to_cand, from_cand, voters_by_dep, radius, generation
 
 #------------------------------------------------Main-------------------------------------------------------
 CandidatestoCSV(off_data, webplot)
+generate_voters_by_department
+shift_voters
 #shift_voters('75', 'LASSALLE', 'ARTHAUD', 1, 0.01, {'75': 'voters75.csv'})
