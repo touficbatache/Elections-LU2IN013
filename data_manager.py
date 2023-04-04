@@ -88,12 +88,14 @@ class DataManager:
 
         return self.__voters[index]
 
-    def edit_voter_at(self, index: int, label: str) -> bool:
+    def edit_voter_at(self, index: int, label: str, has_delegated_vote: bool, weight: int) -> bool:
         """
         Modifies the voter label at the given index.
 
         :param index: index of the desired voter
         :param label: voter's new label
+        :param has_delegated_vote: whether the voter has delegated their vote or not
+        :param weight: the voter's vote weight
         :return: if the voter was edited successfully or not
         """
 
@@ -104,6 +106,8 @@ class DataManager:
                 return False
 
         self.__voters[index].set_label(label)
+        self.__voters[index].set_delegated_vote(has_delegated_vote)
+        self.__voters[index].set_weight(weight)
         if self.__on_voter_edited is not None:
             self.__on_voter_edited(self.__voters[index], index)
 
