@@ -536,7 +536,7 @@ def generate_profils():
     """
     Function to generate the scores.
 
-    :return: dict({..., <voter label>: list(..., tuple(<candidate label>, <approval ratio>), ...), ...})
+    :return: dict({..., <voter label>: tuple(list(..., tuple(<candidate label>, <approval ratio>), ...), weight), ...})
     """
     # Dictionary to store the scores for each voter
     profils = dict()
@@ -547,11 +547,14 @@ def generate_profils():
     # List of voters
     voters = data_manager.get_voters()
 
+    # List of voters who haven't delegated their vote
+    voters_no_delegation = [voter for voter in voters if not voter.has_delegated_vote()]
+
     # List of candidates
     candidates = data_manager.get_candidates()
 
     # Loop to calculate the scores for each voter
-    for voter in voters:
+    for voter in voters_no_delegation:
         # profil = list(...tuple(<candidate label>, <approval ratio>)...)
         profil = list(map(
             lambda candidate:
@@ -564,7 +567,7 @@ def generate_profils():
         # Sort by closest match
         profil.sort(key=lambda x: x[1], reverse=True)
         # profils = dict({...<voter label>: <profil>...})
-        profils[voter.get_label()] = profil
+        profils[voter.get_label()] = (profil, voter.get_weight())
 
     return profils
 
