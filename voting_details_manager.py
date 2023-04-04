@@ -262,18 +262,22 @@ class VotingDetails:
 
         tk.Label(top_step, text="Les scores des votes :", font=("Mistral", "15", "bold")).grid(row=0, columnspan=nb_candidates if nb_candidates < 12 else 12, column=0)
 
-        i = 0
-        row_upgrade = 0
+        added_candidates = []
+
+        row_upgrade = 1
+        for candidate_label in self.remaining_methods_details[1].keys():
+            tk.Label(top_step,
+                     text=candidate_label + " : " + str(self.remaining_methods_details[1][candidate_label])).grid(
+                row=row_upgrade, column=0)
+            added_candidates.append(candidate_label)
+            row_upgrade += 1
+
         for candidate in self.__candidates:
             candidate_label = candidate.get_label()
-            if i % 12 == 0:
-                i = 0
-                row_upgrade += 1
-            if candidate_label in self.remaining_methods_details[1].keys():
-                tk.Label(top_step, text=candidate_label + " : " + str(self.remaining_methods_details[1][candidate_label])).grid(row=row_upgrade, column=i)
-            else:
-                tk.Label(top_step, text=candidate_label + " : 0").grid(row=row_upgrade, column=i)
-            i += 1
+            if candidate_label not in added_candidates:
+                tk.Label(top_step, text=candidate_label + " : 0").grid(row=row_upgrade, column=0)
+            row_upgrade += 1
+
 
         row_upgrade += 1
 
