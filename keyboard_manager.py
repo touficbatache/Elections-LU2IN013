@@ -77,7 +77,7 @@ class KeyboardManager:
 
         widget = list_widgets[list_widgets[nb_widgets]]
         self.reset_all_buttons(list_widgets)
-        widget.configure(highlightbackground="gray")
+        widget.configure(highlightbackground="black")
         self.enter_bind(frame, widget)
 
     def reset_all_buttons(self, list_widgets):
@@ -87,4 +87,4 @@ class KeyboardManager:
         :param list_widgets: List of widgets to remove focus from
         """
         for widget in list_widgets[:-1]:
-            widget.configure(highlightbackground="black")
+            widget.configure(highlightbackground="white")

@@ -1325,11 +1325,14 @@ def show_import_file_popup():
         justify="left"
     ).pack()
 
-    tk.Button(
+    import_button = tk.Button(
         top_file,
         text='Choisir un fichier',
         command=lambda: import_file_callback(top_file)
-    ).pack()
+    )
+    import_button.pack()
+    keyboard_manager.enter_bind(top_file, import_button)
+    keyboard_manager.esc_bind(top_file)
 
 def on_import_file_success(file_voters: list[tuple[float, float]], file_candidates: list[tuple[float, float, str, str]]):
     """
@@ -1470,23 +1473,23 @@ graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
 
 # Import file on button click
-import_file = tk.Button(main_panel, text="Lire des données", takefocus=0, highlightbackground="black", borderwidth=1,
+import_file = tk.Button(main_panel, text="Lire des données", takefocus=0, highlightbackground="white", borderwidth=1,
                         command=lambda: show_import_file_popup())
 import_file.place(relx=0, rely=0, relwidth=button_width, relheight=button_height)
 
 # Export file on button click
-export_file = tk.Button(main_panel, text="Sauvegarder les données", takefocus=0, highlightbackground="black", borderwidth=1,
+export_file = tk.Button(main_panel, text="Sauvegarder les données", takefocus=0, highlightbackground="white", borderwidth=1,
                         command=lambda: call_export_file())
 export_file.place(relx=0.25, rely=0, relwidth=button_width, relheight=button_height)
 
 # Reset the voters on button click
-reset_voters = tk.Button(main_panel, text="Réinitialiser les votants", takefocus=0, highlightbackground="black", borderwidth=1,
+reset_voters = tk.Button(main_panel, text="Réinitialiser les votants", takefocus=0, highlightbackground="white", borderwidth=1,
                          command=lambda: reset(voters=True))
 reset_voters.place(relx=0.5, rely=0, relwidth=button_width, relheight=button_height)
 reset_voters.configure(cursor="exchange")
 
 # Reset the candidates on button click
-reset_candidates = tk.Button(main_panel, text="Réinitialiser les candidats", takefocus=0, highlightbackground="black", borderwidth=1,
+reset_candidates = tk.Button(main_panel, text="Réinitialiser les candidats", takefocus=0, highlightbackground="white", borderwidth=1,
                              command=lambda: reset(candidates=True))
 reset_candidates.place(relx=0.75, rely=0, relwidth=button_width, relheight=button_height)
 reset_candidates.configure(cursor="exchange")
@@ -1497,18 +1500,18 @@ generate_utility = tk.Button(main_panel, text="Générer les utilités", takefoc
 generate_utility.place(relx=0, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Generate the profiles on button click
-btn_show_voting_systems = tk.Button(main_panel, text="Systèmes de vote", takefocus=0, highlightbackground="black", borderwidth=1,
+btn_show_voting_systems = tk.Button(main_panel, text="Systèmes de vote", takefocus=0, highlightbackground="white", borderwidth=1,
                                     command=show_voting_systems_popup)
 btn_show_voting_systems.place(relx=0.25, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Distribute the voters on button click
-distribute_voters = tk.Button(main_panel, text="Distribuer les votants", takefocus=0, highlightbackground="black", borderwidth=1,
+distribute_voters = tk.Button(main_panel, text="Distribuer les votants", takefocus=0, highlightbackground="white", borderwidth=1,
                               command=lambda: show_distribute_popup(is_voter=True)
 )
 distribute_voters.place(relx=0.5, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Distribute the candidates on button click
-distribute_candidates = tk.Button(main_panel, text="Distribuer les candidats", takefocus=0, highlightbackground="black", borderwidth=1,
+distribute_candidates = tk.Button(main_panel, text="Distribuer les candidats", takefocus=0, highlightbackground="white", borderwidth=1,
                                   command=lambda: show_distribute_popup(is_voter=False)
 )
 distribute_candidates.place(relx=0.75, rely=1 - button_height, relwidth=button_width, relheight=button_height)
