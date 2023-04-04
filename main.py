@@ -1466,7 +1466,7 @@ distribute_candidates = tk.Button(
 distribute_candidates.place(relx=0.75, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Toggle annotations of voters on button click
-toggle_annotations = tk.Label(main_panel, image=on, borderwidth=0, background="white", height=35, width=60, cursor="target")
+toggle_annotations = tk.Label(main_panel, image=off, borderwidth=0, background="white", height=35, width=60, cursor="target")
 toggle_annotations.bind('<Button>', toggle)
 bind_tooltip(toggle_annotations, text="Afficher/Masquer les annotations des votants")
 toggle_annotations.place(relx=0.91, rely=0.06)

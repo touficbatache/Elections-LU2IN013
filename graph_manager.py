@@ -37,7 +37,7 @@ class GraphManager:
     __marker_size = 4
 
     # Variable to keep track of the toggle button state
-    __toggle_state = True
+    __toggle_state = False
 
     def __init__(self, tk_root: Widget):
         # Create a figure
