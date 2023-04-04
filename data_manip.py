@@ -65,7 +65,7 @@ def CandidatestoCSV(off_data, webplot):
 #-----------------------------------------------------------------------------------------------------------
 
 
-def generate_voters_by_department(off_data, webplot, scaledown, radius, generation_files):
+def generate_voters_by_department(off_data, webplot, scaledown, radius):
     """
         Generates a csv file for each department with the coordinates of a certain number of voters. 
         In each departement, each candidate will generate voters with positions x and y within a radius of the candidate's positon.
@@ -96,8 +96,6 @@ def generate_voters_by_department(off_data, webplot, scaledown, radius, generati
         next(reader)
         for row in reader:
             total_exp += int(row[14])
-            #exp_per_dpt[row[0]] = int(row[14])
-            #code_name_dpt[row[0]] = row[1]
 
     # Read in the election results from the CSV file
     with open(off_data, 'r', newline='') as csvfile:
@@ -114,25 +112,29 @@ def generate_voters_by_department(off_data, webplot, scaledown, radius, generati
             dep_code = row[0]
             dep_name = row[1]
             expr_dep = int(row[14])
-            exp_dep_simul = scaledown*expr_dep/total_exp
+            expr_dep_simul = scaledown*expr_dep/total_exp
             
             # Loop over each candidate in the department
-            Vo_per_Exp = 0.0
+            vo_per_Exp = 0.0
+            nbVoixsimul = 0.0
+            vo_per_exp_simul = 0.0
 
             for index, roww in enumerate(row):
                 for candidate in list(candidate_positions.keys()):
                     if candidate in roww:
-                        Vo_per_Exp = float(row[index + 4].replace(",", ".")) # '%Voix/exp'
+                        vo_per_Exp = float(row[index + 4].replace(",", ".")) # '%Voix/exp'
+                        nbVoixsimul = (vo_per_Exp/100*expr_dep)*expr_dep_simul/expr_dep
+                        vo_per_exp_simul = nbVoixsimul/expr_dep_simul*100
                         break
                     if candidate not in voters_per_candidate:
                         voters_per_candidate[candidate] = {}
-                    voters_per_candidate[candidate][dep_code] = math.ceil(exp_dep_simul*Vo_per_Exp)
-
+                    voters_per_candidate[candidate][dep_code] = math.floor(vo_per_exp_simul)
 
             # generate voters for each departement
         
             voters = []
             for candidate, num_voters in voters_per_candidate.items():
+                print(voters_per_candidate)
                 if dep_code in num_voters:
                     candidate_pos = candidate_positions[candidate]
                     for i in range(num_voters[dep_code]):
@@ -140,14 +142,17 @@ def generate_voters_by_department(off_data, webplot, scaledown, radius, generati
                         y_range = math.sqrt(radius ** 2 - (x - candidate_pos[0]) ** 2)
                         y = random.uniform(candidate_pos[1] - y_range, candidate_pos[1] + y_range)
                         voters.append((x, y, candidate))
-                        print(voters)
+                        #print(voters)
             random.shuffle(voters)
 
-            filename = dep_code
-            #with open(generation_files[dep_code], 'w', newline='') as f:
-            #    writer = csv.writer(f)
-            #    writer.writerow([x, y, candidate])
-            #    writer.writerows(voters)
+            for candidate, num_voters in voters_per_candidate.items():
+                filename = 'voters' + dep_code + '.csv'
+                with open(filename, 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow([x, y, candidate])
+                    writer.writerows(voters)
+
+                    #return generation_files
 
 
 #-----------------------------------------------------------------------------------------------------------
@@ -208,6 +213,8 @@ def shift_voters(off_data, webplot, from_dep, to_cand, from_cand, voters_by_dep,
         writer = csv.writer(f)
         writer.writerow([x, y, candidate])
         writer.writerows(voters)
+    
+    return genera
 
 
 
