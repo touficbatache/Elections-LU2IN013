@@ -871,7 +871,7 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
                         if result_approbation:
                             tk.Label(combined_results_popup, text=str(result_approbation[0]),
                                      font=("Mistral", "22", "bold"),
-                                     width="5").grid(row=row_index, column=1)
+                                     width=len(result_approbation[0])).grid(row=row_index, column=1)
                             tk.Label(combined_results_popup,
                                      text="Parmi " + str(result_approbation[2]) if result_approbation[1] else "Non",
                                      width=str(len(str(result_approbation[2]))) if result_approbation[1] else "5").grid(
@@ -891,7 +891,7 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
                         tk.Label(combined_results_popup, text="Borda", width=len("Borda")).grid(row=row_index,
                                                                                                 column=0)
                         tk.Label(combined_results_popup, text=str(result_borda[0]), font=("Mistral", "22", "bold"),
-                                 width="5").grid(
+                                 width=len(result_borda[0])).grid(
                             row=row_index, column=1)
                         tk.Label(combined_results_popup,
                                  text="Parmi " + str(result_borda[2]) if result_borda[1] else "Non",
@@ -910,7 +910,7 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
                                 column=0)
                             tk.Label(combined_results_popup, text=str(result_condorcet[0]),
                                      font=("Mistral", "22", "bold"),
-                                     width="5").grid(row=row_index, column=1)
+                                     width=len(result_condorcet[0])).grid(row=row_index, column=1)
                             tk.Label(combined_results_popup, text="Non", width="5").grid(row=row_index, column=2)
                             row_index += 1
                         else:
@@ -920,7 +920,7 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
                                                                                                     column=0)
                                 tk.Label(combined_results_popup, text=str(result_condorcet[0]),
                                          font=("Mistral", "22", "bold"),
-                                         width="5").grid(row=row_index, column=1)
+                                         width=len(result_condorcet[0])).grid(row=row_index, column=1)
                                 tk.Label(combined_results_popup, text="Non", width="5").grid(row=row_index, column=2)
                                 row_index += 1
                             else:
@@ -928,7 +928,7 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
                                                                                                     column=0)
                                 tk.Label(combined_results_popup, text=str(result_condorcet[0]),
                                          font=("Mistral", "22", "bold"),
-                                         width="5").grid(row=row_index, column=1)
+                                         width=len(result_condorcet[0])).grid(row=row_index, column=1)
                                 tk.Label(combined_results_popup,
                                          text=CondorcetTieBreakingRule(var_condorcet_tie_breaking.get()).name,
                                          width="20").grid(row=row_index, column=2)
