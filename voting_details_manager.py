@@ -265,10 +265,9 @@ class VotingDetails:
         added_candidates = []
 
         row_upgrade = 1
-        for candidate_label in self.remaining_methods_details[1].keys():
+        for candidate_label, score in sorted(self.remaining_methods_details[1].items(), key=lambda item: item[1], reverse=True):
             tk.Label(top_step,
-                     text=candidate_label + " : " + str(self.remaining_methods_details[1][candidate_label])).grid(
-                row=row_upgrade, column=0)
+                     text=candidate_label + " : " + str(score)).grid(row=row_upgrade, column=0)
             added_candidates.append(candidate_label)
             row_upgrade += 1
 
@@ -277,8 +276,6 @@ class VotingDetails:
             if candidate_label not in added_candidates:
                 tk.Label(top_step, text=candidate_label + " : 0").grid(row=row_upgrade, column=0)
             row_upgrade += 1
-
-
         row_upgrade += 1
 
         if self.remaining_methods_details[0] is not None:
