@@ -64,6 +64,7 @@ is_shift_pressed = False
 top = None
 winner_dialog = None
 edit_candidate_popup = None
+log_dialog = None
 
 # Create the StringVar used to hold the requested number of candidates
 stringvar_number_candidates = tk.StringVar(name="number_candidates")
@@ -103,6 +104,19 @@ stringvar_borda_step = tk.StringVar(name="borda_step")
 var_condorcet_method = tk.IntVar(name="var_condorcet_method")
 # Create the IntVar to track which tie-breaking condercet method
 var_condorcet_tie_breaking = tk.IntVar(name="var_condorcet_tie_breaking")
+
+# Create the StringVar used to hold the Démocratie Liquide distance
+stringvar_democratie_liquide_distance = tk.StringVar(name="stringvar_democratie_liquide_distance")
+# Default value for Démocratie Liquide distance
+default_democratie_liquide_distance = 20
+# Create the StringVar used to hold the Démocratie Liquide probability
+stringvar_democratie_liquide_probability = tk.StringVar(name="stringvar_democratie_liquide_probability")
+# Default value for Démocratie Liquide probability
+default_democratie_liquide_probability = 0.5
+# Create the StringVar used to hold the Démocratie Liquide nb tours
+stringvar_democratie_liquide_nb_tours = tk.StringVar(name="stringvar_democratie_liquide_nb_tours")
+# Default value for Démocratie Liquide nb tours
+default_democratie_liquide_nb_tours = 1
 
 
 def lift_window(window):
@@ -176,6 +190,17 @@ def on_voter_added(voter: Voter, index: int):
     graph_manager.add_voter(voter)
 
 
+def on_voter_edited(voter: Voter, index: int):
+    """
+    Callback function for when a voter is edited in the data.
+
+    :param voter: updated voter data class
+    :param index: index of the edited candidate
+    """
+    graph_manager.edit_voter_at(index, voter)
+    graph_manager.build()
+
+
 def on_voters_cleared():
     """
     Callback function for when all voters are cleared from data.
@@ -230,6 +255,7 @@ def on_candidate_error(error: str):
 
 # Bind callback functions with Data Manager
 data_manager.set_voter_added_callback(on_voter_added)
+data_manager.set_voter_edited_callback(on_voter_edited)
 data_manager.set_voters_cleared_callback(on_voters_cleared)
 data_manager.set_candidate_added_callback(on_candidate_added)
 data_manager.set_candidate_edited_callback(on_candidate_edited)
@@ -737,7 +763,7 @@ def calculate_approbation(profils, approval_radius):
     :param approval_radius: Radius of the approval circle
     """
     # Show circles on the graph
-    graph_manager.add_approbation_circles(approval_radius)
+    graph_manager.add_candidate_approbation_circles(approval_radius)
     graph_manager.build()
 
     # Calculates the max distance (diagonal) of the plot
@@ -1101,7 +1127,7 @@ def show_voting_systems_popup():
         tk.Label(top, text="").grid(row=4, columnspan=2, column=0)
 
         # Démocratie Liquide button
-        btn_democratie_liquide = tk.Button(top, text="Démocratie Liqude", height=7, width=45)
+        btn_democratie_liquide = tk.Button(top, text="Démocratie Liqude", height=7, width=45, command=lambda: show_democratie_liquide_popup())
         btn_democratie_liquide.grid(row=5, column=0, columnspan=2)
 
 
@@ -1118,7 +1144,7 @@ def show_winner_popup(winner: tuple[str, bool, list] | None, method: str):
 
     winner_dialog = tk.Toplevel(root)
     winner_dialog.protocol('WM_DELETE_WINDOW',
-                           lambda: [graph_manager.clear_approbation_circles(), graph_manager.build(),
+                           lambda: [graph_manager.clear_candidate_approbation_circles(), graph_manager.build(),
                                     winner_dialog.destroy()])
     winner_dialog.title("Vainqueur selon " + method)
 
@@ -1426,6 +1452,166 @@ def show_candidates_utility():
                 tk.Label(top_utility, text="MAX", font=("Mistral", "15", font_style)).grid(row=candidate_number, column=3)
             else:
                 tk.Label(top_utility, text=str(round(1/c_utility, 2)), font=("Mistral", "15", font_style)).grid(row=candidate_number, column=3)
+
+
+
+
+
+
+
+
+def validate_democratie_liquide_distance(*args):
+    """
+    Function to validate the distance given.
+
+    :param args: variable to validate
+    """
+    if (not (stringvar_democratie_liquide_distance.get()).isdigit() or int(
+            stringvar_democratie_liquide_distance.get()) > 100) and stringvar_democratie_liquide_distance.get() != "":
+        stringvar_democratie_liquide_distance.set(log.get())
+    else:
+        log.set(stringvar_democratie_liquide_distance.get())
+
+def validate_democratie_liquide_probability(*args):
+    """
+    Function to validate the probability given.
+
+    :param args: variable to validate
+    """
+    if (
+            (not (stringvar_democratie_liquide_probability.get()).isdigit() and not ("." in stringvar_democratie_liquide_probability.get())) or
+            float(stringvar_democratie_liquide_probability.get()) > 1 or
+            float(stringvar_democratie_liquide_probability.get()) < 0
+    ) and stringvar_democratie_liquide_probability.get() != "":
+        stringvar_democratie_liquide_probability.set(log.get())
+    else:
+        log.set(stringvar_democratie_liquide_probability.get())
+
+def validate_democratie_liquide_nb_tours(*args):
+    """
+    Function to validate the nb tours given.
+
+    :param args: variable to validate
+    """
+    if (
+            not (stringvar_democratie_liquide_nb_tours.get()).isdigit() or
+            float(stringvar_democratie_liquide_nb_tours.get()) < 0
+    ) and stringvar_democratie_liquide_nb_tours.get() != "":
+        stringvar_democratie_liquide_nb_tours.set(log.get())
+    else:
+        log.set(stringvar_democratie_liquide_nb_tours.get())
+
+def show_democratie_liquide_popup():
+    """
+    Show a popup asking the user for the Democratie Liquide parameters.
+    """
+    global top_democratie_liquide
+    top_democratie_liquide = tk.Toplevel(root)
+    top_democratie_liquide.title("Paramétrage Démocratie Liquide")
+
+    global log
+    log = tk.StringVar()
+
+    tk.Label(top_democratie_liquide, text="Distance (pourcentage) :").pack()
+
+    stringvar_democratie_liquide_distance.trace_variable("w", validate_democratie_liquide_distance)
+    entry = tk.Entry(top_democratie_liquide, width=20, textvariable=stringvar_democratie_liquide_distance)
+    entry.pack()
+
+    tk.Label(
+        top_democratie_liquide,
+        text="Laisser vide pour valeur de défaut (" + str(default_democratie_liquide_distance) + "%)"
+    ).pack()
+
+    tk.Label(top_democratie_liquide, text="Probabilité :").pack()
+
+    stringvar_democratie_liquide_probability.trace_variable("w", validate_democratie_liquide_probability)
+    entry = tk.Entry(top_democratie_liquide, width=20, textvariable=stringvar_democratie_liquide_probability)
+    entry.pack()
+
+    tk.Label(
+        top_democratie_liquide,
+        text="Laisser vide pour valeur de défaut (" + str(default_democratie_liquide_probability) + ")"
+    ).pack()
+
+    tk.Label(top_democratie_liquide, text="Nb tours :").pack()
+
+    stringvar_democratie_liquide_nb_tours.trace_variable("w", validate_democratie_liquide_nb_tours)
+    entry = tk.Entry(top_democratie_liquide, width=20, textvariable=stringvar_democratie_liquide_nb_tours)
+    entry.pack()
+
+    tk.Label(
+        top_democratie_liquide,
+        text="Laisser vide pour valeur de défaut (" + str(default_democratie_liquide_nb_tours) + ")"
+    ).pack()
+
+    button = tk.Button(
+        top_democratie_liquide, text="Valider", command=lambda: top_democratie_liquide.destroy()
+    )
+    button.pack()
+
+    button.configure(
+        command=lambda: [
+            democratie_liquide(
+                int(stringvar_democratie_liquide_distance.get()) if stringvar_democratie_liquide_distance.get() != "" else default_democratie_liquide_distance,
+                float(stringvar_democratie_liquide_probability.get()) if stringvar_democratie_liquide_probability.get() != "" else default_democratie_liquide_probability,
+                int(stringvar_democratie_liquide_nb_tours.get()) if stringvar_democratie_liquide_nb_tours.get() != "" else default_democratie_liquide_nb_tours,
+            ),
+            top_democratie_liquide.destroy()
+        ]
+    )
+
+def democratie_liquide(distance: int, proba: float, nb_tours: int):
+    log_string = ""
+    all_voters = data_manager.get_voters()
+    for i in range(nb_tours):
+        for voter_index, voter in enumerate(all_voters):
+            should_delegate = True
+            for candidate in data_manager.get_candidates():
+                maximum = graph_manager.get_diagonal()
+                voter_candidate_dist = 100 - (maximum - math.dist(voter.coordinates(), candidate.coordinates())) / maximum * 100
+
+                if voter_candidate_dist < distance:
+                    data_manager.edit_voter_at(voter_index, voter.get_label(), False, voter.get_weight())
+                    should_delegate = False
+                    break
+
+            if should_delegate and random.random() < proba:
+                _, closest_voter_index = sorted([(math.dist(voter.coordinates(), other_voter.coordinates()), other_voter_index) for other_voter_index, other_voter in enumerate(all_voters) if other_voter != voter and not other_voter.has_delegated_vote()], key = lambda x: x[0])[0]
+                all_voters[closest_voter_index].set_weight(all_voters[closest_voter_index].get_weight() + voter.get_weight())
+                data_manager.edit_voter_at(voter_index, voter.get_label(), True, 0)
+                data_manager.edit_voter_at(closest_voter_index, all_voters[closest_voter_index].get_label(), all_voters[closest_voter_index].has_delegated_vote(), all_voters[closest_voter_index].get_weight())
+                log_string += "votant " + voter.get_label() + " délègue au votant " + all_voters[closest_voter_index].get_label()  + " (poids : " + str(all_voters[closest_voter_index].get_weight()) + ")\n"
+
+    graph_manager.add_voter_closeness_circles(distance)
+    graph_manager.build()
+
+    show_democratie_liquide_log(log_string)
+
+def show_democratie_liquide_log(log_string: string):
+    global log_dialog
+    if log_dialog:
+        log_dialog.destroy()
+
+    log_dialog = tk.Toplevel(root)
+    log_dialog.protocol('WM_DELETE_WINDOW',
+                                    lambda: [graph_manager.clear_voter_closeness_circles(), graph_manager.build(),
+                                             log_dialog.destroy()])
+    log_dialog.title("Log de ce qui s'est passé")
+
+    tk.Label(log_dialog, text=log_string).pack()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Add the canvas to the tkinter window
