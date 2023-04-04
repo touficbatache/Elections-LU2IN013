@@ -1098,6 +1098,12 @@ def show_voting_systems_popup():
         )
         btn_multiple_voting_systems.grid(row=3, column=0, columnspan=2)
 
+        tk.Label(top, text="").grid(row=4, columnspan=2, column=0)
+
+        # Démocratie Liquide button
+        btn_democratie_liquide = tk.Button(top, text="Démocratie Liqude", height=7, width=45)
+        btn_democratie_liquide.grid(row=5, column=0, columnspan=2)
+
 
 def show_winner_popup(winner: tuple[str, bool, list] | None, method: str):
     """
