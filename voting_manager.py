@@ -121,7 +121,7 @@ class VotingManager:
 
             all_scores[round_number][1] = letter
 
-            for _, profil in profils.items():
+            for _, (profil, weight) in profils.items():
                 for candidate, _ in profil:
                     if candidate == letter:
                         profil.remove((candidate, _))
