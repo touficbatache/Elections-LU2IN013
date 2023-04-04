@@ -450,7 +450,7 @@ class VotingDetails:
             i = 0
             for candidate in self.__candidates:
                 candidate_label = candidate.get_label()
-                if i % 12 == 0:
+                if i % 3 == 0:
                     row_uprade += 1
                     i = 0
                 if candidate_label in scores.keys():
