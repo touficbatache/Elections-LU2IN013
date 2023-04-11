@@ -165,12 +165,20 @@ def shift_voters(off_data, webplot,scaledown, from_dep, to_dep, candidate, radiu
     with open(off_data, 'r') as csvfile:
         reader = csv.reader(csvfile)
         next(reader)
-        filename = "voters" + from_dep + ".csv"
-        if(os.path.exists(filename) and os.path.isfile(filename)):
-            os.remove(filename)
+        filename1 = "voters" + from_dep + ".csv"
+        filename2 = "voters" + from_dep + ".csv"
+
+        if(os.path.exists(filename1) and os.path.isfile(filename1)):
+            os.remove(filename1)
             print("file for departement " + from_dep + " deleted")
         else:
-            print("no csv file to delete found for departement " + filename)
+            print("no csv file to delete found for departement " + filename1)
+
+        if(os.path.exists(filename2) and os.path.isfile(filename2)):
+            os.remove(filename2)
+            print("file for departement " + from_dep + " deleted")
+        else:
+            print("no csv file to delete found for departement " + filename2)
     
     voters_per_candidate = generate_voters_by_department(off_data, webplot, scaledown, radius)
     for name, dictdep in voters_per_candidate.items() :
@@ -179,6 +187,11 @@ def shift_voters(off_data, webplot,scaledown, from_dep, to_dep, candidate, radiu
                 if code == from_dep :
                     #tuple with the 'giving' dep and its number of voters
                     giver = code, nb_votants
+                if code == to_dep :
+                    #tuple with the 'receiving' dep and its number of voters
+                    receiver = code, nb_votants
+        
+
 
 
 
