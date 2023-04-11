@@ -3,6 +3,7 @@ import random
 import string
 
 import numpy as np
+from scipy.spatial.distance import cdist
 import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter.colorchooser import askcolor
@@ -12,6 +13,7 @@ from candidate import Candidate
 from data_manager import DataManager
 from graph_manager import GraphManager
 from file_manager import FileManager
+from testing_helper import record_time
 from tooltip import bind_tooltip
 from voter import Voter
 from voting_manager import VotingManager, CondorcetMethod, CondorcetTieBreakingRule
@@ -198,7 +200,6 @@ def on_voter_edited(voter: Voter, index: int):
     :param index: index of the edited candidate
     """
     graph_manager.edit_voter_at(index, voter)
-    graph_manager.build()
 
 
 def on_voters_cleared():
@@ -1286,29 +1287,29 @@ def show_import_file_popup():
     tk.Label(
         top_file,
         text="Pour importer des données d'un fichier, il doit suivre le format suivant dans toutes ses lignes:\n\n" +
-        "La premiere ligne est soit \"Candidats\" soit \"Votants\".\n" +
-        "Celles qui suivent doivent avoir un format bien determiné selon le cas:\n" +
-        "- Pour les candidats, le format est: \"x,y,nom_candidat,couleur\" avec nom_candidat et couleur des colonnes optionnelles (peuvent être non initialisées).\n" +
-        "- Pour les votants, le format est: \"x,y\".\n" +
-        "Les colonnes x et y représentent les coordonnées x et y qui doivent être comprises entre [-1,1].\n\n" +
-        "Voici un example de fichier valable:\n\n" +
-        "Candidats\n" +
-        "0.9461039811039915,-0.7889275229678154,A,#ffa62b \
-        0.042005706554823385,0.2998445121641913,B \
-        0.08606445736472024,-0.5626141086518681 \
-        -0.2690871826009764,-0.2698714634871553,D,rien \
-        -0.258171091230772,-0.5569398723595189,E,#87a922 \
-        -0.29257873438932536,0.7092589293675524,E,#95a3a6 \
-        0.8782258064516126,-0.21785714285714275,G,#a87900\n\n" +
-        "Votants\n" +
-        "-0.6254032258064518,-0.8666666666666666 \
-        -0.8471774193548389,0.466666666666667 \
-        0.3370967741935482,0.7880952380952386 \
-        0.7096774193548385,0.2345238095238098 \
-        0.4391129032258063,-0.5809523809523809 \
-        -0.3459677419354841,0.317857142857143 \
-        -0.554435483870968,-0.2952380952380951 \
-        0.20846774193548367,-0.15238095238095206",
+             "La premiere ligne est soit \"Candidats\" soit \"Votants\".\n" +
+             "Celles qui suivent doivent avoir un format bien determiné selon le cas:\n" +
+             "- Pour les candidats, le format est: \"x,y,nom_candidat,couleur\" avec nom_candidat et couleur des colonnes optionnelles (peuvent être non initialisées).\n" +
+             "- Pour les votants, le format est: \"x,y\".\n" +
+             "Les colonnes x et y représentent les coordonnées x et y qui doivent être comprises entre [-1,1].\n\n" +
+             "Voici un example de fichier valable:\n\n" +
+             "Candidats\n" +
+             "0.9461039811039915,-0.7889275229678154,A,#ffa62b \
+             0.042005706554823385,0.2998445121641913,B \
+             0.08606445736472024,-0.5626141086518681 \
+             -0.2690871826009764,-0.2698714634871553,D,rien \
+             -0.258171091230772,-0.5569398723595189,E,#87a922 \
+             -0.29257873438932536,0.7092589293675524,E,#95a3a6 \
+             0.8782258064516126,-0.21785714285714275,G,#a87900\n\n" +
+             "Votants\n" +
+             "-0.6254032258064518,-0.8666666666666666 \
+             -0.8471774193548389,0.466666666666667 \
+             0.3370967741935482,0.7880952380952386 \
+             0.7096774193548385,0.2345238095238098 \
+             0.4391129032258063,-0.5809523809523809 \
+             -0.3459677419354841,0.317857142857143 \
+             -0.554435483870968,-0.2952380952380951 \
+             0.20846774193548367,-0.15238095238095206",
         wraplength=530,
         justify="left"
     ).pack()
@@ -1563,27 +1564,50 @@ def show_democratie_liquide_popup():
 
 def democratie_liquide(distance: int, proba: float, nb_tours: int):
     log_string = ""
-    all_voters = data_manager.get_voters()
     for i in range(nb_tours):
+        # Create a list of voters who should delegate their vote
+        all_voters = data_manager.get_voters()
+        delegating_voters = []
+        non_delegating_voters = []
         for voter_index, voter in enumerate(all_voters):
+            # If the voter has already delegated their vote, then skip
+            if voter.has_delegated_vote():
+                continue
+
+            # Check if the voter should delegate their vote
             should_delegate = True
             for candidate in data_manager.get_candidates():
                 maximum = graph_manager.get_diagonal()
                 voter_candidate_dist = 100 - (maximum - math.dist(voter.coordinates(), candidate.coordinates())) / maximum * 100
 
                 if voter_candidate_dist < distance:
-                    data_manager.edit_voter_at(voter_index, voter.get_label(), False, voter.get_weight())
                     should_delegate = False
                     break
 
-            if should_delegate and random.random() < proba:
-                _, closest_voter_index = sorted([(math.dist(voter.coordinates(), other_voter.coordinates()), other_voter_index) for other_voter_index, other_voter in enumerate(all_voters) if other_voter != voter and not other_voter.has_delegated_vote()], key = lambda x: x[0])[0]
+            # Add the voter to the delegating voters list, if needed
+            if should_delegate:
+                delegating_voters.append((voter_index, voter))
+            else:
+                non_delegating_voters.append((voter_index, voter))
+
+        if len(delegating_voters) == 0:
+            break
+
+        delegating_coords = np.array([voter[1].coordinates() for voter in delegating_voters])
+        non_delegating_coords = np.array([voter[1].coordinates() for voter in non_delegating_voters])
+        distances = cdist(delegating_coords, non_delegating_coords)
+        closest_indices = np.argmin(distances, axis=1)
+        closest_points = [non_delegating_voters[i] for i in closest_indices]
+        for ind, (voter_index, voter) in enumerate(delegating_voters):
+            print(str(ind) + "/" + str(len(delegating_voters)))
+            if random.random() < proba:
+                closest_voter_index = closest_points[ind][0]
                 all_voters[closest_voter_index].set_weight(all_voters[closest_voter_index].get_weight() + voter.get_weight())
                 data_manager.edit_voter_at(voter_index, voter.get_label(), True, 0)
                 data_manager.edit_voter_at(closest_voter_index, all_voters[closest_voter_index].get_label(), all_voters[closest_voter_index].has_delegated_vote(), all_voters[closest_voter_index].get_weight())
                 log_string += "votant " + voter.get_label() + " délègue au votant " + all_voters[closest_voter_index].get_label()  + " (poids : " + str(all_voters[closest_voter_index].get_weight()) + ")\n"
 
-    graph_manager.add_voter_closeness_circles(distance)
+    # graph_manager.add_voter_closeness_circles(distance)
     graph_manager.build()
 
     show_democratie_liquide_log(log_string)
@@ -1595,11 +1619,18 @@ def show_democratie_liquide_log(log_string: string):
 
     log_dialog = tk.Toplevel(root)
     log_dialog.protocol('WM_DELETE_WINDOW',
-                                    lambda: [graph_manager.clear_voter_closeness_circles(), graph_manager.build(),
-                                             log_dialog.destroy()])
+                        lambda: [graph_manager.clear_voter_closeness_circles(), graph_manager.build(),
+                                 log_dialog.destroy()])
     log_dialog.title("Log de ce qui s'est passé")
 
     tk.Label(log_dialog, text=log_string).pack()
+
+
+
+def reset_voters_delegations(event):
+    for index, voter in enumerate(data_manager.get_voters()):
+        data_manager.edit_voter_at(index, voter.get_label(), False, 1)
+    graph_manager.build()
 
 
 # Add the canvas to the tkinter window
@@ -1653,6 +1684,13 @@ toggle_annotations = tk.Label(main_panel, image=off, borderwidth=0, background="
 toggle_annotations.bind('<Button>', toggle)
 bind_tooltip(toggle_annotations, text="Afficher/Masquer les annotations des votants")
 toggle_annotations.place(relx=0.91, rely=0.06)
+
+# Reset color and weight of voters on button click
+reset_icon = ImageTk.PhotoImage(Image.open("icons/png_icons/reset_icon.png").resize((35, 35)))
+reset_voters_state_btn = tk.Label(main_panel, image=reset_icon, borderwidth=0, background="white", height=35, width=35, cursor="hand1")
+reset_voters_state_btn.bind('<Button>', reset_voters_delegations)
+bind_tooltip(reset_voters_state_btn, text="Réinitialiser l'état des votants")
+reset_voters_state_btn.place(relx=0.85, rely=0.06)
 
 # Start the tkinter event loop
 root.mainloop()

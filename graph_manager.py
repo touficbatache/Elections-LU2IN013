@@ -116,9 +116,8 @@ class GraphManager:
             voter.coordinates()[1],
             "o",
             markersize=self.__marker_size,
-            color="black",
+            color="grey" if voter.has_delegated_vote() else "black",
             zorder=10,
-            alpha=0.5 if voter.has_delegated_vote() else 1,
         )
         # Label the point on the graph
         annotation = self.__axes.annotate(
@@ -126,8 +125,8 @@ class GraphManager:
             xy=voter.coordinates(),
             xytext=(voter.coordinates()[0] - 0.02, voter.coordinates()[1] + 0.05),
             fontsize=self.__font_size,
+            color="grey" if voter.has_delegated_vote() else "black",
             zorder=11,
-            alpha=0.5 if voter.has_delegated_vote() else 1,
         )
         # Add voter to the dict
         self.__voters.append((voter.get_label(), (point, annotation)))
@@ -152,9 +151,8 @@ class GraphManager:
             voter.coordinates()[1],
             'o',
             markersize=self.__marker_size,
-            color="black",
+            color="grey" if voter.has_delegated_vote() else "black",
             zorder=10,
-            alpha=0.5 if voter.has_delegated_vote() else 1,
         )
         # Label the point on the graph
         annotation = self.__axes.annotate(
@@ -162,8 +160,8 @@ class GraphManager:
             xy=voter.coordinates(),
             xytext=(voter.coordinates()[0] - 0.02, voter.coordinates()[1] + 0.05),
             fontsize=self.__font_size,
+            color="grey" if voter.has_delegated_vote() else "black",
             zorder=10,
-            alpha=0.5 if voter.has_delegated_vote() else 1,
         )
         # Replace voter in the dict
         self.__voters[index] = (voter.get_label(), (point, annotation))
@@ -382,7 +380,6 @@ class GraphManager:
                 color=coordinates.get_color(),
                 fill=False,
                 zorder=15,
-                alpha=coordinates.get_alpha(),
                 )
             self.__closeness_circles.append(circle)
             self.__axes.add_patch(circle)
