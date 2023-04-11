@@ -129,7 +129,7 @@ def generate_voters_by_department(off_data, webplot, scaledown, radius):
                         x = random.uniform(candidate_pos[0] - radius, candidate_pos[0] + radius)
                         y_range = math.sqrt(radius ** 2 - (x - candidate_pos[0]) ** 2)
                         y = random.uniform(candidate_pos[1] - y_range, candidate_pos[1] + y_range)
-                        voters.append((x, y))
+                        voters.append((x/2, y/2))
             
             # generate files for each departement
             filename = "voters" + dep_code + ".csv"
@@ -138,7 +138,7 @@ def generate_voters_by_department(off_data, webplot, scaledown, radius):
                 writer.writerow(['Votants'])
 
                 for x,y in voters :
-                    writer.writerow([x, y])
+                    writer.writerow([x/2, y/2])
                     writer.writerows(voters)
 
         return voters_per_candidate
@@ -215,7 +215,7 @@ def shift_voters(off_data, webplot,scaledown, from_dep, to_dep, candidate, radiu
                 x = random.uniform(candidate_pos[0] - radius, candidate_pos[0] + radius)
                 y_range = math.sqrt(radius ** 2 - (x - candidate_pos[0]) ** 2)
                 y = random.uniform(candidate_pos[1] - y_range, candidate_pos[1] + y_range)
-                voters.append((x, y))
+                voters.append((x/2, y/2))
                 
             # generate files for each departement
             dep_code[code_dep] = voters 
@@ -225,7 +225,7 @@ def shift_voters(off_data, webplot,scaledown, from_dep, to_dep, candidate, radiu
                 writer.writerow(['Votants'])
 
                 for x,y in voters :
-                    writer.writerow([x, y])
+                    writer.writerow([x/2, y/2])
                     writer.writerows(voters)
 
             return voters_per_candidate
