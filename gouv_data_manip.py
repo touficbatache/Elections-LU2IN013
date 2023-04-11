@@ -23,7 +23,7 @@ def CandidatestoCSV(off_data, webplot):
         Data from data.gouv, sorted by departement and candidates
         :param off_data: csv file with the data
         :param webplot: csv file containing coordinates for each candidate in the order of their name in candNamesPos
-        :return: csv file to generate candidate profils on graph
+        :return: csv file to generate candidate profils on graph and a dictionnary (tuple)
     """
     with open('CandidatsPresidentll.csv', 'w', newline='') as cfile:
         writer = csv.writer(cfile)
@@ -38,7 +38,6 @@ def CandidatestoCSV(off_data, webplot):
             #Iterate on all rows(89) untill the end of line
             while(candIndex + 6 <= 90) :
                 #set names of candidates with an empty list which will have the postion
-                print(f_row[candIndex])
                 candNamesPos[ f_row[candIndex] ] = []
                 candIndex += 6
 
@@ -77,7 +76,7 @@ def generate_voters_by_department(off_data, webplot, scaledown, radius):
         :param webplot: csv file containing coordinates for each candidate in the order of their name in candNamesPos
         :param scaledown: max number of voters for the whole country
         :param radius: The radius of the circle around each candidate position within which voters will be generated.
-        :return: None
+        :return: Dictionnary associating a "departement code : numbers of voters" to each candidate
     """
 
     # load candidate positions with CandidatestoCSV()
@@ -116,7 +115,6 @@ def generate_voters_by_department(off_data, webplot, scaledown, radius):
                 for candidate in list(candidate_positions.keys()):
                     if candidate in roww:
                         nb_votants = int((int(row[index + 2])*expr_dep_simul)/expr_dep)
-                        print(nb_votants)
                     if candidate not in voters_per_candidate:
                         voters_per_candidate[candidate] = {}
 
@@ -154,7 +152,8 @@ def shift_voters(off_data, webplot,scaledown, from_dep, to_dep, candidate, radiu
 
     :param off_data: declared above, csv file we are extracting from
     :param webplot: csv file containing coordinates for each candidate in the order of their name in candNamesPos
-    :param scaledown: max number of voters for the whole country
+    :param scaledown: max number of voters for the whole country.
+                    MUST BE THE SAME VALUE AS 'scaledown' GIVEN WHEN FIRST GENERATED THE FILES FOR ALL VOTERS.
     :param from_dep: The department code where the voters are being shifted from, must enter a string.
     :param from_dep: The department code where the voters are being shifted to, must enter a string.
     :param candidate: The name of the candidate that the voters are being shifted from, must enter a string.
@@ -162,6 +161,12 @@ def shift_voters(off_data, webplot,scaledown, from_dep, to_dep, candidate, radiu
     :return: None
     """
 
+    # load candidate positions with CandidatestoCSV()
+    _,candidate_positions = CandidatestoCSV(off_data, webplot) #Just the dict { name : [x,y] }, not the csv file
+
+    modifs = dict()
+
+    # Delete the existing files 
     with open(off_data, 'r') as csvfile:
         reader = csv.reader(csvfile)
         next(reader)
@@ -180,22 +185,54 @@ def shift_voters(off_data, webplot,scaledown, from_dep, to_dep, candidate, radiu
         else:
             print("no csv file to delete found for departement " + filename2)
     
+    # Generate the new files
     voters_per_candidate = generate_voters_by_department(off_data, webplot, scaledown, radius)
+
+    #---------------------------------------------------------------------------------------------
+    # useless ?
     for name, dictdep in voters_per_candidate.items() :
         if name == candidate :
             for code, nb_votants in dictdep.items() :
                 if code == from_dep :
-                    #tuple with the 'giving' dep and its number of voters
-                    giver = code, nb_votants
+                    #tuple with the 'giving' dep and its number of voters AFTER giving out
+                    modifs['giver'] = code, nb_votants
                 if code == to_dep :
-                    #tuple with the 'receiving' dep and its number of voters
-                    receiver = code, nb_votants
-        
+                    #tuple with the 'receiving' dep and its number of voters AFTER receiving out
+                    nb_votants += modifs['giver'][1]
+                    modifs['receiver'] = code, nb_votants
+    #----------------------------------------------------------------------------------------------
+    
+    voters_per_candidate[candidate][to_dep] += voters_per_candidate[candidate][from_dep]
+    voters_per_candidate[candidate][from_dep] = 0
 
+    # generate voters for each departement
+    dep_code = dict()
+    voters = []
+    for code_dep, nb_votants in voters_per_candidate[candidate] :
+        if code_dep == to_dep or code_dep == from_dep :
+            candidate_pos = candidate_positions[candidate]
+            for i in range(nb_votants):
+                x = random.uniform(candidate_pos[0] - radius, candidate_pos[0] + radius)
+                y_range = math.sqrt(radius ** 2 - (x - candidate_pos[0]) ** 2)
+                y = random.uniform(candidate_pos[1] - y_range, candidate_pos[1] + y_range)
+                voters.append((x, y))
+                
+            # generate files for each departement
+            dep_code[code_dep] = voters 
+            filename = "voters" + code_dep + ".csv"
+            with open(filename, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['Votants'])
+
+                for x,y in voters :
+                    writer.writerow([x, y])
+                    writer.writerows(voters)
+
+            return voters_per_candidate
 
 
 
 #------------------------------------------------Main-------------------------------------------------------
 #CandidatestoCSV(off_data, webplot) #works
-generate_voters_by_department(off_data,webplot, 10000, 0.5)
-#shift_voters('75', 'LASSALLE', 'ARTHAUD', 1, 0.01, {'75': 'voters75.csv'})
+#generate_voters_by_department(off_data,webplot, 10000, 0.5)
+shift_voters(off_data, webplot,10000, '75','86', "LE PEN", 0.5)
