@@ -103,6 +103,9 @@ class GraphManager:
         """
         Adds the voter to the graph (point and annotation), without building it.
         Calling build() is necessary to see the updated changes.
+
+        :param voter: the voter to add
+        :return whether the voter was successfully added or not
         """
         if voter.get_label() in self.__voters:
             return False
@@ -176,6 +179,9 @@ class GraphManager:
         """
         Adds the candidate to the graph (point and annotation), without building it.
         Calling build() is necessary to see the updated changes.
+
+        :param candidate: the candidate to add
+        :return whether the candidate was successfully added or not
         """
 
         if candidate.get_label() in self.__candidates:
@@ -276,6 +282,7 @@ class GraphManager:
     def set_toggle_state(self, value: bool):
         """
         Sets the boolean value of toggle_state to that of value
+        :param value: the value to affect to toggle_state
         """
         self.__toggle_state = value
 
@@ -291,12 +298,16 @@ class GraphManager:
     def bind(self, event: str, callable: Callable):
         """
         Bind an event to a callable.
+        :param event: the event to bind
+        :param callable: the callable to which the event is binded
         """
         self.__canvas.mpl_connect(event, callable)
 
     def get_diagonal(self):
         """
         Return the diagonal size of the graph.
+
+        :return: the diagonal size of the graph
         """
         return math.sqrt(
             (int(self.__axes.get_xlim()[1]) - int(self.__axes.get_xlim()[0])) ** 2

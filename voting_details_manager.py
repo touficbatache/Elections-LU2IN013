@@ -54,6 +54,7 @@ class VotingDetails:
         Creates a scrollbar frame to store the details in.
 
         :param frame: The frame in which scrollbar should be created
+        :return: the scrollable frame created
         """
         # Create a Frame container to put in it the results and make it scrollable in case of multiple round
         container = ttk.Frame(frame, width=480, height=300)

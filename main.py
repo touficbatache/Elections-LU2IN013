@@ -106,14 +106,20 @@ var_condorcet_tie_breaking = tk.IntVar(name="var_condorcet_tie_breaking")
 
 
 def lift_window(window):
+    """
+    Disables the topmost attribute after it is at the front to prevent permanent focus.
+    :param window: The frame to lift.
+    """
     window.attributes('-topmost', True)
-    # disable the topmost attribute after it is at the front to prevent permanent focus
     window.attributes('-topmost', False)
     window.focus_force()
     window.bell()
 
 
 def show_edit_candidate_popup(event):
+    """
+    Displays popup to edit candidates.
+    """
     clicked_candidate_index, = list_box__candidates.curselection()
     clicked_candidate = data_manager.get_candidate_at(clicked_candidate_index)
 
@@ -1040,6 +1046,9 @@ def show_condorcet_popup(profils, is_multiple_method):
 
 
 def show_voting_systems_popup():
+    """
+    Displays all voting systems in a popup.
+    """
     # If a top level window is active, close it
     global top
     if top:
@@ -1221,6 +1230,12 @@ def display_condorcet_winner_popup(
 
 
 def import_file_callback(frame):
+    """
+    Function called on press of 'import file' button.
+    Allows user to choose a file and calls import_objects_from_file() function from FileManager.
+
+    :param frame: The popup frame of import file.
+    """
     filetypes = (
         ('csv files', '*.csv'),
     )

@@ -7,11 +7,17 @@ from voting_details_manager import VotingDetails
 
 
 class CondorcetMethod(Enum):
+    """
+    Class to identify which Condorcet method is used.
+    """
     COPELAND = 1
     SIMPSON = 2
 
 
 class CondorcetTieBreakingRule(Enum):
+    """
+    Class to identify which tie breaking rule is used.
+    """
     RANDOM = 1
     ORDRE_LEXICO = 2
 
@@ -351,7 +357,7 @@ class VotingManager:
     def __condorcet_winners_copeland(self, duels: list[dict[str, int]]) -> list[str]:
         """
         Condorcet voting system.
-        Copeland method.
+        Copeland's method.
 
         For each duel, give the winning candidate 1 point and
         in case of equality, give both 0.5 points.
@@ -385,7 +391,7 @@ class VotingManager:
     def __condorcet_winners_simpson(self, duels: list[dict[str, int]]) -> list[str]:
         """
         Condorcet voting system.
-        Simpson method.
+        Simpson's method.
 
         The winner is the candidate whose highest defeat score in duels is the lowest among the other candidates.
         :param duels: list(..., { candidate1_label: score, candidate2_label: score }, ...)

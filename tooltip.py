@@ -10,7 +10,11 @@ class Tooltip(object):
         self.text = None
 
     def show(self, text):
-        """Display text in tooltip window""" ""
+        """
+        Displays text in tooltip window.
+
+        :param text: the text to display
+        """
         self.text = text
 
         if self.window or not self.text:
@@ -35,6 +39,9 @@ class Tooltip(object):
         label.pack(ipadx=4)
 
     def hide(self):
+        """
+        Hides the window
+        """
         tw = self.window
         self.window = None
         if tw:
@@ -42,6 +49,11 @@ class Tooltip(object):
 
 
 def bind_tooltip(widget, text):
+    """
+    Binds events to the widget given as parameter
+    :param widget: the widget to bind the events to
+    :param text: the text to show on hover
+    """
     tooltip = Tooltip(widget)
 
     def enter(event):

@@ -19,6 +19,12 @@ class Candidate:
 
     @classmethod
     def random_color(cls, label: str, coordinates: tuple):
+        """
+        Generates random color for candidate.
+        :param label: the label of the candidate
+        :param coordinates: the coordinates of the candidate
+        :return: the new candidate
+        """
         colors = mcolors.XKCD_COLORS
         if "xkcd:black" in colors:
             colors.pop("xkcd:black")

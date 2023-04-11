@@ -167,6 +167,8 @@ class DataManager:
     def __get_letter_count(self, index: int) -> int:
         """
         Returns the letter count for a label at a given index.
+        :param index: index of candidate in list of candidates
+        :return: the letter count
         """
 
         labels_before_index = 0
@@ -205,6 +207,9 @@ class DataManager:
         it already contains the 26 one-lettered labels, so the label only becomes
         three-lettered if 676+26=702 is reached. So if we reached 676, then that means
         we need to deal with one more set of 26s before resetting.
+
+        :param number: the number of existing candidates
+        :return corresponding number based on the number of letters.
         """
 
         i = 1
