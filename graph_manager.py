@@ -105,7 +105,7 @@ class GraphManager:
         Calling build() is necessary to see the updated changes.
 
         :param voter: the voter to add
-        :return whether the voter was successfully added or not
+        :return: whether the voter was successfully added or not
         """
         if voter.get_label() in self.__voters:
             return False
@@ -181,7 +181,7 @@ class GraphManager:
         Calling build() is necessary to see the updated changes.
 
         :param candidate: the candidate to add
-        :return whether the candidate was successfully added or not
+        :return: whether the candidate was successfully added or not
         """
 
         if candidate.get_label() in self.__candidates:

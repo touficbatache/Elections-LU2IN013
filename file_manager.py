@@ -65,7 +65,7 @@ class FileManager:
         :param filename: name of the file to import from
         :param on_error: error callback
         :param on_success: success callback
-        :return 0 if file is imported, -1 if any error is generated
+        :return: 0 if file is imported, -1 if any error is generated
         """
         error_title = "Erreur de lecture"
 
@@ -140,7 +140,7 @@ class FileManager:
         :param voters: the list of voters
         :param on_error: error callback
         :param on_success: success callback
-        :return 0 if file is exported, -1 if any error is generated
+        :return: 0 if file is exported, -1 if any error is generated
         """
         if candidates == [] and voters == []:
             on_error("Erreur de sauvegarde", "Il n'y a ni candidats ni votants sur le graphe.")

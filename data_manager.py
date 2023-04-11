@@ -209,7 +209,7 @@ class DataManager:
         we need to deal with one more set of 26s before resetting.
 
         :param number: the number of existing candidates
-        :return corresponding number based on the number of letters.
+        :return: corresponding number based on the number of letters.
         """
 
         i = 1

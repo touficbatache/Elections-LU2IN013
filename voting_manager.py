@@ -40,7 +40,7 @@ class VotingManager:
 
         :param candidate_labels: the list of candidate labels
         :param reverse: reverse sorted() order used for elimination_successive
-        :return the winner's label according to alphabetical sorting
+        :return: the winner's label according to alphabetical sorting
         """
         return sorted(candidate_labels, key=str.casefold, reverse=reverse)[0]
 
@@ -170,7 +170,7 @@ class VotingManager:
         Returns the first in alphabetical order in case of equality.
 
         :param profils: dictionary of votes registered by the voters
-        :return tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
+        :return: tuple(str(winner label), bool(multiple winners?), list(all winners' labels))
         """
         points_association = dict()
 
