@@ -1610,18 +1610,6 @@ def show_democratie_liquide_log(log_string: string):
     tk.Label(log_dialog, text=log_string).pack()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 # Add the canvas to the tkinter window
 graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
