@@ -1340,9 +1340,9 @@ def toggle(event):
     graph_manager.build()
 
 
-# Define On/Off Images
-on = tk.PhotoImage(file="icons/png_icons/on.png")
-off = tk.PhotoImage(file="icons/png_icons/off.png")
+# Define On/Off Images for toggle button
+on = tk.PhotoImage(file="icons/png_icons/show.png")
+off = tk.PhotoImage(file="icons/png_icons/hide.png")
 
 
 def candidate_utility(candidate: Candidate) -> tuple[Candidate, float]:
@@ -1384,7 +1384,7 @@ top_utility = None
 
 def show_candidates_utility():
     """
-    Display popup with all candidates' utilities.
+    Display popup with the utilities of all the candidates.
     The maximum utility is displayed in bold.
     """
     global top_utility
@@ -1466,7 +1466,7 @@ distribute_candidates = tk.Button(
 distribute_candidates.place(relx=0.75, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Toggle annotations of voters on button click
-toggle_annotations = tk.Label(main_panel, image=on, borderwidth=0, background="white", height=35, width=60, cursor="target")
+toggle_annotations = tk.Label(main_panel, image=on, borderwidth=0, background="white", height=50, width=55, cursor="target")
 toggle_annotations.bind('<Button>', toggle)
 bind_tooltip(toggle_annotations, text="Afficher/Masquer les annotations des votants")
 toggle_annotations.place(relx=0.91, rely=0.06)
