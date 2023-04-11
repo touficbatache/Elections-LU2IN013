@@ -1,16 +1,8 @@
 import os
 import csv
 import math
-import time
 import random
 import itertools
-import tkinter as tk
-
-from typing import Callable
-
-from voter import Voter
-from candidate import Candidate
-
 from collections import OrderedDict
 
 off_data = 'resultats-par-niveau-dpt-t1-france-entiere.csv'
@@ -72,9 +64,7 @@ def CandidatestoCSV(off_data, webplot):
 
     return cfile,candNamesPos
 
-
 #-----------------------------------------------------------------------------------------------------------
-
 
 def generate_voters_by_department(off_data, webplot, scaledown, radius):
     """
@@ -87,13 +77,8 @@ def generate_voters_by_department(off_data, webplot, scaledown, radius):
         :param webplot: csv file containing coordinates for each candidate in the order of their name in candNamesPos
         :param scaledown: max number of voters for the whole country
         :param radius: The radius of the circle around each candidate position within which voters will be generated.
-        :param generation_files: a dictionary containing the file names for the generated csv files, where the keys 
-            are department codes and the values are the corresponding file names. Needs to be initialized.
         :return: None
     """
-    generation_files = {}
-    exp_per_dpt = OrderedDict() # {'1':68869, ... , 'ZZ':6543}
-    code_name_dpt = OrderedDict() # {'1':'Ain', ..., 'ZZ':'Français établis hors de France'}
 
     # load candidate positions with CandidatestoCSV()
     _,candidate_positions = CandidatestoCSV(off_data, webplot) #Just the dict { name : [x,y] }, not the csv file
@@ -135,11 +120,7 @@ def generate_voters_by_department(off_data, webplot, scaledown, radius):
                     if candidate not in voters_per_candidate:
                         voters_per_candidate[candidate] = {}
 
-                    voters_per_candidate[candidate][dep_code] = nb_votants
-
-            #print(dep_code,voters_per_candidate[candidate][dep_code]) 
-            #print("\n")
-            #print(voters_per_candidate)
+                    voters_per_candidate[candidate][dep_code] = nb_votants #within a departement
 
             # generate voters for each departement
             voters = []
@@ -162,75 +143,46 @@ def generate_voters_by_department(off_data, webplot, scaledown, radius):
                     writer.writerow([x, y])
                     writer.writerows(voters)
 
-            
-            #return generation_files
-            
+        return voters_per_candidate
             
 #-----------------------------------------------------------------------------------------------------------
 
-
-def shift_voters(off_data, webplot, from_dep, to_cand, from_cand, voters_by_dep, radius):
+def shift_voters(off_data, webplot,scaledown, from_dep, to_dep, candidate, radius):
     """
     Shifts a percentage of voters from one candidate to another within a specific department, and updates the corresponding
     CSV file containing the voters' positions.
 
-    :param from_dep: The department code where the voters are being shifted from.
-    :param to_cand: The name of the candidate that will receive the shifted voters.
-    :param from_cand: The name of the candidate that the voters are being shifted from.
-    :param voters_by_dep: The number of voters to generate around each candidate's position.
-        It represents the percentage of the vote received by a candidate in a particular department.
+    :param off_data: declared above, csv file we are extracting from
+    :param webplot: csv file containing coordinates for each candidate in the order of their name in candNamesPos
+    :param scaledown: max number of voters for the whole country
+    :param from_dep: The department code where the voters are being shifted from, must enter a string.
+    :param from_dep: The department code where the voters are being shifted to, must enter a string.
+    :param candidate: The name of the candidate that the voters are being shifted from, must enter a string.
     :param radius: The radius of the circle around each candidate position within which voters will be generated.
-    :param generation_files: a dictionary containing the file names for the generated csv files, where the keys
-        are department codes and the values are the corresponding file names.
     :return: None
     """
 
-    _,candidate_positions = CandidatestoCSV(off_data, webplot) #Just { name : [x,y] }, not the csv file
-
-    # load departements and corresponding exprimés values
-    #Code_DEP = {row['Code du départcleement']: int(row['Libellé du département']) for row in off_data}
-    Code_exprimes = {row['Code du département']: int(row['Exprimés']) for row in off_data}
-
-    # calculate the number of voters to generate for each candidate in the specified departement
-    voters_per_candidate = {}
-    for dep in off_data:
-        dep_code = dep['Code du département']
-        if dep_code == from_dep:
-            exprimes = int(dep['Exprimés'])
-            for candidate, percent_vote in dep.items():
-                if candidate not in ['Code du département', 'Exprimés']:
-                    if candidate == from_cand:
-                        voters_per_candidate[candidate] = {dep_code: 0}  # Don't generate voters for this candidate
-                    elif candidate == to_cand:
-                        voters_per_candidate[candidate] = {dep_code: int(percent_vote / 100 * exprimes * voters_by_dep)}
-                    else:
-                        voters_per_candidate[candidate] = {dep_code: int(percent_vote / 100 * exprimes)}
-    # generate voters for the specified departement
-    voters = []
-    for candidate, num_voters in voters_per_candidate.items():
-        print(candidate)
-        if from_dep in num_voters:
-            candidate_pos = candidate_positions[candidate]
-            for i in range(num_voters[from_dep]):
-                x = random.uniform(candidate_pos[0] - radius, candidate_pos[0] + radius)
-                y_range = math.sqrt(radius ** 2 - (x - candidate_pos[0]) ** 2)
-                y = random.uniform(candidate_pos[1] - y_range, candidate_pos[1] + y_range)
-                voters.append((x, y, "voting" + candidate))
-                print(voters)
-    random.shuffle(voters)
-
-    # update the corresponding CSV file containing the voters' positions
-    with open(generation_files[from_dep], 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([x, y, candidate])
-        writer.writerows(voters)
+    with open(off_data, 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)
+        filename = "voters" + from_dep + ".csv"
+        if(os.path.exists(filename) and os.path.isfile(filename)):
+            os.remove(filename)
+            print("file for departement " + from_dep + " deleted")
+        else:
+            print("no csv file to delete found for departement " + filename)
     
-    return generation_files
+    voters_per_candidate = generate_voters_by_department(off_data, webplot, scaledown, radius)
+    for name, dictdep in voters_per_candidate.items() :
+        if name == candidate :
+            for code, nb_votants in dictdep.items() :
+                if code == from_dep :
+                    #tuple with the 'giving' dep and its number of voters
+                    giver = code, nb_votants
 
 
 
 #------------------------------------------------Main-------------------------------------------------------
 #CandidatestoCSV(off_data, webplot) #works
 generate_voters_by_department(off_data,webplot, 10000, 0.5)
-
 #shift_voters('75', 'LASSALLE', 'ARTHAUD', 1, 0.01, {'75': 'voters75.csv'})
