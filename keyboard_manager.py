@@ -1,3 +1,6 @@
+from tkinter import Frame, Toplevel
+
+
 class KeyboardManager:
     """
     Class to manage all keyboard interactions.
@@ -9,7 +12,7 @@ class KeyboardManager:
     __esc: str = '<Escape>'
     __enter: str = '<Return>'
 
-    def __check_button(self, widget):
+    def __check_button(self, widget) -> bool:
         """
         Returns True if widget is a button, False otherwise.
 
@@ -18,7 +21,7 @@ class KeyboardManager:
         """
         return "button" in widget.__str__()
 
-    def __check_checkbutton(self, widget):
+    def __check_checkbutton(self, widget) -> bool:
         """
         Returns True if widget is a checkbox or radiobutton, False otherwise.
 
@@ -27,7 +30,7 @@ class KeyboardManager:
         """
         return "checkbutton" in widget.__str__()
 
-    def enter_bind(self, frame, widget):
+    def enter_bind(self, frame: Frame | Toplevel, widget):
         """
         Binds the Enter key to invoking the widget of a certain frame.
 
@@ -36,7 +39,7 @@ class KeyboardManager:
         """
         frame.bind(self.__enter, lambda e: widget.invoke())
 
-    def focus_enter_bind(self, frame):
+    def focus_enter_bind(self, frame: Frame | Toplevel):
         """
         Binds the Enter key to invoking the focused widget of a certain frame.
 
@@ -45,7 +48,7 @@ class KeyboardManager:
         frame.bind(self.__enter, lambda e: frame.focus_get().invoke() if self.__check_button(
             frame.focus_get()) or self.__check_checkbutton(frame.focus_get()) else None)
 
-    def tab_bind(self, frame, list_widgets):
+    def tab_bind(self, frame: Frame | Toplevel, list_widgets: list):
         """
         Binds the Tab key to apply tab_focus_change function on the list of widgets.
 
@@ -54,7 +57,7 @@ class KeyboardManager:
         """
         frame.bind(self.__tab, lambda e: self.tab_focus_change(frame, list_widgets))
 
-    def shift_tab_bind(self, frame, list_widgets):
+    def shift_tab_bind(self, frame: Frame | Toplevel, list_widgets: list):
         """
         Binds the Shift and Tab keys to apply REVERSED tab_focus_change function
         on the list of widgets.
@@ -64,7 +67,7 @@ class KeyboardManager:
         """
         frame.bind(self.__shift_tab, lambda e: self.tab_focus_change(frame, list_widgets, reverse=True))
 
-    def esc_bind(self, frame, event=''):
+    def esc_bind(self, frame: Frame | Toplevel, event=''):
         """
         Binds the ESC to closing the frame using the event function.
         If event is not given, the function destroys the frame usind detroy().
@@ -78,7 +81,7 @@ class KeyboardManager:
         else:
             frame.bind(self.__esc, event)
 
-    def tab_focus_change(self, frame, list_widgets, reverse=False):
+    def tab_focus_change(self, frame: Frame | Toplevel, list_widgets: list, reverse: bool = False):
         """
         Works with tab_bind() and shift_tab_bind(). This functions creates a focus
         around the selected widget while tapping (Shift + ) Tab key(s) and binds this
@@ -91,27 +94,25 @@ class KeyboardManager:
         :param reverse: Boolean to define if normal or reverse mode
         """
         nb_widgets = len(list_widgets) - 1
-        if reverse:
-            if list_widgets[nb_widgets] != -1:
-                list_widgets[nb_widgets] -= 1
-            if list_widgets[nb_widgets] == -1:
-                list_widgets[nb_widgets] = nb_widgets - 1
-        else:
-            if list_widgets[nb_widgets] >= nb_widgets - 1:
-                list_widgets[nb_widgets] = 0
-            else:
-                list_widgets[nb_widgets] += 1
+        widget_tracker = list_widgets[nb_widgets]
 
-        widget = list_widgets[list_widgets[nb_widgets]]
+        increment = -1 if reverse else 1
+
+        if (widget_tracker >= nb_widgets - 1 and not reverse) or (widget_tracker == -1 and reverse):
+            widget_tracker = nb_widgets - 1 if reverse else 0
+        else:
+            widget_tracker += increment
+
+        widget = list_widgets[widget_tracker]
+        list_widgets[nb_widgets] = widget_tracker
+        self.reset_all_widgets(list_widgets)
         if self.__check_button(widget):
-            self.reset_all_widgets(list_widgets)
             widget.configure(highlightbackground="black")
             self.enter_bind(frame, widget)
         else:
-            self.reset_all_widgets(list_widgets)
-            widget.focus_set()
+            return
 
-    def reset_all_widgets(self, list_widgets):
+    def reset_all_widgets(self, list_widgets: list):
         """
         Works with tab_focus_change(). Removes highlight focus from widgets.
 

@@ -529,52 +529,6 @@ def distribute_gaussian(x: float, y: float):
     disable_all_buttons(False)
 
 
-def show_profils_popup():
-    """
-    Function to show the scores in a popup.
-    """
-    # If a top level window is active, close it
-    global top
-    if top:
-        top.destroy()
-
-    # The scores for each voter
-    profils = generate_profils()
-
-    # List of voters
-    voters = data_manager.get_voters()
-
-    # List of candidates
-    candidates = data_manager.get_candidates()
-
-    if not profils or data_manager.is_voters_empty() or data_manager.is_candidates_empty():
-        # If there are no results in the dictionary, show it in window title
-        tk.messagebox.showwarning(
-            title="Données insuffisantes",
-            message="Pas de résultats. Veuillez ajouter des votants et des candidats."
-        )
-    else:
-        # Create a new top level window to display the results
-        top = tk.Toplevel(root)
-        top.geometry(str(len(voters) * 90) + "x" + str(len(candidates) * 40))
-        top.title("Les résultats")
-        # Generate a table for each voter representing their profile
-        for a in range(len(voters)):
-            tk.Grid.columnconfigure(top, a, weight=1)
-        for b in range(len(candidates) + 1):
-            tk.Grid.rowconfigure(top, b, weight=1)
-        for index, (label, profil) in enumerate(profils.items()):
-            lab = tk.Label(top, text="Votant " + label)
-            lab.grid(row=0, column=index, sticky="NSEW")
-            for e in range(len(candidates)):
-                # Calculates the percentage based on max distance
-                lab = tk.Label(top, text=str(profil[e][0]))
-                lab.grid(row=e + 1, column=index, sticky="NSEW")
-                bind_tooltip(widget=lab, text=str(round(profil[e][1] * 100, 2)) + "%")
-
-        keyboard_manager.esc_bind(top)
-
-
 def generate_profils():
     """
     Function to generate the scores.
