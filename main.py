@@ -457,7 +457,7 @@ def show_distribute_popup(is_voter: bool):
     )
     button_gaussian.grid(row=6, column=0)
 
-    keyboard_manager.enter_bind(top_main, button_uniforme)
+    keyboard_manager.focus_enter_bind(top_main)
     keyboard_manager.esc_bind(top_main)
 
 
@@ -872,10 +872,7 @@ def show_combined_voting_systems_popup():
     )
     button.pack()
 
-    list_widgets = [check_plualite_simple, check_approbation, check_borda, check_elim_succ, check_veto, check_condorcet,
-                    button, -1]
-    keyboard_manager.tab_bind(top_combined_mode, list_widgets)
-    keyboard_manager.shift_tab_bind(top_combined_mode, list_widgets)
+    keyboard_manager.focus_enter_bind(top_combined_mode)
     keyboard_manager.esc_bind(top_combined_mode)
 
 
@@ -1057,9 +1054,7 @@ def show_condorcet_popup(profils, is_multiple_method):
         ]
                          )
 
-    list_widgets = [radio_copeland, radio_simpson, radio_random, radio_order, button, -1]
-    keyboard_manager.tab_bind(top_condorcet, list_widgets)
-    keyboard_manager.shift_tab_bind(top_condorcet, list_widgets)
+    keyboard_manager.focus_enter_bind(top_condorcet)
     if is_multiple_method:
         keyboard_manager.esc_bind(top_condorcet, on_popup_closed)
     else:
@@ -1087,48 +1082,45 @@ def show_voting_systems_popup():
         top.title("Systèmes de vote")
 
         # Pluralité Simple button
-        btn_pluralite_simple = tk.Button(top, text="Pluralité Simple", height=7, width=20, takefocus=0,
+        btn_pluralite_simple = tk.Button(top, text="Pluralité Simple", height=7, width=20,
                                          command=lambda: show_winner_popup(
                                              voting_manager.pluralite_simple(generate_profils()), "Pluralité Simple"))
         btn_pluralite_simple.grid(row=0, column=0)
 
         # Approbation button
-        btn_approbation = tk.Button(top, text="Approbation", height=7, width=20, takefocus=0,
+        btn_approbation = tk.Button(top, text="Approbation", height=7, width=20,
                                     command=lambda: show_approbation_popup(generate_profils(), False))
         btn_approbation.grid(row=0, column=1)
 
         # Borda button
-        btn_borda = tk.Button(top, text="Borda", height=7, width=20, takefocus=0,
+        btn_borda = tk.Button(top, text="Borda", height=7, width=20,
                               command=lambda: show_borda_popup(generate_profils(), False))
         btn_borda.grid(row=1, column=0)
 
         # Élimination Successive button
-        btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20, takefocus=0,
+        btn_elimination_successive = tk.Button(top, text="Élimination Successive", height=7, width=20,
                                                command=lambda: show_winner_popup(
                                                    voting_manager.elimination_successive(generate_profils()),
                                                    "Élimination Successive (STV)"))
         btn_elimination_successive.grid(row=1, column=1)
 
         # Veto button
-        btn_veto = tk.Button(top, text="Veto", height=7, width=20, takefocus=0,
+        btn_veto = tk.Button(top, text="Veto", height=7, width=20,
                              command=lambda: show_winner_popup(voting_manager.veto(generate_profils()), "Veto"))
         btn_veto.grid(row=2, column=0)
 
         # Condorcet button
-        btn_condorcet = tk.Button(top, text="Condorcet", height=7, width=20, takefocus=0,
+        btn_condorcet = tk.Button(top, text="Condorcet", height=7, width=20,
                                   command=lambda: show_condorcet_popup(generate_profils(), False))
         btn_condorcet.grid(row=2, column=1)
 
         # Combined mode button
         btn_multiple_voting_systems = tk.Button(
-            top, text="Modes combinés", height=7, width=45, takefocus=0, command=show_combined_voting_systems_popup
+            top, text="Modes combinés", height=7, width=45, command=show_combined_voting_systems_popup
         )
         btn_multiple_voting_systems.grid(row=3, column=0, columnspan=2)
 
-        list_buttons = [btn_pluralite_simple, btn_approbation, btn_borda, btn_elimination_successive, btn_veto,
-                        btn_condorcet, btn_multiple_voting_systems, -1]
-        keyboard_manager.tab_bind(top, list_buttons)
-        keyboard_manager.shift_tab_bind(top, list_buttons)
+        keyboard_manager.focus_enter_bind(top)
         keyboard_manager.esc_bind(top)
 
 
@@ -1194,6 +1186,7 @@ def show_winner_popup(winner: tuple[str, bool, list] | None, method: str):
         else:
             tk.Label(winner_dialog, text="Il n'y a pas eu de départage").grid(row=3, column=0, columnspan=2)
 
+    keyboard_manager.focus_enter_bind(winner_dialog)
     event = lambda e: [graph_manager.clear_approbation_circles(), graph_manager.build(),
                        winner_dialog.destroy()]
     keyboard_manager.esc_bind(winner_dialog, event)
@@ -1258,6 +1251,8 @@ def display_condorcet_winner_popup(
             tk.Label(winner_dialog, text="Les concurrents suivants ont perdu à cause du départage :").grid(row=5, column=0, columnspan=2)
             all_winners.remove(winner_label)
             tk.Label(winner_dialog, text=str(all_winners)).grid(row=6, column=0, columnspan=2)
+
+    keyboard_manager.focus_enter_bind(winner_dialog)
     keyboard_manager.esc_bind(winner_dialog)
 
 
@@ -1333,6 +1328,7 @@ def show_import_file_popup():
     import_button.pack()
     keyboard_manager.enter_bind(top_file, import_button)
     keyboard_manager.esc_bind(top_file)
+
 
 def on_import_file_success(file_voters: list[tuple[float, float]], file_candidates: list[tuple[float, float, str, str]]):
     """
@@ -1467,6 +1463,8 @@ def show_candidates_utility():
             else:
                 tk.Label(top_utility, text=str(round(1/c_utility, 2)), font=("Mistral", "15", font_style)).grid(row=candidate_number, column=3)
 
+    keyboard_manager.esc_bind(top_utility)
+
 
 # Add the canvas to the tkinter window
 graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
@@ -1495,7 +1493,7 @@ reset_candidates.place(relx=0.75, rely=0, relwidth=button_width, relheight=butto
 reset_candidates.configure(cursor="exchange")
 
 # Generate the utilities on button click
-generate_utility = tk.Button(main_panel, text="Générer les utilités", takefocus=0, highlightbackground="black", borderwidth=1,
+generate_utility = tk.Button(main_panel, text="Générer les utilités", takefocus=0, highlightbackground="white", borderwidth=1,
                              command=show_candidates_utility)
 generate_utility.place(relx=0, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 

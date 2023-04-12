@@ -9,6 +9,16 @@ class KeyboardManager:
     __esc: str = '<Escape>'
     __enter: str = '<Return>'
 
+    def __check_button(self, widget):
+        if "button" in widget.__str__():
+            return True
+        return False
+
+    def __check_checkbutton(self, widget):
+        if "checkbutton" in widget.__str__():
+            return True
+        return False
+
     def enter_bind(self, frame, widget):
         """
         Binds the Enter key to invoking the widget of a certain frame.
@@ -17,6 +27,15 @@ class KeyboardManager:
         :param widget: Widget to be invoked by the Enter key
         """
         frame.bind(self.__enter, lambda e: widget.invoke())
+
+    def focus_enter_bind(self, frame):
+        """
+        Binds the Enter key to invoking the focused widget of a certain frame.
+
+        :param frame: Frame in which the widgets are present and should be focused
+        """
+        frame.bind(self.__enter, lambda e: frame.focus_get().invoke() if self.__check_button(
+            frame.focus_get()) or self.__check_checkbutton(frame.focus_get()) else None)
 
     def tab_bind(self, frame, list_widgets):
         """
@@ -76,15 +95,20 @@ class KeyboardManager:
                 list_widgets[nb_widgets] += 1
 
         widget = list_widgets[list_widgets[nb_widgets]]
-        self.reset_all_buttons(list_widgets)
-        widget.configure(highlightbackground="black")
-        self.enter_bind(frame, widget)
+        if self.__check_button(widget):
+            self.reset_all_widgets(list_widgets)
+            widget.configure(highlightbackground="black")
+            self.enter_bind(frame, widget)
+        else:
+            self.reset_all_widgets(list_widgets)
+            widget.focus_set()
 
-    def reset_all_buttons(self, list_widgets):
+    def reset_all_widgets(self, list_widgets):
         """
         Works with tab_focus_change(). Removes highlight focus from widgets.
 
         :param list_widgets: List of widgets to remove focus from
         """
         for widget in list_widgets[:-1]:
-            widget.configure(highlightbackground="white")
+            if self.__check_button(widget):
+                widget.configure(highlightbackground="white")
