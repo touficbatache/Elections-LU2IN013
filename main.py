@@ -384,6 +384,7 @@ def reset(candidates: bool = False, voters: bool = False):
         # Candidates :
         if data_manager.is_candidates_empty():
             tk.messagebox.showerror(title="Candidats déjà réinitialisés", message="Candidats déjà réinitialisés")
+            disable_all_buttons(False)
         else:
             data_manager.clear_candidates()
 
@@ -391,6 +392,7 @@ def reset(candidates: bool = False, voters: bool = False):
         # Voters :
         if data_manager.is_voters_empty():
             tk.messagebox.showerror(title="Votants déjà réinitialisés", message="Votants déjà réinitialisés")
+            disable_all_buttons(False)
         else:
             data_manager.clear_voters()
 
@@ -1076,6 +1078,7 @@ def show_voting_systems_popup():
             title="Données insuffisantes",
             message="Veuillez ajouter des votants et des candidats.",
         )
+        disable_all_buttons(False)
     else:
         # Create a new top level window to display the different voting systems to choose from
         top = tk.Toplevel(root)
@@ -1441,6 +1444,7 @@ def show_candidates_utility():
             title="Données insuffisantes",
             message="Données insuffisantes. Veuillez ajouter des votants et/ou des candidats."
         )
+        disable_all_buttons(False)
     else:
         top_utility = tk.Toplevel()
         top_utility.title("Utilité des candidats")
@@ -1463,7 +1467,7 @@ def show_candidates_utility():
             else:
                 tk.Label(top_utility, text=str(round(1/c_utility, 2)), font=("Mistral", "15", font_style)).grid(row=candidate_number, column=3)
 
-    keyboard_manager.esc_bind(top_utility)
+        keyboard_manager.esc_bind(top_utility)
 
 
 # Add the canvas to the tkinter window

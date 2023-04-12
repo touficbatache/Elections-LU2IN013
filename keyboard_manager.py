@@ -10,14 +10,22 @@ class KeyboardManager:
     __enter: str = '<Return>'
 
     def __check_button(self, widget):
-        if "button" in widget.__str__():
-            return True
-        return False
+        """
+        Returns True if widget is a button, False otherwise.
+
+        :param widget: Widget to check
+        :return: True if button else False
+        """
+        return "button" in widget.__str__()
 
     def __check_checkbutton(self, widget):
-        if "checkbutton" in widget.__str__():
-            return True
-        return False
+        """
+        Returns True if widget is a checkbox or radiobutton, False otherwise.
+
+        :param widget: Widget to check
+        :return: True if checkbox or radiobutton else False
+        """
+        return "checkbutton" in widget.__str__()
 
     def enter_bind(self, frame, widget):
         """
