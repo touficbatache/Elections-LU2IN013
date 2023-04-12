@@ -98,7 +98,7 @@ class KeyboardManager:
 
         increment = -1 if reverse else 1
 
-        if (widget_tracker >= nb_widgets - 1 and not reverse) or (widget_tracker == -1 and reverse):
+        if (widget_tracker >= nb_widgets - 1 and not reverse) or (widget_tracker == 0 and reverse):
             widget_tracker = nb_widgets - 1 if reverse else 0
         else:
             widget_tracker += increment
@@ -109,8 +109,6 @@ class KeyboardManager:
         if self.__check_button(widget):
             widget.configure(highlightbackground="black")
             self.enter_bind(frame, widget)
-        else:
-            return
 
     def reset_all_widgets(self, list_widgets: list):
         """

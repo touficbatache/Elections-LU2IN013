@@ -1482,6 +1482,7 @@ list_buttons = [import_file, export_file, reset_voters, reset_candidates, genera
                 btn_show_voting_systems, distribute_voters, distribute_candidates, -1]
 keyboard_manager.tab_bind(root, list_buttons)
 keyboard_manager.shift_tab_bind(root, list_buttons)
+keyboard_manager.esc_bind(root, lambda e: keyboard_manager.reset_all_widgets(list_buttons))
 
 # Start the tkinter event loop
 root.mainloop()
