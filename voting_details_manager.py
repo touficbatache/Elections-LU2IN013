@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, Toplevel
 from data_manager import DataManager
+from keyboard_manager import KeyboardManager
 
 top_step = None
 top_step_condorcet = None
@@ -22,6 +23,9 @@ class VotingDetails:
     # List of candidates from data manager
     __data_manager = DataManager()
     __candidates = __data_manager.get_candidates()
+
+    # Create a Keyboard Manager
+    keyboard_manager = KeyboardManager()
 
     def set_condorcet_details(self, value: list):
         """
@@ -93,6 +97,8 @@ class VotingDetails:
                       "premier par une majorité de votants.",
                  wraplength=250).grid(row=1, column=0)
 
+        self.keyboard_manager.esc_bind(top_details)
+
     def show_approbation_information(self, approval_radius: int, frame: Toplevel):
         """
         Gives a definition of Approbation voting system.
@@ -120,6 +126,8 @@ class VotingDetails:
                                         "d'approbation, aucun candidat gagne.",
                  wraplength=250).grid(row=1, column=0)
 
+        self.keyboard_manager.esc_bind(top_details)
+
     def show_pluralite_simple_information(self, frame: Toplevel):
         """
         Gives a definition of simple plurality voting system.
@@ -141,6 +149,8 @@ class VotingDetails:
                       "Le candidat ayant le score le plus élevé gagne les éléctions. En cas d'égalité, le gagnant est départagé "
                       "par ordre lexicographique croissant (A -> Z).",
                  wraplength=250).grid(row=1, column=0)
+
+        self.keyboard_manager.esc_bind(top_details)
 
     def show_borda_information(self, maximum: int, step: int, frame: Toplevel):
         """
@@ -172,6 +182,8 @@ class VotingDetails:
                              "le plus élevé gagne les éléctions. En cas d'égalité, le gagnant est départagé par ordre lexicographique croissant (A -> Z).",
                  wraplength=250).grid(row=1, column=0)
 
+        self.keyboard_manager.esc_bind(top_details)
+
     def show_veto_information(self, frame: Toplevel):
         """
         Gives a definition of Veto voting system.
@@ -193,6 +205,8 @@ class VotingDetails:
                       "différents profils sont ajoutés pour pouvoir déterminer qui est le gagnant. Le candidat ayant le score le plus "
                       "élevé gagne les éléctions. En cas d'égalité, le gagnant est départagé par ordre lexicographique croissant (A -> Z).",
                  wraplength=250).grid(row=1, column=0)
+
+        self.keyboard_manager.esc_bind(top_details)
 
     def show_condorcet_information(self, method, tie_breaking_rule, frame: Toplevel):
         """
@@ -254,6 +268,8 @@ class VotingDetails:
                               "candidats vérifiant la méthode de Simpson.",
                          wraplength=250).grid(row=2, column=0)
 
+        self.keyboard_manager.esc_bind(top_details)
+
     def show_remaining_methods_details(self, frame: Toplevel):
         """
         Displays score details for Veto, Borda, Approbation and Simple plurality.
@@ -313,6 +329,8 @@ class VotingDetails:
                                                                                         columnspan=nb_candidates if nb_candidates < 12 else 12,
                                                                                         column=0)
 
+        self.keyboard_manager.esc_bind(top_step)
+
     def show_condorcet_steps(self, frame: Toplevel):
         """
         Displays score details for Condorcet.
@@ -325,6 +343,8 @@ class VotingDetails:
 
         top_step_condorcet = tk.Toplevel(frame)
         top_step_condorcet.title("Condorcet - Résultat détaillé")
+
+        self.keyboard_manager.esc_bind(top_step_condorcet)
 
         nb_candidates = len(self.condorcet_details[5])
 
@@ -417,6 +437,8 @@ class VotingDetails:
         grid_row_manager = 0
 
         scrollable_frame = self.__create_scrollbar(top_step_elimination)
+
+        self.keyboard_manager.esc_bind(top_step_elimination)
 
         row_uprade = -1
         for round_number, scores_letter in self.elimination_successive_details[0].items():
