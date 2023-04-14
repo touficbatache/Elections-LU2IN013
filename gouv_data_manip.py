@@ -104,7 +104,6 @@ def generate_voters_by_department(off_data, webplot, scaledown, radius):
             # Define the number of voters by department
             nb_votants = 0
             dep_code = row[0]
-            dep_name = row[1]
             expr_dep = int(row[14])
             expr_dep_simul = scaledown*expr_dep/total_exp
             
@@ -131,11 +130,14 @@ def generate_voters_by_department(off_data, webplot, scaledown, radius):
                         y = random.uniform(candidate_pos[1] - y_range, candidate_pos[1] + y_range)
                         voters.append((x/2, y/2))
             
-            # generate files for each departement
-            filename = "voters" + dep_code + ".csv"
-            with open(filename, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(['Votants'])
+            if voters == [] :
+                print("Departement with code " + dep_code + " not heavy enough")
+            else :
+                # generate files for each departement
+                filename = "voters" + dep_code + ".csv"
+                with open(filename, 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(['Votants'])
 
                 for x,y in voters :
                     writer.writerow([x/2, y/2])
@@ -235,4 +237,4 @@ def shift_voters(off_data, webplot,scaledown, from_dep, to_dep, candidate, radiu
 #------------------------------------------------Main-------------------------------------------------------
 #CandidatestoCSV(off_data, webplot) #works
 #generate_voters_by_department(off_data,webplot, 10000, 0.5)
-shift_voters(off_data, webplot,10000, '75','86', "LE PEN", 0.5)
+shift_voters(off_data, webplot, 10000, '75', 'ZX', 'LASSALLE', 0.5)
