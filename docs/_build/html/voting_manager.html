@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>voting_manager module &mdash; Elections 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Elections
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">voting_manager module</a><ul>
+<li><a class="reference internal" href="#voting_manager.CondorcetMethod"><code class="docutils literal notranslate"><span class="pre">CondorcetMethod</span></code></a><ul>
+<li><a class="reference internal" href="#voting_manager.CondorcetMethod.COPELAND"><code class="docutils literal notranslate"><span class="pre">CondorcetMethod.COPELAND</span></code></a></li>
+<li><a class="reference internal" href="#voting_manager.CondorcetMethod.SIMPSON"><code class="docutils literal notranslate"><span class="pre">CondorcetMethod.SIMPSON</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#voting_manager.CondorcetTieBreakingRule"><code class="docutils literal notranslate"><span class="pre">CondorcetTieBreakingRule</span></code></a><ul>
+<li><a class="reference internal" href="#voting_manager.CondorcetTieBreakingRule.ORDRE_LEXICO"><code class="docutils literal notranslate"><span class="pre">CondorcetTieBreakingRule.ORDRE_LEXICO</span></code></a></li>
+<li><a class="reference internal" href="#voting_manager.CondorcetTieBreakingRule.RANDOM"><code class="docutils literal notranslate"><span class="pre">CondorcetTieBreakingRule.RANDOM</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#voting_manager.VotingManager"><code class="docutils literal notranslate"><span class="pre">VotingManager</span></code></a><ul>
+<li><a class="reference internal" href="#voting_manager.VotingManager.KEY_DRAWS"><code class="docutils literal notranslate"><span class="pre">VotingManager.KEY_DRAWS</span></code></a></li>
+<li><a class="reference internal" href="#voting_manager.VotingManager.KEY_LOSSES"><code class="docutils literal notranslate"><span class="pre">VotingManager.KEY_LOSSES</span></code></a></li>
+<li><a class="reference internal" href="#voting_manager.VotingManager.KEY_WINS"><code class="docutils literal notranslate"><span class="pre">VotingManager.KEY_WINS</span></code></a></li>
+<li><a class="reference internal" href="#voting_manager.VotingManager.approbation"><code class="docutils literal notranslate"><span class="pre">VotingManager.approbation()</span></code></a></li>
+<li><a class="reference internal" href="#voting_manager.VotingManager.borda"><code class="docutils literal notranslate"><span class="pre">VotingManager.borda()</span></code></a></li>
+<li><a class="reference internal" href="#voting_manager.VotingManager.condorcet"><code class="docutils literal notranslate"><span class="pre">VotingManager.condorcet()</span></code></a></li>
+<li><a class="reference internal" href="#voting_manager.VotingManager.data_manager"><code class="docutils literal notranslate"><span class="pre">VotingManager.data_manager</span></code></a></li>
+<li><a class="reference internal" href="#voting_manager.VotingManager.elimination_successive"><code class="docutils literal notranslate"><span class="pre">VotingManager.elimination_successive()</span></code></a></li>
+<li><a class="reference internal" href="#voting_manager.VotingManager.pluralite_simple"><code class="docutils literal notranslate"><span class="pre">VotingManager.pluralite_simple()</span></code></a></li>
+<li><a class="reference internal" href="#voting_manager.VotingManager.veto"><code class="docutils literal notranslate"><span class="pre">VotingManager.veto()</span></code></a></li>
+<li><a class="reference internal" href="#voting_manager.VotingManager.voting_details_manager"><code class="docutils literal notranslate"><span class="pre">VotingManager.voting_details_manager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Elections</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">voting_manager module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/voting_manager.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-voting_manager">
+<span id="voting-manager-module"></span><h1>voting_manager module<a class="headerlink" href="#module-voting_manager" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="voting_manager.CondorcetMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">voting_manager.</span></span><span class="sig-name descname"><span class="pre">CondorcetMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/voting_manager.html#CondorcetMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voting_manager.CondorcetMethod" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Class to identify which Condorcet method is used.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voting_manager.CondorcetMethod.COPELAND">
+<span class="sig-name descname"><span class="pre">COPELAND</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#voting_manager.CondorcetMethod.COPELAND" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voting_manager.CondorcetMethod.SIMPSON">
+<span class="sig-name descname"><span class="pre">SIMPSON</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#voting_manager.CondorcetMethod.SIMPSON" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="voting_manager.CondorcetTieBreakingRule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">voting_manager.</span></span><span class="sig-name descname"><span class="pre">CondorcetTieBreakingRule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/voting_manager.html#CondorcetTieBreakingRule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voting_manager.CondorcetTieBreakingRule" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Class to identify which tie breaking rule is used.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voting_manager.CondorcetTieBreakingRule.ORDRE_LEXICO">
+<span class="sig-name descname"><span class="pre">ORDRE_LEXICO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#voting_manager.CondorcetTieBreakingRule.ORDRE_LEXICO" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voting_manager.CondorcetTieBreakingRule.RANDOM">
+<span class="sig-name descname"><span class="pre">RANDOM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#voting_manager.CondorcetTieBreakingRule.RANDOM" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="voting_manager.VotingManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">voting_manager.</span></span><span class="sig-name descname"><span class="pre">VotingManager</span></span><a class="reference internal" href="_modules/voting_manager.html#VotingManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voting_manager.VotingManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Managing class for the different voting systems.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voting_manager.VotingManager.KEY_DRAWS">
+<span class="sig-name descname"><span class="pre">KEY_DRAWS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'draws'</span></em><a class="headerlink" href="#voting_manager.VotingManager.KEY_DRAWS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voting_manager.VotingManager.KEY_LOSSES">
+<span class="sig-name descname"><span class="pre">KEY_LOSSES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'losses'</span></em><a class="headerlink" href="#voting_manager.VotingManager.KEY_LOSSES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voting_manager.VotingManager.KEY_WINS">
+<span class="sig-name descname"><span class="pre">KEY_WINS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'wins'</span></em><a class="headerlink" href="#voting_manager.VotingManager.KEY_WINS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voting_manager.VotingManager.approbation">
+<span class="sig-name descname"><span class="pre">approbation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profils</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approval_radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/voting_manager.html#VotingManager.approbation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voting_manager.VotingManager.approbation" title="Permalink to this definition"></a></dt>
+<dd><p>Approval voting system (système de vote par approbation).</p>
+<p>In this voting system, voters can show support for one or more candidates
+by voting “yes / no” for each one. Approval is given if the voter is
+within an approval circle whose radius is defined by the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>profils</strong> – Scores for each voter</p></li>
+<li><p><strong>approval_radius</strong> – Radius of the approval circle</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple(str(winner label), bool(multiple winners?), list(all winners’ labels))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voting_manager.VotingManager.borda">
+<span class="sig-name descname"><span class="pre">borda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profils</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/voting_manager.html#VotingManager.borda"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voting_manager.VotingManager.borda" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the winner according to Borda voting method.</p>
+<p>In this system, the candidates are given a score based on the maximum score given by the user.
+The first candidate received the max points, the second -&gt; max-step, the third -&gt; max-2*step, …
+If the number of candidates is higher than max, the remaining candidates [max; nb_candidates]
+will receive the score of 0.
+In case of equality, the function returns the first in alphabetical order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step</strong> – step between two scores (ex: if max=100 and step=5, score attribution: 100, 95, 90, …)</p></li>
+<li><p><strong>profils</strong> – dictionary of votes registered by the voters</p></li>
+<li><p><strong>maximum</strong> – maximum score to attribute to the top candidate</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple(str(winner label), bool(multiple winners?), list(all winners’ labels))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voting_manager.VotingManager.condorcet">
+<span class="sig-name descname"><span class="pre">condorcet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profils</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#voting_manager.CondorcetMethod" title="voting_manager.CondorcetMethod"><span class="pre">CondorcetMethod</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tie_breaking_rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#voting_manager.CondorcetTieBreakingRule" title="voting_manager.CondorcetTieBreakingRule"><span class="pre">CondorcetTieBreakingRule</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/voting_manager.html#VotingManager.condorcet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voting_manager.VotingManager.condorcet" title="Permalink to this definition"></a></dt>
+<dd><p>Condorcet voting system.</p>
+<p>In this voting system, we start by generating pairs for each 2 candidates
+and organizing duels between them. In order to win, the candidate’s score
+must be strictly greater than his opponent’s. In the case of a tie,
+neither the candidate nor their opponent are added to any of the “wins” or
+“losses” tables: we simply do nothing.</p>
+<p>If a candidate wins all his duels (loses none), then he is the Condorcet winner.</p>
+<p>If not, we resort to using the method given as an argument to the method.</p>
+<p>If there are multiple winners, we use the tie-breaking rule given as argument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>profils</strong> – Scores for each voter</p></li>
+<li><p><strong>method</strong> – Method to use in case there is no Condorcet winner</p></li>
+<li><p><strong>tie_breaking_rule</strong> – Tie-breaking rule to use in order to decide who wins</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>tuple(</dt><dd><p>str(winner label),
+bool(used given method?),
+bool(used tie-breaking rule?),
+list(all winners’ labels)</p>
+</dd>
+</dl>
+<p>)</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voting_manager.VotingManager.data_manager">
+<span class="sig-name descname"><span class="pre">data_manager</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;data_manager.DataManager</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#voting_manager.VotingManager.data_manager" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voting_manager.VotingManager.elimination_successive">
+<span class="sig-name descname"><span class="pre">elimination_successive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profils</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/voting_manager.html#VotingManager.elimination_successive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voting_manager.VotingManager.elimination_successive" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the winner according to Single transferable vote (STV) system.
+Eliminates the last candidate in alphabetical order in case of equality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>profils</strong> – dictionary of the scores of each voter</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple(str(winner label), bool(multiple winners?), list(all winners’ labels))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voting_manager.VotingManager.pluralite_simple">
+<span class="sig-name descname"><span class="pre">pluralite_simple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profils</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/voting_manager.html#VotingManager.pluralite_simple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voting_manager.VotingManager.pluralite_simple" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the winner according to simple majority voting method.
+Returns the first in alphabetical order in case of equality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>profils</strong> – dictionary of votes registered by the voters</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple(str(winner label), bool(multiple winners?), list(all winners’ labels))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="voting_manager.VotingManager.veto">
+<span class="sig-name descname"><span class="pre">veto</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profils</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/voting_manager.html#VotingManager.veto"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#voting_manager.VotingManager.veto" title="Permalink to this definition"></a></dt>
+<dd><p>Implementation of veto sorting method : 0 for the last candidate in each profil, 1 for the rest</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>profils</strong> – dictionary of votes registered by the voters</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple(str(winner label), bool(multiple winners?), list(all winners’ labels))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="voting_manager.VotingManager.voting_details_manager">
+<span class="sig-name descname"><span class="pre">voting_details_manager</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;voting_details_manager.VotingDetails</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#voting_manager.VotingManager.voting_details_manager" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, ZENTEK.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

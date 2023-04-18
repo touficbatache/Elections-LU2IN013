@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>graph_manager module &mdash; Elections 1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Elections
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">graph_manager module</a><ul>
+<li><a class="reference internal" href="#graph_manager.GraphManager"><code class="docutils literal notranslate"><span class="pre">GraphManager</span></code></a><ul>
+<li><a class="reference internal" href="#graph_manager.GraphManager.add_approbation_circles"><code class="docutils literal notranslate"><span class="pre">GraphManager.add_approbation_circles()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.add_candidate"><code class="docutils literal notranslate"><span class="pre">GraphManager.add_candidate()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.add_voter"><code class="docutils literal notranslate"><span class="pre">GraphManager.add_voter()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.bind"><code class="docutils literal notranslate"><span class="pre">GraphManager.bind()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.build"><code class="docutils literal notranslate"><span class="pre">GraphManager.build()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.clear_approbation_circles"><code class="docutils literal notranslate"><span class="pre">GraphManager.clear_approbation_circles()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.clear_candidates"><code class="docutils literal notranslate"><span class="pre">GraphManager.clear_candidates()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.clear_voters"><code class="docutils literal notranslate"><span class="pre">GraphManager.clear_voters()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.edit_candidate_at"><code class="docutils literal notranslate"><span class="pre">GraphManager.edit_candidate_at()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.edit_voter_at"><code class="docutils literal notranslate"><span class="pre">GraphManager.edit_voter_at()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.get_diagonal"><code class="docutils literal notranslate"><span class="pre">GraphManager.get_diagonal()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.get_tk_widget"><code class="docutils literal notranslate"><span class="pre">GraphManager.get_tk_widget()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.get_toggle_state"><code class="docutils literal notranslate"><span class="pre">GraphManager.get_toggle_state()</span></code></a></li>
+<li><a class="reference internal" href="#graph_manager.GraphManager.set_toggle_state"><code class="docutils literal notranslate"><span class="pre">GraphManager.set_toggle_state()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Elections</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">graph_manager module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/graph_manager.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-graph_manager">
+<span id="graph-manager-module"></span><h1>graph_manager module<a class="headerlink" href="#module-graph_manager" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="graph_manager.GraphManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">graph_manager.</span></span><span class="sig-name descname"><span class="pre">GraphManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tk_root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Widget</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_manager.html#GraphManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to manage the graph.</p>
+<p>! This class should not expose private variables such as
+fig, axes or canvas with getters. It should create an
+abstraction layer over them to limit and control the usage
+of internal and private features. Ex: we abstract canvas
+re-drawing with build() and click-handling with bind(). !</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.add_approbation_circles">
+<span class="sig-name descname"><span class="pre">add_approbation_circles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">approval_radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.add_approbation_circles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.add_approbation_circles" title="Permalink to this definition"></a></dt>
+<dd><p>Adds the approval circles around candidates on the graph.
+Voters inside a candidate’s circle are approving of them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>approval_radius</strong> – Radius of the approval circle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.add_candidate">
+<span class="sig-name descname"><span class="pre">add_candidate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">candidate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="candidate.html#candidate.Candidate" title="candidate.Candidate"><span class="pre">Candidate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.add_candidate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.add_candidate" title="Permalink to this definition"></a></dt>
+<dd><p>Adds the candidate to the graph (point and annotation), without building it.
+Calling build() is necessary to see the updated changes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>candidate</strong> – the candidate to add</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>whether the candidate was successfully added or not</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.add_voter">
+<span class="sig-name descname"><span class="pre">add_voter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="voter.html#voter.Voter" title="voter.Voter"><span class="pre">Voter</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.add_voter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.add_voter" title="Permalink to this definition"></a></dt>
+<dd><p>Adds the voter to the graph (point and annotation), without building it.
+Calling build() is necessary to see the updated changes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>voter</strong> – the voter to add</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>whether the voter was successfully added or not</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.bind">
+<span class="sig-name descname"><span class="pre">bind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.bind"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.bind" title="Permalink to this definition"></a></dt>
+<dd><p>Bind an event to a callable.
+:param event: the event to bind
+:param callable: the callable to which the event is binded</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.build" title="Permalink to this definition"></a></dt>
+<dd><p>Toggles the visibility of the annotations of all voters based on the value of __toggle_state.
+Builds the updated graph by calling canvas.draw().</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.clear_approbation_circles">
+<span class="sig-name descname"><span class="pre">clear_approbation_circles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.clear_approbation_circles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.clear_approbation_circles" title="Permalink to this definition"></a></dt>
+<dd><p>Clears the approval circles around candidates on the graph.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.clear_candidates">
+<span class="sig-name descname"><span class="pre">clear_candidates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.clear_candidates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.clear_candidates" title="Permalink to this definition"></a></dt>
+<dd><p>Clears all the candidates from the graph, without building it.
+Calling build() is necessary to see the updated changes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.clear_voters">
+<span class="sig-name descname"><span class="pre">clear_voters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.clear_voters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.clear_voters" title="Permalink to this definition"></a></dt>
+<dd><p>Clears all the voters from the graph, without building it.
+Calling build() is necessary to see the updated changes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.edit_candidate_at">
+<span class="sig-name descname"><span class="pre">edit_candidate_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="candidate.html#candidate.Candidate" title="candidate.Candidate"><span class="pre">Candidate</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.edit_candidate_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.edit_candidate_at" title="Permalink to this definition"></a></dt>
+<dd><p>Edits the candidate at a given index on the graph, without building it.
+Calling build() is necessary to see the updated changes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> – index of the desired candidate</p></li>
+<li><p><strong>candidate</strong> – new candidate data</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.edit_voter_at">
+<span class="sig-name descname"><span class="pre">edit_voter_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="voter.html#voter.Voter" title="voter.Voter"><span class="pre">Voter</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.edit_voter_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.edit_voter_at" title="Permalink to this definition"></a></dt>
+<dd><p>Edits the voter at a given index on the graph, without building it.
+Calling build() is necessary to see the updated changes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> – index of the desired voter</p></li>
+<li><p><strong>voter</strong> – new voter data</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.get_diagonal">
+<span class="sig-name descname"><span class="pre">get_diagonal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.get_diagonal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.get_diagonal" title="Permalink to this definition"></a></dt>
+<dd><p>Return the diagonal size of the graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the diagonal size of the graph</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.get_tk_widget">
+<span class="sig-name descname"><span class="pre">get_tk_widget</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Canvas</span></span></span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.get_tk_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.get_tk_widget" title="Permalink to this definition"></a></dt>
+<dd><p>Return the Tk widget used to implement FigureCanvasTkAgg.</p>
+<p>! This method exposes the Tk widget, but I believe this
+is the only instance where it’s fine because it’s necessary !</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.get_toggle_state">
+<span class="sig-name descname"><span class="pre">get_toggle_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.get_toggle_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.get_toggle_state" title="Permalink to this definition"></a></dt>
+<dd><p>Return the boolean value of toggle_state
+:return: True if __toggle_state == True, False otherwise</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="graph_manager.GraphManager.set_toggle_state">
+<span class="sig-name descname"><span class="pre">set_toggle_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/graph_manager.html#GraphManager.set_toggle_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#graph_manager.GraphManager.set_toggle_state" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the boolean value of toggle_state to that of value
+:param value: the value to affect to toggle_state</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, ZENTEK.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
