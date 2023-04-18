@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>voting_details_manager &mdash; Elections 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Elections
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Elections</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">voting_details_manager</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for voting_details_manager</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">tkinter</span> <span class="k">as</span> <span class="nn">tk</span>
+<span class="kn">from</span> <span class="nn">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span><span class="p">,</span> <span class="n">Toplevel</span>
+<span class="kn">from</span> <span class="nn">data_manager</span> <span class="kn">import</span> <span class="n">DataManager</span>
+
+<span class="n">top_step</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">top_step_condorcet</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">top_step_elimination</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">top_details</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="VotingDetails"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails">[docs]</a><span class="k">class</span> <span class="nc">VotingDetails</span><span class="p">:</span>
+    <span class="c1"># Data list for Condorcet</span>
+    <span class="n">condorcet_details</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Data list for STV</span>
+    <span class="n">elimination_successive_details</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Data list for Veto, Borda, Approbation, and Simple plurality.</span>
+    <span class="n">remaining_methods_details</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># List of candidates from data manager</span>
+    <span class="n">__data_manager</span> <span class="o">=</span> <span class="n">DataManager</span><span class="p">()</span>
+    <span class="n">__candidates</span> <span class="o">=</span> <span class="n">__data_manager</span><span class="o">.</span><span class="n">get_candidates</span><span class="p">()</span>
+
+<div class="viewcode-block" id="VotingDetails.set_condorcet_details"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails.set_condorcet_details">[docs]</a>    <span class="k">def</span> <span class="nf">set_condorcet_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of condorcet_details.</span>
+
+<span class="sd">        :param value: The value to affect</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="VotingDetails.set_elimination_successive_details"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails.set_elimination_successive_details">[docs]</a>    <span class="k">def</span> <span class="nf">set_elimination_successive_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of elimination_successive_details.</span>
+
+<span class="sd">        :param value: The value to affect</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elimination_successive_details</span> <span class="o">=</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="VotingDetails.set_remaining_methods_details"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails.set_remaining_methods_details">[docs]</a>    <span class="k">def</span> <span class="nf">set_remaining_methods_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of remaining_methods_details.</span>
+<span class="sd">        This functions initializes the data list for the Veto, Borda, Approbation,</span>
+<span class="sd">        and Simple plurality voting methods.</span>
+
+<span class="sd">        :param value: The value to affect</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remaining_methods_details</span> <span class="o">=</span> <span class="n">value</span></div>
+
+    <span class="k">def</span> <span class="nf">__create_scrollbar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Toplevel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a scrollbar frame to store the details in.</span>
+
+<span class="sd">        :param frame: The frame in which scrollbar should be created</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create a Frame container to put in it the results and make it scrollable in case of multiple round</span>
+        <span class="n">container</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">480</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+        <span class="n">canvas</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Canvas</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">420</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+        <span class="n">scrollbar</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Scrollbar</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;vertical&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">canvas</span><span class="o">.</span><span class="n">yview</span><span class="p">)</span>
+        <span class="n">scrollable_frame</span> <span class="o">=</span> <span class="n">ttk</span><span class="o">.</span><span class="n">Frame</span><span class="p">(</span><span class="n">canvas</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">360</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+        <span class="n">scrollable_frame</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">&quot;&lt;Configure&gt;&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">canvas</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">scrollregion</span><span class="o">=</span><span class="n">canvas</span><span class="o">.</span><span class="n">bbox</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)))</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">create_window</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">window</span><span class="o">=</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="s2">&quot;nw&quot;</span><span class="p">)</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">yscrollcommand</span><span class="o">=</span><span class="n">scrollbar</span><span class="o">.</span><span class="n">set</span><span class="p">)</span>
+        <span class="n">container</span><span class="o">.</span><span class="n">pack</span><span class="p">()</span>
+        <span class="n">canvas</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">scrollbar</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">scrollable_frame</span>
+
+<div class="viewcode-block" id="VotingDetails.show_elimination_successive_information"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails.show_elimination_successive_information">[docs]</a>    <span class="k">def</span> <span class="nf">show_elimination_successive_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Toplevel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives a definition of STV voting system.</span>
+
+<span class="sd">        :param frame: The frame used to show the details of the voting method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">top_details</span>
+        <span class="k">if</span> <span class="n">top_details</span><span class="p">:</span>
+            <span class="n">top_details</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="n">top_details</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">top_details</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Elimination Successive - Définition&quot;</span><span class="p">)</span>
+
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Description du mode de vote :&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span>
+                 <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Le vote par Elimination succéssive est un vote itératif. S&#39;il existe un &quot;</span>
+                      <span class="s2">&quot;candidat classé premier par une majorité de votants alors il est élu &quot;</span>
+                      <span class="s2">&quot;directement gagnant. Sinon, le candidat classé premier par le moins de votants &quot;</span>
+                      <span class="s2">&quot;est  éliminé de tous les votes. Les votes de ce candidat sont transférés au meilleur &quot;</span>
+                      <span class="s2">&quot;candidat restant. Cette condition est répétée jusqu&#39;à ce qu&#39;un candidat est classé &quot;</span>
+                      <span class="s2">&quot;premier par une majorité de votants.&quot;</span><span class="p">,</span>
+                 <span class="n">wraplength</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VotingDetails.show_approbation_information"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails.show_approbation_information">[docs]</a>    <span class="k">def</span> <span class="nf">show_approbation_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">approval_radius</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Toplevel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives a definition of Approbation voting system.</span>
+
+<span class="sd">        :param approval_radius: Radius of the approval circle</span>
+<span class="sd">        :param frame: The frame used to show the details of the voting method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">top_details</span>
+        <span class="k">if</span> <span class="n">top_details</span><span class="p">:</span>
+            <span class="n">top_details</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="n">top_details</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">top_details</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Approbation - Définition&quot;</span><span class="p">)</span>
+
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Description du mode de vote :&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span>
+                 <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Le vote par approbation est un vote similaire à une situation de Oui ou Non. Les candidats présents &quot;</span>
+                      <span class="s2">&quot;dans la zone d&#39;approbation du votant (dans ce cas : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">approval_radius</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">% d</span><span class="s2">e la distance maximale) &quot;</span>
+                      <span class="s2">&quot;reçoivent un (1) point de la part du votant. Les candidats en dehors de cette zone reçoivent par conséquent &quot;</span>
+                      <span class="s2">&quot;un score de zéro. Les scores des différents votants sont ensuite ajoutés pour déterminer le vainqueur. &quot;</span>
+                      <span class="s2">&quot;Le candidat ayant le score le plus élevé gagne les éléctions. En cas d&#39;égalité, le gagnant est départagé &quot;</span>
+                      <span class="s2">&quot;par ordre lexicographique croissant (A -&gt; Z). Si tous les candidats se trouvent hors des zones &quot;</span>
+                      <span class="s2">&quot;d&#39;approbation, aucun candidat gagne.&quot;</span><span class="p">,</span>
+                 <span class="n">wraplength</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VotingDetails.show_pluralite_simple_information"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails.show_pluralite_simple_information">[docs]</a>    <span class="k">def</span> <span class="nf">show_pluralite_simple_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Toplevel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives a definition of simple plurality voting system.</span>
+
+<span class="sd">        :param frame: The frame used to show the details of the voting method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">top_details</span>
+        <span class="k">if</span> <span class="n">top_details</span><span class="p">:</span>
+            <span class="n">top_details</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="n">top_details</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">top_details</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Pluralité Simple - Définition&quot;</span><span class="p">)</span>
+
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Description du mode de vote :&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span>
+                 <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Le vote par pluralité simple est un vote qui prend en compte le premier vote de chaque votant. &quot;</span>
+                      <span class="s2">&quot;Le candidat le mieux classé gagne un (1) point dans chaque profil de vote et son scores est la somme de tous ses points gagnés. &quot;</span>
+                      <span class="s2">&quot;Le candidat ayant le score le plus élevé gagne les éléctions. En cas d&#39;égalité, le gagnant est départagé &quot;</span>
+                      <span class="s2">&quot;par ordre lexicographique croissant (A -&gt; Z).&quot;</span><span class="p">,</span>
+                 <span class="n">wraplength</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VotingDetails.show_borda_information"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails.show_borda_information">[docs]</a>    <span class="k">def</span> <span class="nf">show_borda_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maximum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Toplevel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives a definition of Borda voting system.</span>
+
+<span class="sd">        :param step: Step between two scores (ex: if max=100 and step=5, score attribution: 100, 95, 90, ...)</span>
+<span class="sd">        :param maximum: maximum score to attribute to the top candidate</span>
+<span class="sd">        :param frame: Frame from which vote method details details popup should generate</span>
+<span class="sd">        :param maximum: Maximum score to attribute to the top candidate</span>
+<span class="sd">        :param frame: The frame used to show the details of the voting method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">top_details</span>
+        <span class="k">if</span> <span class="n">top_details</span><span class="p">:</span>
+            <span class="n">top_details</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="n">top_details</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">top_details</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Borda - Définition&quot;</span><span class="p">)</span>
+
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Description du mode de vote :&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span>
+                 <span class="n">text</span><span class="o">=</span><span class="s2">&quot;La méthode de Borda est un vote qui attribut à chaque candidat un score dans chaque profil de vote. &quot;</span>
+                      <span class="s2">&quot;Le candidat le mieux classé gagne un nombre maximum de points (dans ce cas : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">maximum</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;). &quot;</span>
+                      <span class="s2">&quot;Le candidat suivant reçoit un score inférieur au premier en supprimant &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">step</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; point(s) du score du précédent. &quot;</span>
+                      <span class="s2">&quot;Les scores sont calculés simultanément. Si le nombre de candidats est supérieur au nombre de scores à attribuer, &quot;</span>
+                      <span class="s2">&quot;les candidats restants obtiennent le score de zéro (0). Suite à l&#39;ajout des différents scores, le candidat ayant le score &quot;</span>
+                      <span class="s2">&quot;le plus élevé gagne les éléctions. En cas d&#39;égalité, le gagnant est départagé par ordre lexicographique croissant (A -&gt; Z).&quot;</span><span class="p">,</span>
+                 <span class="n">wraplength</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VotingDetails.show_veto_information"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails.show_veto_information">[docs]</a>    <span class="k">def</span> <span class="nf">show_veto_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Toplevel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives a definition of Veto voting system.</span>
+
+<span class="sd">        :param frame: The frame used to show the details of the voting method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">top_details</span>
+        <span class="k">if</span> <span class="n">top_details</span><span class="p">:</span>
+            <span class="n">top_details</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="n">top_details</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">top_details</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Veto - Définition&quot;</span><span class="p">)</span>
+
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Description du mode de vote :&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span>
+                 <span class="n">text</span><span class="o">=</span><span class="s2">&quot;La méthode de Veto est un vote qui attribut à chaque candidat dans un profil de vote un &quot;</span>
+                      <span class="s2">&quot;(1) point. Par contre, le candidat le plus mal classé obtient le score de zéro (0). Les scores des &quot;</span>
+                      <span class="s2">&quot;différents profils sont ajoutés pour pouvoir déterminer qui est le gagnant. Le candidat ayant le score le plus &quot;</span>
+                      <span class="s2">&quot;élevé gagne les éléctions. En cas d&#39;égalité, le gagnant est départagé par ordre lexicographique croissant (A -&gt; Z).&quot;</span><span class="p">,</span>
+                 <span class="n">wraplength</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VotingDetails.show_condorcet_information"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails.show_condorcet_information">[docs]</a>    <span class="k">def</span> <span class="nf">show_condorcet_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">tie_breaking_rule</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Toplevel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gives a definition of condorcet voting system.</span>
+
+<span class="sd">        :param method: Method to use in case there is no Condorcet winner</span>
+<span class="sd">        :param tie_breaking_rule: Tie-breaking rule to use to decide who wins</span>
+<span class="sd">        :param frame: The frame used to show the details of the voting method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">top_details</span>
+        <span class="k">if</span> <span class="n">top_details</span><span class="p">:</span>
+            <span class="n">top_details</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="n">top_details</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">top_details</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Condorcet - Définition&quot;</span><span class="p">)</span>
+
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Description du mode de vote :&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span>
+                 <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Le vote par Condorcet revient à simuler l&#39;ensemble des duels possibles parmi les &quot;</span>
+                      <span class="s2">&quot;différents candidats: pour chaque paire de candidats, on détermine le nombre de votants &quot;</span>
+                      <span class="s2">&quot;ayant voté pour l&#39;un ou l&#39;autre en vérifiant, sur chaque profil de vote, comment l&#39;un a &quot;</span>
+                      <span class="s2">&quot;été classé par rapport à l&#39;autre. Ainsi pour chaque duel, il y a un candidat vainqueur. &quot;</span>
+                      <span class="s2">&quot;S&#39;il y a un unique candidat qui remporte tous ses duels : il s&#39;agit du vainqueur de Condorcet.&quot;</span><span class="p">,</span>
+                 <span class="n">wraplength</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">method_str</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+        <span class="n">tie_breaking_rule_str</span> <span class="o">=</span> <span class="n">tie_breaking_rule</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+        <span class="k">match</span> <span class="n">method_str</span><span class="p">,</span> <span class="n">tie_breaking_rule_str</span><span class="p">:</span>
+            <span class="k">case</span> <span class="s2">&quot;CondorcetMethod.COPELAND&quot;</span><span class="p">,</span> <span class="s2">&quot;CondorcetTieBreakingRule.RANDOM&quot;</span><span class="p">:</span>
+                <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span>
+                         <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Si aucun candidat ne remporte tous ses duels, on peut avoir recours à différentes méthodes. Dans &quot;</span>
+                              <span class="s2">&quot;ce cas, on utilise la méthode de Copeland qui cherche le candidat qui a gagné le plus de &quot;</span>
+                              <span class="s2">&quot;confrontations. Ce candidat serait donc le vainqueur. Par contre, s&#39;il existe &quot;</span>
+                              <span class="s2">&quot;des conflits, le candidat vainqueur est choisi au hasard parmi les différents candidats vérifiant &quot;</span>
+                              <span class="s2">&quot;la méthode de Simpson, suivant des probabilités particulières optimales.&quot;</span><span class="p">,</span>
+                         <span class="n">wraplength</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">case</span> <span class="s2">&quot;CondorcetMethod.COPELAND&quot;</span><span class="p">,</span> <span class="s2">&quot;CondorcetTieBreakingRule.ORDRE_LEXICO&quot;</span><span class="p">:</span>
+                <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span>
+                         <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Si aucun candidat ne remporte tous ses duels, on peut avoir recours à différentes méthodes. Dans &quot;</span>
+                              <span class="s2">&quot;ce cas, on utilise la méthode de Copeland qui cherche le candidat qui a gagné le plus de &quot;</span>
+                              <span class="s2">&quot;confrontations. Ce candidat serait donc le vainqueur. Par contre, s&#39;il existe des conflits, &quot;</span>
+                              <span class="s2">&quot;le candidat vainqueur est choisi par ordre lexicographique parmi les différents candidats &quot;</span>
+                              <span class="s2">&quot;vérifiant la méthode de Copeland.&quot;</span><span class="p">,</span>
+                         <span class="n">wraplength</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">case</span> <span class="s2">&quot;CondorcetMethod.SIMPSON&quot;</span><span class="p">,</span> <span class="s2">&quot;CondorcetTieBreakingRule.RANDOM&quot;</span><span class="p">:</span>
+                <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span>
+                         <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Si aucun candidat ne remporte tous ses duels, on peut avoir recours à différentes méthodes. Dans &quot;</span>
+                              <span class="s2">&quot;ce cas, on utilise la méthode de de Simpson (minimax) qui choisit le candidat dont la défaite &quot;</span>
+                              <span class="s2">&quot;max en duel est la plus faible. Ce candidat serait donc le vainqueur. Par contre, s&#39;il existe &quot;</span>
+                              <span class="s2">&quot;des conflits, le candidat vainqueur est choisi au hasard parmi les différents candidats vérifiant &quot;</span>
+                              <span class="s2">&quot;la méthode de Simpson, suivant des probabilités particulières optimales.&quot;</span><span class="p">,</span>
+                         <span class="n">wraplength</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">case</span> <span class="s2">&quot;CondorcetMethod.SIMPSON&quot;</span><span class="p">,</span> <span class="s2">&quot;CondorcetTieBreakingRule.ORDRE_LEXICO&quot;</span><span class="p">:</span>
+                <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_details</span><span class="p">,</span>
+                         <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Si aucun candidat ne remporte tous ses duels, on peut avoir recours à différentes méthodes. Dans &quot;</span>
+                              <span class="s2">&quot;ce cas, on utilise la méthode de de Simpson (minimax) qui choisit le candidat dont la défaite &quot;</span>
+                              <span class="s2">&quot;max en duel est la plus faible. Ce candidat serait donc le vainqueur. Par contre, s&#39;il existe &quot;</span>
+                              <span class="s2">&quot;des conflits, le candidat vainqueur est choisi par ordre lexicographique parmi les différents &quot;</span>
+                              <span class="s2">&quot;candidats vérifiant la méthode de Simpson.&quot;</span><span class="p">,</span>
+                         <span class="n">wraplength</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VotingDetails.show_remaining_methods_details"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails.show_remaining_methods_details">[docs]</a>    <span class="k">def</span> <span class="nf">show_remaining_methods_details</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Toplevel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays score details for Veto, Borda, Approbation and Simple plurality.</span>
+
+<span class="sd">        :param frame: Frame to build popup on</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">top_step</span>
+        <span class="k">if</span> <span class="n">top_step</span><span class="p">:</span>
+            <span class="n">top_step</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="c1"># Generate TopLevel popup for scores details</span>
+        <span class="n">top_step</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">top_step</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Résultat détaillé&quot;</span><span class="p">)</span>
+
+        <span class="n">nb_candidates</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">)</span>
+
+        <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_step</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Les scores des votes :&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="n">nb_candidates</span> <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">12</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">added_candidates</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">row_upgrade</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">candidate_label</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remaining_methods_details</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_step</span><span class="p">,</span>
+                     <span class="n">text</span><span class="o">=</span><span class="n">candidate_label</span> <span class="o">+</span> <span class="s2">&quot; : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">score</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_upgrade</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">added_candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">candidate_label</span><span class="p">)</span>
+            <span class="n">row_upgrade</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">:</span>
+            <span class="n">candidate_label</span> <span class="o">=</span> <span class="n">candidate</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">candidate_label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">added_candidates</span><span class="p">:</span>
+                <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_step</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">candidate_label</span> <span class="o">+</span> <span class="s2">&quot; : 0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_upgrade</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">row_upgrade</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">row_upgrade</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_methods_details</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_methods_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_step</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Le gagnant est : &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">remaining_methods_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_upgrade</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="n">nb_candidates</span> <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">12</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_step</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Le gagnant a été départagé :&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_upgrade</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="n">nb_candidates</span> <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">12</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_step</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">remaining_methods_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; a gagné parmi &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">remaining_methods_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_upgrade</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="n">nb_candidates</span> <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">12</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_step</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Aucun gagnant trouvé&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_upgrade</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="n">nb_candidates</span> <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">12</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">tk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">top_step</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Avec les données fournis, aucun gagnant peut être déterminé.&quot;</span><span class="p">,</span> <span class="n">wraplength</span><span class="o">=</span><span class="n">nb_candidates</span><span class="o">*</span><span class="mi">30</span> <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">360</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_upgrade</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="n">nb_candidates</span> <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">12</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VotingDetails.show_condorcet_steps"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails.show_condorcet_steps">[docs]</a>    <span class="k">def</span> <span class="nf">show_condorcet_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Toplevel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays score details for Condorcet.</span>
+
+<span class="sd">        :param frame: Frame to build popup on</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">top_step_condorcet</span>
+        <span class="k">if</span> <span class="n">top_step_condorcet</span><span class="p">:</span>
+            <span class="n">top_step_condorcet</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="n">top_step_condorcet</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">top_step_condorcet</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Condorcet - Résultat détaillé&quot;</span><span class="p">)</span>
+
+        <span class="n">nb_candidates</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+
+        <span class="n">scrollable_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__create_scrollbar</span><span class="p">(</span><span class="n">top_step_condorcet</span><span class="p">)</span>
+    
+        <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Il n&#39;y a qu&#39;un unique candidat.&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Le gagnant est : &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Les duels&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">row_manager</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">duel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">candidates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">duel</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+                <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Duel entre &quot;</span> <span class="o">+</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; et &quot;</span> <span class="o">+</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span>
+                                                 <span class="s2">&quot; : &quot;</span> <span class="o">+</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">duel</span><span class="p">[</span><span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="o">+</span>
+                                                 <span class="s2">&quot;) &quot;</span> <span class="o">+</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">duel</span><span class="p">[</span><span class="n">candidates</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span> <span class="o">+</span>
+                                                 <span class="s2">&quot;) &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">row_manager</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">row_manager</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+            <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Les résultats des duels&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">row_manager</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">candidate_label</span><span class="p">,</span> <span class="n">results</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+                <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">candidate_label</span> <span class="o">+</span> <span class="s2">&quot; gain : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;wins&quot;</span><span class="p">]))</span> <span class="o">+</span>
+                                                 <span class="s2">&quot;, perte : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;losses&quot;</span><span class="p">]))</span> <span class="o">+</span>
+                                                 <span class="s2">&quot; et nul : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;draws&quot;</span><span class="p">]))</span>
+                          <span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">row_manager</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">row_manager</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Le gagnant de condorcet est : &quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Pas de gagnant de condorcet&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;On utilise la méthode de &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="o">.</span><span class="n">lower</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">row_manager</span> <span class="o">+=</span> <span class="mi">2</span>
+    
+                <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">row_manager</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Le gagnant est : &quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Plusieurs gagnants : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">6</span><span class="p">])),</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">),</span> <span class="n">wraplength</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;On a recours a la méthode de &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="o">.</span><span class="n">lower</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; pour départager entre les différents candidats gagnants&quot;</span><span class="p">,</span> <span class="n">wraplength</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">row_manager</span> <span class="o">+=</span> <span class="mi">2</span>
+                    <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">row_manager</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+                    <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Le gagnant est : &quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">condorcet_details</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row_manager</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">return</span></div>
+
+<div class="viewcode-block" id="VotingDetails.show_elimination_successive_steps"><a class="viewcode-back" href="../voting_details_manager.html#voting_details_manager.VotingDetails.show_elimination_successive_steps">[docs]</a>    <span class="k">def</span> <span class="nf">show_elimination_successive_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">Toplevel</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays score details for STV.</span>
+
+<span class="sd">        :param frame: Frame to build popup on</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">global</span> <span class="n">top_step_elimination</span>
+        <span class="k">if</span> <span class="n">top_step_elimination</span><span class="p">:</span>
+            <span class="n">top_step_elimination</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="c1"># Generate TopLevel popup for scores details</span>
+        <span class="n">top_step_elimination</span> <span class="o">=</span> <span class="n">tk</span><span class="o">.</span><span class="n">Toplevel</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">top_step_elimination</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Elimination succéssive - Résultat détaillé&quot;</span><span class="p">)</span>
+        <span class="c1"># Get number of candidates</span>
+        <span class="n">nb_candidates</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">)</span>
+        <span class="c1"># Grid row manager for the frame labels grid position</span>
+        <span class="n">grid_row_manager</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">scrollable_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__create_scrollbar</span><span class="p">(</span><span class="n">top_step_elimination</span><span class="p">)</span>
+
+        <span class="n">row_uprade</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">round_number</span><span class="p">,</span> <span class="n">scores_letter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">elimination_successive_details</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="n">scores_letter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">letter</span> <span class="o">=</span> <span class="n">scores_letter</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Score du tour #&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">round_number</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; :&quot;</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;15&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">grid_row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="n">nb_candidates</span> <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">12</span><span class="p">)</span>
+
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">:</span>
+                <span class="n">candidate_label</span> <span class="o">=</span> <span class="n">candidate</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">row_uprade</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">candidate_label</span> <span class="ow">in</span> <span class="n">scores</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">candidate_label</span> <span class="o">+</span> <span class="s2">&quot; : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="n">candidate_label</span><span class="p">]))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">grid_row_manager</span> <span class="o">+</span> <span class="n">row_uprade</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">candidate_label</span> <span class="o">+</span> <span class="s2">&quot; : 0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">grid_row_manager</span> <span class="o">+</span> <span class="n">row_uprade</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">grid_row_manager</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">row_uprade</span>
+
+            <span class="k">if</span> <span class="n">letter</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Pas de gagnant par majorité dans ce tour.&quot;</span><span class="p">,</span>
+                          <span class="n">wraplength</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">grid_row_manager</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="n">nb_candidates</span> <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">12</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">grid_row_manager</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Candidat éliminé au tour #&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">round_number</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; : &quot;</span> <span class="o">+</span> <span class="n">letter</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">grid_row_manager</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="n">nb_candidates</span> <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">12</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">grid_row_manager</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="n">nb_candidates</span> <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">12</span><span class="p">)</span>
+                <span class="n">grid_row_manager</span> <span class="o">+=</span> <span class="mi">2</span>
+
+        <span class="n">ttk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">scrollable_frame</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Gagnant par majorité (&gt;&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elimination_successive_details</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;) : &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">elimination_successive_details</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">font</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Mistral&quot;</span><span class="p">,</span> <span class="s2">&quot;13&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">grid_row_manager</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">columnspan</span><span class="o">=</span><span class="n">nb_candidates</span> <span class="k">if</span> <span class="n">nb_candidates</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="mi">12</span><span class="p">)</span></div></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, ZENTEK.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
