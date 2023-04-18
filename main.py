@@ -172,6 +172,9 @@ def show_edit_candidate_popup(event):
     )
     button.pack()
 
+    keyboard_manager.enter_bind(edit_candidate_popup, button)
+    keyboard_manager.esc_bind(edit_candidate_popup)
+
 
 list_box__candidates.bind('<Double-1>', show_edit_candidate_popup)
 
