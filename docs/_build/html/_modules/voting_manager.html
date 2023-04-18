@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>voting_manager &mdash; Elections 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Elections
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Elections</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">voting_manager</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for voting_manager</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+
+<span class="kn">from</span> <span class="nn">data_manager</span> <span class="kn">import</span> <span class="n">DataManager</span>
+<span class="kn">from</span> <span class="nn">voting_details_manager</span> <span class="kn">import</span> <span class="n">VotingDetails</span>
+
+
+<div class="viewcode-block" id="CondorcetMethod"><a class="viewcode-back" href="../voting_manager.html#voting_manager.CondorcetMethod">[docs]</a><span class="k">class</span> <span class="nc">CondorcetMethod</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to identify which Condorcet method is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">COPELAND</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">SIMPSON</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+
+<div class="viewcode-block" id="CondorcetTieBreakingRule"><a class="viewcode-back" href="../voting_manager.html#voting_manager.CondorcetTieBreakingRule">[docs]</a><span class="k">class</span> <span class="nc">CondorcetTieBreakingRule</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class to identify which tie breaking rule is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">RANDOM</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ORDRE_LEXICO</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+
+<div class="viewcode-block" id="VotingManager"><a class="viewcode-back" href="../voting_manager.html#voting_manager.VotingManager">[docs]</a><span class="k">class</span> <span class="nc">VotingManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Managing class for the different voting systems.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">KEY_WINS</span> <span class="o">=</span> <span class="s2">&quot;wins&quot;</span>
+    <span class="n">KEY_LOSSES</span> <span class="o">=</span> <span class="s2">&quot;losses&quot;</span>
+    <span class="n">KEY_DRAWS</span> <span class="o">=</span> <span class="s2">&quot;draws&quot;</span>
+
+    <span class="n">data_manager</span> <span class="o">=</span> <span class="n">DataManager</span><span class="p">()</span>
+    <span class="n">voting_details_manager</span> <span class="o">=</span> <span class="n">VotingDetails</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__departage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">candidate_labels</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the first or last element of the alphabetically sorted list of candidates.</span>
+
+<span class="sd">        :param candidate_labels: the list of candidate labels</span>
+<span class="sd">        :param reverse: reverse sorted() order used for elimination_successive</span>
+<span class="sd">        :return: the winner&#39;s label according to alphabetical sorting</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">candidate_labels</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">str</span><span class="o">.</span><span class="n">casefold</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__find_winners</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds the winners in a dictionary of candidates and scores.</span>
+
+<span class="sd">        :param results: dictionary of results (..., candidate_label : score, ...)</span>
+<span class="sd">        :param reverse: whether to select winners by max or min score</span>
+<span class="sd">        :return: list(winners&#39; labels)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">candidate_label</span>
+            <span class="k">for</span> <span class="n">candidate_label</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">score</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__find_winner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds the winner in a dictionary of candidates and scores.</span>
+<span class="sd">        If the list contains one winner, it returns it. If not, it</span>
+<span class="sd">        chooses one based on alphabetical order (asc).</span>
+
+<span class="sd">        :param results: dictionary of results (..., candidate_label : score, ...)</span>
+<span class="sd">        :return: tuple(str(winner label), bool(multiple winners?), list(all winners&#39; labels))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">winners</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__find_winners</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__departage</span><span class="p">(</span><span class="n">winners</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">winners</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="n">winners</span>
+
+    <span class="k">def</span> <span class="nf">__count_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profils</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Counts the scores of the candidates based on the preferences of the voters</span>
+
+<span class="sd">        :param profils: dictionary of the scores of each voter</span>
+<span class="sd">        :return: dictionary of the updated scores of each voter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">preferences</span> <span class="ow">in</span> <span class="n">profils</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">preferences</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">:</span>
+                <span class="n">scores</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">scores</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">scores</span>
+
+<div class="viewcode-block" id="VotingManager.elimination_successive"><a class="viewcode-back" href="../voting_manager.html#voting_manager.VotingManager.elimination_successive">[docs]</a>    <span class="k">def</span> <span class="nf">elimination_successive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profils</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the winner according to Single transferable vote (STV) system.</span>
+<span class="sd">        Eliminates the last candidate in alphabetical order in case of equality.</span>
+
+<span class="sd">        :param profils: dictionary of the scores of each voter</span>
+<span class="sd">        :return: tuple(str(winner label), bool(multiple winners?), list(all winners&#39; labels))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">elimination_successive_data</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__count_scores</span><span class="p">(</span><span class="n">profils</span><span class="p">)</span>
+        <span class="n">majority</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">profils</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="n">round_number</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">all_scores</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="n">scores</span><span class="p">:</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__count_scores</span><span class="p">(</span><span class="n">profils</span><span class="p">)</span>
+            <span class="n">all_scores</span><span class="p">[</span><span class="n">round_number</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">scores</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">candidate</span><span class="p">,</span> <span class="n">points</span> <span class="ow">in</span> <span class="n">scores</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">points</span> <span class="o">&gt;</span> <span class="n">majority</span><span class="p">:</span>
+                    <span class="n">winner</span> <span class="o">=</span> <span class="n">candidate</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[]</span>
+                    <span class="n">elimination_successive_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_scores</span><span class="p">)</span>
+                    <span class="n">elimination_successive_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">majority</span><span class="p">)</span>
+                    <span class="n">elimination_successive_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">winner</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">voting_details_manager</span><span class="o">.</span><span class="n">set_elimination_successive_details</span><span class="p">(</span><span class="n">elimination_successive_data</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">winner</span>
+
+            <span class="c1"># Find the list of labels of all candidates who had the lowest score</span>
+            <span class="n">losers</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">label</span>
+                <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">scores</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">score</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">scores</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">]</span>
+
+            <span class="c1"># Remove the candidate whose label is last in alphabetical order</span>
+            <span class="n">letter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__departage</span><span class="p">(</span><span class="n">losers</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">letter</span><span class="p">)</span>
+
+            <span class="n">all_scores</span><span class="p">[</span><span class="n">round_number</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">letter</span>
+
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">profil</span> <span class="ow">in</span> <span class="n">profils</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">candidate</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">profil</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">candidate</span> <span class="o">==</span> <span class="n">letter</span><span class="p">:</span>
+                        <span class="n">profil</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">candidate</span><span class="p">,</span> <span class="n">_</span><span class="p">))</span>
+                        <span class="k">break</span>
+
+            <span class="n">round_number</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="VotingManager.approbation"><a class="viewcode-back" href="../voting_manager.html#voting_manager.VotingManager.approbation">[docs]</a>    <span class="k">def</span> <span class="nf">approbation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profils</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">approval_radius</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Approval voting system (système de vote par approbation).</span>
+
+<span class="sd">        In this voting system, voters can show support for one or more candidates</span>
+<span class="sd">        by voting &quot;yes / no&quot; for each one. Approval is given if the voter is</span>
+<span class="sd">        within an approval circle whose radius is defined by the user.</span>
+
+<span class="sd">        :param profils: Scores for each voter</span>
+<span class="sd">        :param approval_radius: Radius of the approval circle</span>
+<span class="sd">        :return: tuple(str(winner label), bool(multiple winners?), list(all winners&#39; labels))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">voter_label</span><span class="p">,</span> <span class="n">profil</span> <span class="ow">in</span> <span class="n">profils</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">candidate_label</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="n">profil</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">score</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">100</span> <span class="o">-</span> <span class="n">approval_radius</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">candidate_label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+                        <span class="n">results</span><span class="p">[</span><span class="n">candidate_label</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">results</span><span class="p">[</span><span class="n">candidate_label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">winner</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">winner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__find_winner</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">voting_details_manager</span><span class="o">.</span><span class="n">set_remaining_methods_details</span><span class="p">([</span><span class="n">winner</span><span class="p">,</span> <span class="n">results</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">winner</span></div>
+
+<div class="viewcode-block" id="VotingManager.pluralite_simple"><a class="viewcode-back" href="../voting_manager.html#voting_manager.VotingManager.pluralite_simple">[docs]</a>    <span class="k">def</span> <span class="nf">pluralite_simple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profils</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the winner according to simple majority voting method.</span>
+<span class="sd">        Returns the first in alphabetical order in case of equality.</span>
+
+<span class="sd">        :param profils: dictionary of votes registered by the voters</span>
+<span class="sd">        :return: tuple(str(winner label), bool(multiple winners?), list(all winners&#39; labels))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">points_association</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">profils</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">candidate_label</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">candidate</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">candidate_label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">points_association</span><span class="p">:</span>
+                <span class="n">points_association</span><span class="p">[</span><span class="n">candidate_label</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">points_association</span><span class="p">[</span><span class="n">candidate_label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">winner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__find_winner</span><span class="p">(</span><span class="n">points_association</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">voting_details_manager</span><span class="o">.</span><span class="n">set_remaining_methods_details</span><span class="p">([</span><span class="n">winner</span><span class="p">,</span> <span class="n">points_association</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">winner</span></div>
+
+<div class="viewcode-block" id="VotingManager.borda"><a class="viewcode-back" href="../voting_manager.html#voting_manager.VotingManager.borda">[docs]</a>    <span class="k">def</span> <span class="nf">borda</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profils</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">maximum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the winner according to Borda voting method.</span>
+
+<span class="sd">        In this system, the candidates are given a score based on the maximum score given by the user.</span>
+<span class="sd">        The first candidate received the max points, the second -&gt; max-step, the third -&gt; max-2*step, ...</span>
+<span class="sd">        If the number of candidates is higher than max, the remaining candidates [max; nb_candidates]</span>
+<span class="sd">        will receive the score of 0.</span>
+<span class="sd">        In case of equality, the function returns the first in alphabetical order.</span>
+
+<span class="sd">        :param step: step between two scores (ex: if max=100 and step=5, score attribution: 100, 95, 90, ...)</span>
+<span class="sd">        :param profils: dictionary of votes registered by the voters</span>
+<span class="sd">        :param maximum: maximum score to attribute to the top candidate</span>
+<span class="sd">        :return: tuple(str(winner label), bool(multiple winners?), list(all winners&#39; labels))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">points_association</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">profil</span> <span class="ow">in</span> <span class="n">profils</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">candidate_label</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">profil</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">candidate_label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">points_association</span><span class="p">:</span>
+                    <span class="n">points_association</span><span class="p">[</span><span class="n">candidate_label</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">maximum</span> <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">step</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">points_association</span><span class="p">[</span><span class="n">candidate_label</span><span class="p">]</span> <span class="o">+=</span> <span class="n">maximum</span> <span class="o">-</span> <span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span>
+
+        <span class="n">winner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__find_winner</span><span class="p">(</span><span class="n">points_association</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">voting_details_manager</span><span class="o">.</span><span class="n">set_remaining_methods_details</span><span class="p">([</span><span class="n">winner</span><span class="p">,</span> <span class="n">points_association</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">winner</span></div>
+
+<div class="viewcode-block" id="VotingManager.veto"><a class="viewcode-back" href="../voting_manager.html#voting_manager.VotingManager.veto">[docs]</a>    <span class="k">def</span> <span class="nf">veto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profils</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Implementation of veto sorting method : 0 for the last candidate in each profil, 1 for the rest</span>
+
+<span class="sd">        :param profils: dictionary of votes registered by the voters</span>
+<span class="sd">        :return: tuple(str(winner label), bool(multiple winners?), list(all winners&#39; labels))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">veto_scores</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">profil</span> <span class="ow">in</span> <span class="n">profils</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">profil</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">profil</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">candidate_label</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">profil</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">candidate_label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">veto_scores</span><span class="p">:</span>
+                    <span class="n">veto_scores</span><span class="p">[</span><span class="n">candidate_label</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">veto_scores</span><span class="p">[</span><span class="n">candidate_label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">winner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__find_winner</span><span class="p">(</span><span class="n">veto_scores</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">voting_details_manager</span><span class="o">.</span><span class="n">set_remaining_methods_details</span><span class="p">([</span><span class="n">winner</span><span class="p">,</span> <span class="n">veto_scores</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">winner</span></div>
+
+<div class="viewcode-block" id="VotingManager.condorcet"><a class="viewcode-back" href="../voting_manager.html#voting_manager.VotingManager.condorcet">[docs]</a>    <span class="k">def</span> <span class="nf">condorcet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profils</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">CondorcetMethod</span><span class="p">,</span> <span class="n">tie_breaking_rule</span><span class="p">:</span> <span class="n">CondorcetTieBreakingRule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Condorcet voting system.</span>
+
+<span class="sd">        In this voting system, we start by generating pairs for each 2 candidates</span>
+<span class="sd">        and organizing duels between them. In order to win, the candidate&#39;s score</span>
+<span class="sd">        must be strictly greater than his opponent&#39;s. In the case of a tie,</span>
+<span class="sd">        neither the candidate nor their opponent are added to any of the &quot;wins&quot; or</span>
+<span class="sd">        &quot;losses&quot; tables: we simply do nothing.</span>
+
+<span class="sd">        If a candidate wins all his duels (loses none), then he is the Condorcet winner.</span>
+
+<span class="sd">        If not, we resort to using the method given as an argument to the method.</span>
+
+<span class="sd">        If there are multiple winners, we use the tie-breaking rule given as argument.</span>
+
+<span class="sd">        :param profils: Scores for each voter</span>
+<span class="sd">        :param method: Method to use in case there is no Condorcet winner</span>
+<span class="sd">        :param tie_breaking_rule: Tie-breaking rule to use in order to decide who wins</span>
+<span class="sd">        :return: tuple(</span>
+<span class="sd">                    str(winner label),</span>
+<span class="sd">                    bool(used given method?),</span>
+<span class="sd">                    bool(used tie-breaking rule?),</span>
+<span class="sd">                    list(all winners&#39; labels)</span>
+<span class="sd">                )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Candidate labels list</span>
+        <span class="n">candidate_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">candidate_label</span> <span class="k">for</span> <span class="n">candidate_label</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">profils</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="n">duel_scores</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">duel_results</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">winners</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Give the winner directly if there&#39;s one candidate</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidate_labels</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">winner</span> <span class="o">=</span> <span class="n">candidate_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># We organise duels and calculate scores</span>
+            <span class="n">duel_scores</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">candidate1_label</span> <span class="ow">in</span> <span class="n">candidate_labels</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">candidate2_label</span> <span class="ow">in</span> <span class="n">candidate_labels</span><span class="p">:</span>
+                    <span class="c1"># so that we have unique pairs (combination)</span>
+                    <span class="k">if</span> <span class="n">candidate2_label</span> <span class="o">&gt;</span> <span class="n">candidate1_label</span><span class="p">:</span>
+                        <span class="n">current_duel</span> <span class="o">=</span> <span class="p">{</span><span class="n">candidate1_label</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">candidate2_label</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+                        <span class="k">for</span> <span class="n">profil</span> <span class="ow">in</span> <span class="n">profils</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                            <span class="k">for</span> <span class="n">candidate_label</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">profil</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">candidate_label</span> <span class="ow">in</span> <span class="n">current_duel</span><span class="p">:</span>
+                                    <span class="n">current_duel</span><span class="p">[</span><span class="n">candidate_label</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                                    <span class="k">break</span>
+                        <span class="n">duel_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_duel</span><span class="p">)</span>
+
+            <span class="c1"># We try and see if there&#39;s a Condorcet winner</span>
+            <span class="n">duel_results</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">duel_score</span> <span class="ow">in</span> <span class="n">duel_scores</span><span class="p">:</span>
+                <span class="n">loser</span><span class="p">,</span> <span class="n">winner</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">duel_score</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">duel_score</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+
+                <span class="k">if</span> <span class="n">duel_score</span><span class="p">[</span><span class="n">winner</span><span class="p">]</span> <span class="o">!=</span> <span class="n">duel_score</span><span class="p">[</span><span class="n">loser</span><span class="p">]:</span>
+                    <span class="n">duel_results</span><span class="p">[</span><span class="n">winner</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">KEY_WINS</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loser</span><span class="p">)</span>
+                    <span class="n">duel_results</span><span class="p">[</span><span class="n">loser</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">KEY_LOSSES</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">winner</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">duel_results</span><span class="p">[</span><span class="n">winner</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">KEY_DRAWS</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loser</span><span class="p">)</span>
+                    <span class="n">duel_results</span><span class="p">[</span><span class="n">loser</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">KEY_DRAWS</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">winner</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Condorcet winner success</span>
+                <span class="n">winner_label</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+                    <span class="n">candidate_label</span>
+                    <span class="k">for</span> <span class="n">candidate_label</span><span class="p">,</span> <span class="n">results</span> <span class="ow">in</span> <span class="n">duel_results</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">KEY_LOSSES</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">KEY_DRAWS</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span>
+                <span class="p">)</span>
+                <span class="n">winner</span> <span class="o">=</span> <span class="n">winner_label</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="c1"># Condorcet winner fail: there&#39;s no Condorcet winner</span>
+                <span class="c1"># We have to use method given as an argument</span>
+                <span class="n">winners</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">match</span> <span class="n">method</span><span class="p">:</span>
+                    <span class="c1"># Copeland method</span>
+                    <span class="k">case</span> <span class="n">CondorcetMethod</span><span class="o">.</span><span class="n">COPELAND</span><span class="p">:</span>
+                        <span class="n">winners</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__condorcet_winners_copeland</span><span class="p">(</span><span class="n">duel_scores</span><span class="p">)</span>
+                    <span class="c1"># Simpson method</span>
+                    <span class="k">case</span> <span class="n">CondorcetMethod</span><span class="o">.</span><span class="n">SIMPSON</span><span class="p">:</span>
+                        <span class="n">winners</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__condorcet_winners_simpson</span><span class="p">(</span><span class="n">duel_scores</span><span class="p">)</span>
+
+                <span class="c1"># If we have only one winner, return them</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">winners</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">winner</span> <span class="o">=</span> <span class="n">winners</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+                <span class="c1"># If not, use the tie-breaking rule given as an argument</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">match</span> <span class="n">tie_breaking_rule</span><span class="p">:</span>
+                        <span class="k">case</span> <span class="n">CondorcetTieBreakingRule</span><span class="o">.</span><span class="n">ORDRE_LEXICO</span><span class="p">:</span>
+                            <span class="n">winner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__departage</span><span class="p">(</span><span class="n">winners</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">winners</span>
+                        <span class="k">case</span> <span class="n">CondorcetTieBreakingRule</span><span class="o">.</span><span class="n">RANDOM</span><span class="p">:</span>
+                            <span class="n">winner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__random_choose_winner</span><span class="p">(</span><span class="n">winners</span><span class="p">,</span> <span class="n">duel_results</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">winners</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">voting_details_manager</span><span class="o">.</span><span class="n">set_condorcet_details</span><span class="p">([</span><span class="n">winner</span><span class="p">,</span> <span class="n">duel_scores</span><span class="p">,</span> <span class="n">duel_results</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">tie_breaking_rule</span><span class="p">,</span> <span class="n">candidate_labels</span><span class="p">,</span> <span class="n">winners</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">winner</span></div>
+
+    <span class="k">def</span> <span class="nf">__random_choose_winner</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">winners</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">duel_results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Randomly chooses the winner in case of equality in Condorcet method and</span>
+<span class="sd">        RAMDOM tie-breaking method is selected.</span>
+<span class="sd">        The function creates a string in the following format :</span>
+<span class="sd">            winner1_label + nb_wins + nb_losses + nb_draws + winner2_label + ...</span>
+<span class="sd">        This string is then hashed to create a unique encryption for the voting case.</span>
+<span class="sd">        The string&#39;s characters are then converted to an int according to the unicode code.</span>
+<span class="sd">        These ints are added together and the function returns the label of the candidate with</span>
+<span class="sd">        index : sum_of_ints % len(winners)</span>
+
+<span class="sd">        :param winners: List of winners to choose the winner from</span>
+<span class="sd">        :param duel_results: Dictionary of the duel results for each winner</span>
+<span class="sd">        :return: winner&#39;s label</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">candidates_labels_scores</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">candidate_label</span><span class="p">,</span> <span class="n">results</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">duel_results</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">candidate_label</span> <span class="ow">in</span> <span class="n">winners</span><span class="p">:</span>
+                <span class="n">candidates_labels_scores</span> <span class="o">+=</span> <span class="n">candidate_label</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">KEY_WINS</span><span class="p">]))</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">KEY_LOSSES</span><span class="p">]))</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">KEY_DRAWS</span><span class="p">]))</span>
+        <span class="n">hashed_string</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">candidates_labels_scores</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="n">ord_of_hash_characters</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">character</span> <span class="ow">in</span> <span class="n">hashed_string</span><span class="p">:</span>
+            <span class="n">ord_of_hash_characters</span> <span class="o">+=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">character</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">winners</span><span class="p">[</span><span class="n">ord_of_hash_characters</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">winners</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">__condorcet_winners_copeland</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">duels</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Condorcet voting system.</span>
+<span class="sd">        Copeland&#39;s method.</span>
+
+<span class="sd">        For each duel, give the winning candidate 1 point and</span>
+<span class="sd">        in case of equality, give both 0.5 points.</span>
+
+<span class="sd">        Winner is the candidate with most points.</span>
+
+<span class="sd">        :param duels: list(..., { candidate1_label: score, candidate2_label: score }, ...)</span>
+<span class="sd">        :return: list(winners)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">duel</span> <span class="ow">in</span> <span class="n">duels</span><span class="p">:</span>
+            <span class="n">duel_items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">duel</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+            <span class="c1"># Assign a score of 0.5 to each candidate in  case of equality</span>
+            <span class="k">if</span> <span class="n">duel_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">duel_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">duel_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">:</span>
+                    <span class="n">scores</span><span class="p">[</span><span class="n">duel_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">duel_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">:</span>
+                    <span class="n">scores</span><span class="p">[</span><span class="n">duel_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">scores</span><span class="p">[</span><span class="n">duel_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="mf">0.5</span>
+                <span class="n">scores</span><span class="p">[</span><span class="n">duel_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="mf">0.5</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Assign a score of 1 to the winner</span>
+                <span class="n">winner_index</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">duel_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">duel_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">duel_items</span><span class="p">[</span><span class="n">winner_index</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">scores</span><span class="p">:</span>
+                    <span class="n">scores</span><span class="p">[</span><span class="n">duel_items</span><span class="p">[</span><span class="n">winner_index</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">scores</span><span class="p">[</span><span class="n">duel_items</span><span class="p">[</span><span class="n">winner_index</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__find_winners</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__condorcet_winners_simpson</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">duels</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Condorcet voting system.</span>
+<span class="sd">        Simpson&#39;s method.</span>
+
+<span class="sd">        The winner is the candidate whose highest defeat score in duels is the lowest among the other candidates.</span>
+<span class="sd">        :param duels: list(..., { candidate1_label: score, candidate2_label: score }, ...)</span>
+<span class="sd">        :return: list(winners)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># type : { cand1:[difference des DEFAITES de cand1], ... , candN:[difference des DEFAITES de candn] }</span>
+        <span class="n">defeatscores</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">duel</span> <span class="ow">in</span> <span class="n">duels</span><span class="p">:</span>
+            <span class="c1"># Creating list of couples in a single duel -&gt; list(tuple):</span>
+            <span class="n">duel_items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">duel</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+            <span class="c1"># Initializing the score differences list</span>
+            <span class="k">if</span> <span class="n">duel_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">duel_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">defeatscores</span><span class="p">[</span><span class="n">duel_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">duel_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">duel_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">elif</span> <span class="n">duel_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">duel_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">defeatscores</span><span class="p">[</span><span class="n">duel_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">duel_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">duel_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">defeatscores</span><span class="p">[</span><span class="n">duel_items</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">defeatscores</span><span class="p">[</span><span class="n">duel_items</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">maxdefeat</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">listscore</span> <span class="ow">in</span> <span class="n">defeatscores</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">maxdefeat</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">listscore</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__find_winners</span><span class="p">(</span><span class="n">maxdefeat</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, ZENTEK.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

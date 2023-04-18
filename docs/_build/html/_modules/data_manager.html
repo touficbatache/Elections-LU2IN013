@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>data_manager &mdash; Elections 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Elections
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Elections</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">data_manager</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for data_manager</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">mcolors</span>
+
+<span class="kn">from</span> <span class="nn">candidate</span> <span class="kn">import</span> <span class="n">Candidate</span>
+<span class="kn">from</span> <span class="nn">voter</span> <span class="kn">import</span> <span class="n">Voter</span>
+
+
+<div class="viewcode-block" id="DataManager"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager">[docs]</a><span class="k">class</span> <span class="nc">DataManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">   Class to manage the data.</span>
+<span class="sd">   &quot;&quot;&quot;</span>
+
+    <span class="c1"># Store the voters</span>
+    <span class="n">__voters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Voter</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Voter added callback</span>
+    <span class="n">__on_voter_added</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Voter</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># Voter edited callback</span>
+    <span class="n">__on_voter_edited</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Voter</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># Voters cleared callback</span>
+    <span class="n">__on_voters_cleared</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># Voter error callback</span>
+    <span class="n">__on_voter_error</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># Store the candidates</span>
+    <span class="n">__candidates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Candidate</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Candidate added callback</span>
+    <span class="n">__on_candidate_added</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Candidate</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># Candidate edited callback</span>
+    <span class="n">__on_candidate_edited</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Candidate</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># Candidates cleared callback</span>
+    <span class="n">__on_candidates_cleared</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># Candidate error callback</span>
+    <span class="n">__on_candidate_error</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># Voter</span>
+
+<div class="viewcode-block" id="DataManager.add_voter"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.add_voter">[docs]</a>    <span class="k">def</span> <span class="nf">add_voter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a voter to the data.</span>
+
+<span class="sd">        :param coordinates: voter&#39;s coordinates</span>
+<span class="sd">        :return: whether the voter has been added or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Generate label</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__voters</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Avoid duplicates (unique labels!)</span>
+        <span class="n">added_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">added_voter</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span> <span class="k">for</span> <span class="n">added_voter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__voters</span><span class="p">]</span>
+        <span class="n">label_offset</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">added_labels</span><span class="p">:</span>
+            <span class="n">label_offset</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__voters</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">label_offset</span><span class="p">)</span>
+
+        <span class="c1"># Create a new voter</span>
+        <span class="n">voter</span> <span class="o">=</span> <span class="n">Voter</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="n">coordinates</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__voters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">voter</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__on_voter_added</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__on_voter_added</span><span class="p">(</span><span class="n">voter</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__voters</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="DataManager.get_voters"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.get_voters">[docs]</a>    <span class="k">def</span> <span class="nf">get_voters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Voter</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the list of voters.</span>
+
+<span class="sd">        :return: list of voters in data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__voters</span></div>
+
+<div class="viewcode-block" id="DataManager.get_voter_at"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.get_voter_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_voter_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Voter</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the voter at the given index.</span>
+
+<span class="sd">        :param index: index of the desired voter</span>
+<span class="sd">        :return: voter at given index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__voters</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DataManager.edit_voter_at"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.edit_voter_at">[docs]</a>    <span class="k">def</span> <span class="nf">edit_voter_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Modifies the voter label at the given index.</span>
+
+<span class="sd">        :param index: index of the desired voter</span>
+<span class="sd">        :param label: voter&#39;s new label</span>
+<span class="sd">        :return: if the voter was edited successfully or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Avoid duplicates (unique labels!)</span>
+        <span class="k">for</span> <span class="n">added_index</span><span class="p">,</span> <span class="n">added_voter</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__voters</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">added_voter</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span> <span class="o">==</span> <span class="n">label</span> <span class="ow">and</span> <span class="n">added_index</span> <span class="o">!=</span> <span class="n">index</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__on_voter_error</span><span class="p">(</span><span class="s2">&quot;Un votant avec ce nom existe déjà.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__voters</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__on_voter_edited</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__on_voter_edited</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__voters</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">index</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="DataManager.is_voters_empty"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.is_voters_empty">[docs]</a>    <span class="k">def</span> <span class="nf">is_voters_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns whether the list of voters is empty or not.</span>
+<span class="sd">        :return: bool(is list voters empty?)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__voters</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="DataManager.clear_voters"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.clear_voters">[docs]</a>    <span class="k">def</span> <span class="nf">clear_voters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clears all voters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__voters</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__on_voters_cleared</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__on_voters_cleared</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DataManager.set_voter_added_callback"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.set_voter_added_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_voter_added_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Voter</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the (on voter added) callback, which is called when</span>
+<span class="sd">        a voter is added to the data.</span>
+
+<span class="sd">        :param callback: the callback function, takes a Voter and their index in the data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__on_voter_added</span> <span class="o">=</span> <span class="n">callback</span></div>
+
+<div class="viewcode-block" id="DataManager.set_voter_edited_callback"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.set_voter_edited_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_voter_edited_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Voter</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the (on voter edited) callback, which is called when</span>
+<span class="sd">        a voter is edited inside the data.</span>
+
+<span class="sd">        :param callback: the callback function, takes a Voter and their index in the data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__on_voter_edited</span> <span class="o">=</span> <span class="n">callback</span></div>
+
+<div class="viewcode-block" id="DataManager.set_voters_cleared_callback"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.set_voters_cleared_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_voters_cleared_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the (on voters cleared) callback, which is called when</span>
+<span class="sd">        all voters are cleared from the data.</span>
+
+<span class="sd">        :param callback: the callback function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__on_voters_cleared</span> <span class="o">=</span> <span class="n">callback</span></div>
+
+<div class="viewcode-block" id="DataManager.set_voter_error_callback"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.set_voter_error_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_voter_error_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the (on voter error) callback, which is called when</span>
+<span class="sd">        an error occurs with a voter.</span>
+
+<span class="sd">        :param callback: the callback function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__on_voter_error</span> <span class="o">=</span> <span class="n">callback</span></div>
+
+    <span class="c1"># Candidate</span>
+
+    <span class="k">def</span> <span class="nf">__get_letter_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the letter count for a label at a given index.</span>
+<span class="sd">        :param index: index of candidate in list of candidates</span>
+<span class="sd">        :return: the letter count</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">labels_before_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">letter_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Search how many powers of 26 can fit before reaching the</span>
+        <span class="c1"># given index. We don&#39;t want to use log_26 because if we have</span>
+        <span class="c1"># a two-lettered label, then we would have already filled the</span>
+        <span class="c1"># one-lettered possibilities. So if we have a 676 (26^2) index,</span>
+        <span class="c1"># then that means it already contains the 26 one-lettered labels,</span>
+        <span class="c1"># so the label only becomes three-lettered if 676+26=702 is reached.</span>
+        <span class="k">while</span> <span class="n">labels_before_index</span> <span class="o">&lt;</span> <span class="n">index</span><span class="p">:</span>
+            <span class="n">letter_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">labels_before_index</span> <span class="o">+=</span> <span class="mi">26</span> <span class="o">**</span> <span class="n">letter_count</span>
+        <span class="k">return</span> <span class="n">letter_count</span>
+
+    <span class="k">def</span> <span class="nf">__purify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the corresponding number based on the number of letters.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        0 -&gt; A</span>
+<span class="sd">        25 -&gt; Z</span>
+
+<span class="sd">        If the given number is 26, that should correspond to A, and it returns 0.</span>
+
+<span class="sd">        It may look like this is working the same as modulo because it&#39;s quite</span>
+<span class="sd">        similar. The modulo operator gives us the remainder of the division by a</span>
+<span class="sd">        number, by removing multiples of that number. This gives us the remainder</span>
+<span class="sd">        by removing powers of the number.</span>
+
+<span class="sd">        Now if the number is 676 for instance, this will return 650 and not 0. Why?</span>
+<span class="sd">        Because if we have a two-lettered label, then we would have already filled the</span>
+<span class="sd">        one-lettered possibilities. So if we have a 676 (26^2) index, then that means</span>
+<span class="sd">        it already contains the 26 one-lettered labels, so the label only becomes</span>
+<span class="sd">        three-lettered if 676+26=702 is reached. So if we reached 676, then that means</span>
+<span class="sd">        we need to deal with one more set of 26s before resetting.</span>
+
+<span class="sd">        :param number: the number of existing candidates</span>
+<span class="sd">        :return: corresponding number based on the number of letters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">number</span> <span class="o">&gt;=</span> <span class="mi">26</span> <span class="o">**</span> <span class="n">i</span><span class="p">:</span>
+            <span class="n">number</span> <span class="o">-=</span> <span class="mi">26</span> <span class="o">**</span> <span class="n">i</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">number</span>
+
+    <span class="k">def</span> <span class="nf">__get_label_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate an adequate label for the candidate at the given index.</span>
+
+<span class="sd">        :param index: new candidate at index needing a label</span>
+<span class="sd">        :return: generated label</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_candidate_index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="n">label_letter_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_letter_count</span><span class="p">(</span><span class="n">new_candidate_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">label_letter_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
+            <span class="n">label</span> <span class="o">+=</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__purify</span><span class="p">(</span><span class="n">new_candidate_index</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="mi">26</span> <span class="o">**</span> <span class="n">i</span><span class="p">)</span> <span class="o">//</span> <span class="p">(</span><span class="mi">26</span> <span class="o">**</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))))</span>
+
+        <span class="k">return</span> <span class="n">label</span>
+
+<div class="viewcode-block" id="DataManager.add_candidate"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.add_candidate">[docs]</a>    <span class="k">def</span> <span class="nf">add_candidate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a candidate to the data.</span>
+
+<span class="sd">        :param coordinates: candidate&#39;s coordinates</span>
+<span class="sd">        :param label: candidate&#39;s label</span>
+<span class="sd">        :param color: candidate&#39;s color</span>
+<span class="sd">        :return: whether the candidate has been added or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Generate label</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_label_for</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">))</span>
+
+        <span class="c1"># Avoid duplicates (unique labels!)</span>
+        <span class="n">added_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">added_candidate</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span> <span class="k">for</span> <span class="n">added_candidate</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">]</span>
+        <span class="n">label_offset</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">added_labels</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_label_for</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">)</span> <span class="o">+</span> <span class="n">label_offset</span><span class="p">)</span>
+            <span class="n">label_offset</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Create a new candidate</span>
+        <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">color</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">XKCD_COLORS</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">candidate</span> <span class="o">=</span> <span class="n">Candidate</span><span class="o">.</span><span class="n">random_color</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="n">coordinates</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">candidate</span> <span class="o">=</span> <span class="n">Candidate</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__on_candidate_added</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__on_candidate_added</span><span class="p">(</span><span class="n">candidate</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="DataManager.get_candidates"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.get_candidates">[docs]</a>    <span class="k">def</span> <span class="nf">get_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Candidate</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the list of candidates.</span>
+
+<span class="sd">        :return: list of candidates in data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span></div>
+
+<div class="viewcode-block" id="DataManager.get_candidate_at"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.get_candidate_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_candidate_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Candidate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the candidate at the given index.</span>
+
+<span class="sd">        :param index: index of the desired candidate</span>
+<span class="sd">        :return: candidate at given index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">[</span><span class="n">index</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DataManager.edit_candidate_at"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.edit_candidate_at">[docs]</a>    <span class="k">def</span> <span class="nf">edit_candidate_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Modifies the candidate label and color at the given index.</span>
+
+<span class="sd">        :param index: index of the desired candidate</span>
+<span class="sd">        :param label: candidate&#39;s new label</span>
+<span class="sd">        :param color: candidate&#39;s new color</span>
+<span class="sd">        :return: if the candidate was edited successfully or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Avoid duplicates (unique labels!)</span>
+        <span class="k">for</span> <span class="n">added_index</span><span class="p">,</span> <span class="n">added_candidate</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">added_candidate</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span> <span class="o">==</span> <span class="n">label</span> <span class="ow">and</span> <span class="n">added_index</span> <span class="o">!=</span> <span class="n">index</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__on_candidate_error</span><span class="p">(</span><span class="s2">&quot;Un candidat avec ce nom existe déjà.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__on_candidate_edited</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__on_candidate_edited</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">index</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="DataManager.is_candidates_empty"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.is_candidates_empty">[docs]</a>    <span class="k">def</span> <span class="nf">is_candidates_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns whether the list of candidates is empty or not.</span>
+<span class="sd">        :return: bool(is list candidates empty?)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="DataManager.clear_candidates"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.clear_candidates">[docs]</a>    <span class="k">def</span> <span class="nf">clear_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clears all candidates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__candidates</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__on_candidates_cleared</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__on_candidates_cleared</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DataManager.set_candidate_added_callback"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.set_candidate_added_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_candidate_added_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Candidate</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the (on candidate added) callback, which is called when</span>
+<span class="sd">        a candidate is added to the data.</span>
+
+<span class="sd">        :param callback: the callback function, takes a Candidate and their index in the data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__on_candidate_added</span> <span class="o">=</span> <span class="n">callback</span></div>
+
+<div class="viewcode-block" id="DataManager.set_candidate_edited_callback"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.set_candidate_edited_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_candidate_edited_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Candidate</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the (on candidate edited) callback, which is called when</span>
+<span class="sd">        a candidate is edited inside the data.</span>
+
+<span class="sd">        :param callback: the callback function, takes a Candidate and their index in the data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__on_candidate_edited</span> <span class="o">=</span> <span class="n">callback</span></div>
+
+<div class="viewcode-block" id="DataManager.set_candidates_cleared_callback"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.set_candidates_cleared_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_candidates_cleared_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="kc">None</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the (on candidates cleared) callback, which is called when</span>
+<span class="sd">        all candidates are cleared from the data.</span>
+
+<span class="sd">        :param callback: the callback function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__on_candidates_cleared</span> <span class="o">=</span> <span class="n">callback</span></div>
+
+<div class="viewcode-block" id="DataManager.set_candidate_error_callback"><a class="viewcode-back" href="../data_manager.html#data_manager.DataManager.set_candidate_error_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_candidate_error_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the (on candidate error) callback, which is called when</span>
+<span class="sd">        an error occurs with a candidate.</span>
+
+<span class="sd">        :param callback: the callback function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__on_candidate_error</span> <span class="o">=</span> <span class="n">callback</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, ZENTEK.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
