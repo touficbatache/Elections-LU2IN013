@@ -1183,7 +1183,7 @@ def show_winner_popup(winner: tuple[str, bool, list] | None, method: str):
             tk.Label(winner_dialog, text="Il n'y a pas eu de départage").grid(row=3, column=0, columnspan=2)
 
     keyboard_manager.focus_enter_bind(winner_dialog)
-    event = lambda e: [graph_manager.clear_approbation_circles(), graph_manager.build(),
+    event = lambda e: [graph_manager.clear_candidate_approbation_circles(), graph_manager.build(),
                        winner_dialog.destroy()]
     keyboard_manager.esc_bind(winner_dialog, event)
 
@@ -1382,8 +1382,8 @@ def toggle(event):
 
 
 # Define On/Off Images for toggle button
-on = tk.PhotoImage(file="icons/png_icons/show.png")
-off = tk.PhotoImage(file="icons/png_icons/hide.png")
+on = ImageTk.PhotoImage(Image.open("icons/png_icons/show.png").resize((35, 35)))
+off = ImageTk.PhotoImage(Image.open("icons/png_icons/hide.png").resize((35, 35)))
 
 
 def candidate_utility(candidate: Candidate) -> tuple[Candidate, float]:
@@ -1567,6 +1567,9 @@ def show_democratie_liquide_popup():
         ]
     )
 
+    keyboard_manager.enter_bind(top_democratie_liquide, button)
+    keyboard_manager.esc_bind(top_democratie_liquide)
+
 
 def democratie_liquide(distance: int, proba: float, nb_tours: int):
     log_string = ""
@@ -1605,7 +1608,6 @@ def democratie_liquide(distance: int, proba: float, nb_tours: int):
         closest_indices = np.argmin(distances, axis=1)
         closest_points = [non_delegating_voters[i] for i in closest_indices]
         for ind, (voter_index, voter) in enumerate(delegating_voters):
-            print(str(ind) + "/" + str(len(delegating_voters)))
             if random.random() < proba:
                 closest_voter_index = closest_points[ind][0]
                 all_voters[closest_voter_index].set_weight(all_voters[closest_voter_index].get_weight() + voter.get_weight())
@@ -1630,8 +1632,12 @@ def show_democratie_liquide_log(log_string: string):
                                  log_dialog.destroy()])
     log_dialog.title("Log de ce qui s'est passé")
 
+    if log_string == "":
+        log_string = "Rien ne s'est passé !"
+
     tk.Label(log_dialog, text=log_string).pack()
 
+    keyboard_manager.esc_bind(log_dialog)
 
 
 def reset_voters_delegations(event):
@@ -1689,7 +1695,7 @@ distribute_candidates = tk.Button(main_panel, text="Distribuer les candidats", t
 distribute_candidates.place(relx=0.75, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Toggle annotations of voters on button click
-toggle_annotations = tk.Label(main_panel, image=off, borderwidth=0, background="white", height=50, width=55, cursor="target")
+toggle_annotations = tk.Label(main_panel, image=off, borderwidth=0, background="white", height=35, width=35, cursor="target")
 toggle_annotations.bind('<Button>', toggle)
 bind_tooltip(toggle_annotations, text="Afficher/Masquer les annotations des votants")
 toggle_annotations.place(relx=0.91, rely=0.06)
