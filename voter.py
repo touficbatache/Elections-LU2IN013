@@ -28,7 +28,7 @@ class Voter:
         """
         self.__label = label
 
-    def coordinates(self) -> tuple[float, float]:
+    def coordinates(self):
         """
         :return: the voter's coordinates
         """
