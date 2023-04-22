@@ -1,4 +1,4 @@
-from tkinter import Frame, Toplevel
+from tkinter import Frame, Toplevel, Tk
 
 
 class KeyboardManager:
@@ -30,7 +30,7 @@ class KeyboardManager:
         """
         return "checkbutton" in widget.__str__()
 
-    def enter_bind(self, frame: Frame | Toplevel, widget):
+    def enter_bind(self, frame: Tk | Frame | Toplevel, widget):
         """
         Binds the Enter key to invoking the widget of a certain frame.
 
@@ -39,7 +39,7 @@ class KeyboardManager:
         """
         frame.bind(self.__enter, lambda e: widget.invoke())
 
-    def focus_enter_bind(self, frame: Frame | Toplevel):
+    def focus_enter_bind(self, frame: Tk | Frame | Toplevel):
         """
         Binds the Enter key to invoking the focused widget of a certain frame.
 
@@ -48,7 +48,7 @@ class KeyboardManager:
         frame.bind(self.__enter, lambda e: frame.focus_get().invoke() if self.__check_button(
             frame.focus_get()) or self.__check_checkbutton(frame.focus_get()) else None)
 
-    def tab_bind(self, frame: Frame | Toplevel, list_widgets: list):
+    def tab_bind(self, frame: Tk | Frame | Toplevel, list_widgets: list):
         """
         Binds the Tab key to apply tab_focus_change function on the list of widgets.
 
@@ -57,7 +57,7 @@ class KeyboardManager:
         """
         frame.bind(self.__tab, lambda e: self.tab_focus_change(frame, list_widgets))
 
-    def shift_tab_bind(self, frame: Frame | Toplevel, list_widgets: list):
+    def shift_tab_bind(self, frame: Tk | Frame | Toplevel, list_widgets: list):
         """
         Binds the Shift and Tab keys to apply REVERSED tab_focus_change function
         on the list of widgets.
@@ -67,7 +67,7 @@ class KeyboardManager:
         """
         frame.bind(self.__shift_tab, lambda e: self.tab_focus_change(frame, list_widgets, reverse=True))
 
-    def esc_bind(self, frame: Frame | Toplevel, event=''):
+    def esc_bind(self, frame: Tk | Frame | Toplevel, event=''):
         """
         Binds the ESC to closing the frame using the event function.
         If event is not given, the function destroys the frame usind detroy().
@@ -81,7 +81,7 @@ class KeyboardManager:
         else:
             frame.bind(self.__esc, event)
 
-    def tab_focus_change(self, frame: Frame | Toplevel, list_widgets: list, reverse: bool = False):
+    def tab_focus_change(self, frame: Tk | Frame | Toplevel, list_widgets: list, reverse: bool = False):
         """
         Works with tab_bind() and shift_tab_bind(). This functions creates a focus
         around the selected widget while tapping (Shift + ) Tab key(s) and binds this

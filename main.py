@@ -3,6 +3,7 @@ import random
 import string
 
 import numpy as np
+from scipy.spatial.distance import cdist
 import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter.colorchooser import askcolor
@@ -13,6 +14,7 @@ from candidate import Candidate
 from data_manager import DataManager
 from graph_manager import GraphManager
 from file_manager import FileManager
+from testing_helper import record_time
 from tooltip import bind_tooltip
 from voter import Voter
 from voting_manager import VotingManager, CondorcetMethod, CondorcetTieBreakingRule
@@ -69,6 +71,7 @@ top = None
 winner_dialog = None
 combined_results_popup = None
 edit_candidate_popup = None
+log_dialog = None
 
 # Create the StringVar used to hold the requested number of candidates
 stringvar_number_candidates = tk.StringVar(name="number_candidates")
@@ -108,6 +111,19 @@ stringvar_borda_step = tk.StringVar(name="borda_step")
 var_condorcet_method = tk.IntVar(name="var_condorcet_method")
 # Create the IntVar to track which tie-breaking condercet method
 var_condorcet_tie_breaking = tk.IntVar(name="var_condorcet_tie_breaking")
+
+# Create the StringVar used to hold the Démocratie Liquide distance
+stringvar_democratie_liquide_distance = tk.StringVar(name="stringvar_democratie_liquide_distance")
+# Default value for Démocratie Liquide distance
+default_democratie_liquide_distance = 20
+# Create the StringVar used to hold the Démocratie Liquide probability
+stringvar_democratie_liquide_probability = tk.StringVar(name="stringvar_democratie_liquide_probability")
+# Default value for Démocratie Liquide probability
+default_democratie_liquide_probability = 0.5
+# Create the StringVar used to hold the Démocratie Liquide nb tours
+stringvar_democratie_liquide_nb_tours = tk.StringVar(name="stringvar_democratie_liquide_nb_tours")
+# Default value for Démocratie Liquide nb tours
+default_democratie_liquide_nb_tours = 1
 
 
 def lift_window(window):
@@ -190,6 +206,16 @@ def on_voter_added(voter: Voter, index: int):
     graph_manager.add_voter(voter)
 
 
+def on_voter_edited(voter: Voter, index: int):
+    """
+    Callback function for when a voter is edited in the data.
+
+    :param voter: updated voter data class
+    :param index: index of the edited candidate
+    """
+    graph_manager.edit_voter_at(index, voter)
+
+
 def on_voters_cleared():
     """
     Callback function for when all voters are cleared from data.
@@ -244,6 +270,7 @@ def on_candidate_error(error: str):
 
 # Bind callback functions with Data Manager
 data_manager.set_voter_added_callback(on_voter_added)
+data_manager.set_voter_edited_callback(on_voter_edited)
 data_manager.set_voters_cleared_callback(on_voters_cleared)
 data_manager.set_candidate_added_callback(on_candidate_added)
 data_manager.set_candidate_edited_callback(on_candidate_edited)
@@ -536,7 +563,7 @@ def generate_profils():
     """
     Function to generate the scores.
 
-    :return: dict({..., <voter label>: list(..., tuple(<candidate label>, <approval ratio>), ...), ...})
+    :return: dict({..., <voter label>: tuple(list(..., tuple(<candidate label>, <approval ratio>), ...), weight), ...})
     """
     # Dictionary to store the scores for each voter
     profils = dict()
@@ -547,11 +574,14 @@ def generate_profils():
     # List of voters
     voters = data_manager.get_voters()
 
+    # List of voters who haven't delegated their vote
+    voters_no_delegation = [voter for voter in voters if not voter.has_delegated_vote()]
+
     # List of candidates
     candidates = data_manager.get_candidates()
 
     # Loop to calculate the scores for each voter
-    for voter in voters:
+    for voter in voters_no_delegation:
         # profil = list(...tuple(<candidate label>, <approval ratio>)...)
         profil = list(map(
             lambda candidate:
@@ -564,7 +594,7 @@ def generate_profils():
         # Sort by closest match
         profil.sort(key=lambda x: x[1], reverse=True)
         # profils = dict({...<voter label>: <profil>...})
-        profils[voter.get_label()] = profil
+        profils[voter.get_label()] = (profil, voter.get_weight())
 
     return profils
 
@@ -725,7 +755,7 @@ def calculate_approbation(profils, approval_radius):
     :param approval_radius: Radius of the approval circle
     """
     # Show circles on the graph
-    graph_manager.add_approbation_circles(approval_radius)
+    graph_manager.add_candidate_approbation_circles(approval_radius)
     graph_manager.build()
 
     # Calculates the max distance (diagonal) of the plot
@@ -868,7 +898,7 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
                         if result_approbation:
                             tk.Label(combined_results_popup, text=str(result_approbation[0]),
                                      font=("Mistral", "22", "bold"),
-                                     width="5").grid(row=row_index, column=1)
+                                     width=len(result_approbation[0])).grid(row=row_index, column=1)
                             tk.Label(combined_results_popup,
                                      text="Parmi " + str(result_approbation[2]) if result_approbation[1] else "Non",
                                      width=str(len(str(result_approbation[2]))) if result_approbation[1] else "5").grid(
@@ -888,7 +918,7 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
                         tk.Label(combined_results_popup, text="Borda", width=len("Borda")).grid(row=row_index,
                                                                                                 column=0)
                         tk.Label(combined_results_popup, text=str(result_borda[0]), font=("Mistral", "22", "bold"),
-                                 width="5").grid(
+                                 width=len(result_borda[0])).grid(
                             row=row_index, column=1)
                         tk.Label(combined_results_popup,
                                  text="Parmi " + str(result_borda[2]) if result_borda[1] else "Non",
@@ -907,7 +937,7 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
                                 column=0)
                             tk.Label(combined_results_popup, text=str(result_condorcet[0]),
                                      font=("Mistral", "22", "bold"),
-                                     width="5").grid(row=row_index, column=1)
+                                     width=len(result_condorcet[0])).grid(row=row_index, column=1)
                             tk.Label(combined_results_popup, text="Non", width="5").grid(row=row_index, column=2)
                             row_index += 1
                         else:
@@ -917,7 +947,7 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
                                                                                                     column=0)
                                 tk.Label(combined_results_popup, text=str(result_condorcet[0]),
                                          font=("Mistral", "22", "bold"),
-                                         width="5").grid(row=row_index, column=1)
+                                         width=len(result_condorcet[0])).grid(row=row_index, column=1)
                                 tk.Label(combined_results_popup, text="Non", width="5").grid(row=row_index, column=2)
                                 row_index += 1
                             else:
@@ -925,7 +955,7 @@ def display_multiple_voting_systems_winner(list_of_checks: list):
                                                                                                     column=0)
                                 tk.Label(combined_results_popup, text=str(result_condorcet[0]),
                                          font=("Mistral", "22", "bold"),
-                                         width="5").grid(row=row_index, column=1)
+                                         width=len(result_condorcet[0])).grid(row=row_index, column=1)
                                 tk.Label(combined_results_popup,
                                          text=CondorcetTieBreakingRule(var_condorcet_tie_breaking.get()).name,
                                          width="20").grid(row=row_index, column=2)
@@ -1080,6 +1110,12 @@ def show_voting_systems_popup():
         )
         btn_multiple_voting_systems.grid(row=3, column=0, columnspan=2)
 
+        tk.Label(top, text="").grid(row=4, columnspan=2, column=0)
+
+        # Démocratie Liquide button
+        btn_democratie_liquide = tk.Button(top, text="Démocratie Liqude", height=7, width=45, command=lambda: show_democratie_liquide_popup())
+        btn_democratie_liquide.grid(row=5, column=0, columnspan=2)
+
         keyboard_manager.focus_enter_bind(top)
         keyboard_manager.esc_bind(top)
 
@@ -1097,7 +1133,7 @@ def show_winner_popup(winner: tuple[str, bool, list] | None, method: str):
 
     winner_dialog = tk.Toplevel(root)
     winner_dialog.protocol('WM_DELETE_WINDOW',
-                           lambda: [graph_manager.clear_approbation_circles(), graph_manager.build(),
+                           lambda: [graph_manager.clear_candidate_approbation_circles(), graph_manager.build(),
                                     winner_dialog.destroy()])
     winner_dialog.title("Vainqueur selon " + method)
 
@@ -1147,7 +1183,7 @@ def show_winner_popup(winner: tuple[str, bool, list] | None, method: str):
             tk.Label(winner_dialog, text="Il n'y a pas eu de départage").grid(row=3, column=0, columnspan=2)
 
     keyboard_manager.focus_enter_bind(winner_dialog)
-    event = lambda e: [graph_manager.clear_approbation_circles(), graph_manager.build(),
+    event = lambda e: [graph_manager.clear_candidate_approbation_circles(), graph_manager.build(),
                        winner_dialog.destroy()]
     keyboard_manager.esc_bind(winner_dialog, event)
 
@@ -1253,29 +1289,29 @@ def show_import_file_popup():
     tk.Label(
         top_file,
         text="Pour importer des données d'un fichier, il doit suivre le format suivant dans toutes ses lignes:\n\n" +
-        "La premiere ligne est soit \"Candidats\" soit \"Votants\".\n" +
-        "Celles qui suivent doivent avoir un format bien determiné selon le cas:\n" +
-        "- Pour les candidats, le format est: \"x,y,nom_candidat,couleur\" avec nom_candidat et couleur des colonnes optionnelles (peuvent être non initialisées).\n" +
-        "- Pour les votants, le format est: \"x,y\".\n" +
-        "Les colonnes x et y représentent les coordonnées x et y qui doivent être comprises entre [-1,1].\n\n" +
-        "Voici un example de fichier valable:\n\n" +
-        "Candidats\n" +
-        "0.9461039811039915,-0.7889275229678154,A,#ffa62b \
-        0.042005706554823385,0.2998445121641913,B \
-        0.08606445736472024,-0.5626141086518681 \
-        -0.2690871826009764,-0.2698714634871553,D,rien \
-        -0.258171091230772,-0.5569398723595189,E,#87a922 \
-        -0.29257873438932536,0.7092589293675524,E,#95a3a6 \
-        0.8782258064516126,-0.21785714285714275,G,#a87900\n\n" +
-        "Votants\n" +
-        "-0.6254032258064518,-0.8666666666666666 \
-        -0.8471774193548389,0.466666666666667 \
-        0.3370967741935482,0.7880952380952386 \
-        0.7096774193548385,0.2345238095238098 \
-        0.4391129032258063,-0.5809523809523809 \
-        -0.3459677419354841,0.317857142857143 \
-        -0.554435483870968,-0.2952380952380951 \
-        0.20846774193548367,-0.15238095238095206",
+             "La premiere ligne est soit \"Candidats\" soit \"Votants\".\n" +
+             "Celles qui suivent doivent avoir un format bien determiné selon le cas:\n" +
+             "- Pour les candidats, le format est: \"x,y,nom_candidat,couleur\" avec nom_candidat et couleur des colonnes optionnelles (peuvent être non initialisées).\n" +
+             "- Pour les votants, le format est: \"x,y\".\n" +
+             "Les colonnes x et y représentent les coordonnées x et y qui doivent être comprises entre [-1,1].\n\n" +
+             "Voici un example de fichier valable:\n\n" +
+             "Candidats\n" +
+             "0.9461039811039915,-0.7889275229678154,A,#ffa62b \
+             0.042005706554823385,0.2998445121641913,B \
+             0.08606445736472024,-0.5626141086518681 \
+             -0.2690871826009764,-0.2698714634871553,D,rien \
+             -0.258171091230772,-0.5569398723595189,E,#87a922 \
+             -0.29257873438932536,0.7092589293675524,E,#95a3a6 \
+             0.8782258064516126,-0.21785714285714275,G,#a87900\n\n" +
+             "Votants\n" +
+             "-0.6254032258064518,-0.8666666666666666 \
+             -0.8471774193548389,0.466666666666667 \
+             0.3370967741935482,0.7880952380952386 \
+             0.7096774193548385,0.2345238095238098 \
+             0.4391129032258063,-0.5809523809523809 \
+             -0.3459677419354841,0.317857142857143 \
+             -0.554435483870968,-0.2952380952380951 \
+             0.20846774193548367,-0.15238095238095206",
         wraplength=530,
         justify="left"
     ).pack()
@@ -1346,8 +1382,8 @@ def toggle(event):
 
 
 # Define On/Off Images for toggle button
-on = tk.PhotoImage(file="icons/png_icons/show.png")
-off = tk.PhotoImage(file="icons/png_icons/hide.png")
+on = ImageTk.PhotoImage(Image.open("icons/png_icons/show.png").resize((35, 35)))
+off = ImageTk.PhotoImage(Image.open("icons/png_icons/hide.png").resize((35, 35)))
 
 
 def candidate_utility(candidate: Candidate) -> tuple[Candidate, float]:
@@ -1427,6 +1463,189 @@ def show_candidates_utility():
         keyboard_manager.esc_bind(top_utility)
 
 
+def validate_democratie_liquide_distance(*args):
+    """
+    Function to validate the distance given.
+
+    :param args: variable to validate
+    """
+    if (not (stringvar_democratie_liquide_distance.get()).isdigit() or int(
+            stringvar_democratie_liquide_distance.get()) > 100) and stringvar_democratie_liquide_distance.get() != "":
+        stringvar_democratie_liquide_distance.set(log.get())
+    else:
+        log.set(stringvar_democratie_liquide_distance.get())
+
+
+def validate_democratie_liquide_probability(*args):
+    """
+    Function to validate the probability given.
+
+    :param args: variable to validate
+    """
+    if (
+            (not (stringvar_democratie_liquide_probability.get()).isdigit() and not ("." in stringvar_democratie_liquide_probability.get())) or
+            float(stringvar_democratie_liquide_probability.get()) > 1 or
+            float(stringvar_democratie_liquide_probability.get()) < 0
+    ) and stringvar_democratie_liquide_probability.get() != "":
+        stringvar_democratie_liquide_probability.set(log.get())
+    else:
+        log.set(stringvar_democratie_liquide_probability.get())
+
+
+def validate_democratie_liquide_nb_tours(*args):
+    """
+    Function to validate the nb tours given.
+
+    :param args: variable to validate
+    """
+    if (
+            not (stringvar_democratie_liquide_nb_tours.get()).isdigit() or
+            float(stringvar_democratie_liquide_nb_tours.get()) < 0
+    ) and stringvar_democratie_liquide_nb_tours.get() != "":
+        stringvar_democratie_liquide_nb_tours.set(log.get())
+    else:
+        log.set(stringvar_democratie_liquide_nb_tours.get())
+
+
+def show_democratie_liquide_popup():
+    """
+    Show a popup asking the user for the Democratie Liquide parameters.
+    """
+    global top_democratie_liquide
+    top_democratie_liquide = tk.Toplevel(root)
+    top_democratie_liquide.title("Paramétrage Démocratie Liquide")
+
+    global log
+    log = tk.StringVar()
+
+    tk.Label(top_democratie_liquide, text="Distance (pourcentage) :").pack()
+
+    stringvar_democratie_liquide_distance.trace_variable("w", validate_democratie_liquide_distance)
+    entry = tk.Entry(top_democratie_liquide, width=20, textvariable=stringvar_democratie_liquide_distance)
+    entry.pack()
+
+    tk.Label(
+        top_democratie_liquide,
+        text="Laisser vide pour valeur de défaut (" + str(default_democratie_liquide_distance) + "%)"
+    ).pack()
+
+    tk.Label(top_democratie_liquide, text="Probabilité :").pack()
+
+    stringvar_democratie_liquide_probability.trace_variable("w", validate_democratie_liquide_probability)
+    entry = tk.Entry(top_democratie_liquide, width=20, textvariable=stringvar_democratie_liquide_probability)
+    entry.pack()
+
+    tk.Label(
+        top_democratie_liquide,
+        text="Laisser vide pour valeur de défaut (" + str(default_democratie_liquide_probability) + ")"
+    ).pack()
+
+    tk.Label(top_democratie_liquide, text="Nb tours :").pack()
+
+    stringvar_democratie_liquide_nb_tours.trace_variable("w", validate_democratie_liquide_nb_tours)
+    entry = tk.Entry(top_democratie_liquide, width=20, textvariable=stringvar_democratie_liquide_nb_tours)
+    entry.pack()
+
+    tk.Label(
+        top_democratie_liquide,
+        text="Laisser vide pour valeur de défaut (" + str(default_democratie_liquide_nb_tours) + ")"
+    ).pack()
+
+    button = tk.Button(
+        top_democratie_liquide, text="Valider", command=lambda: top_democratie_liquide.destroy()
+    )
+    button.pack()
+
+    button.configure(
+        command=lambda: [
+            democratie_liquide(
+                int(stringvar_democratie_liquide_distance.get()) if stringvar_democratie_liquide_distance.get() != "" else default_democratie_liquide_distance,
+                float(stringvar_democratie_liquide_probability.get()) if stringvar_democratie_liquide_probability.get() != "" else default_democratie_liquide_probability,
+                int(stringvar_democratie_liquide_nb_tours.get()) if stringvar_democratie_liquide_nb_tours.get() != "" else default_democratie_liquide_nb_tours,
+            ),
+            top_democratie_liquide.destroy()
+        ]
+    )
+
+    keyboard_manager.enter_bind(top_democratie_liquide, button)
+    keyboard_manager.esc_bind(top_democratie_liquide)
+
+
+def democratie_liquide(distance: int, proba: float, nb_tours: int):
+    log_string = ""
+    for i in range(nb_tours):
+        # Create a list of voters who should delegate their vote
+        all_voters = data_manager.get_voters()
+        delegating_voters = []
+        non_delegating_voters = []
+        for voter_index, voter in enumerate(all_voters):
+            # If the voter has already delegated their vote, then skip
+            if voter.has_delegated_vote():
+                continue
+
+            # Check if the voter should delegate their vote
+            should_delegate = True
+            for candidate in data_manager.get_candidates():
+                maximum = graph_manager.get_diagonal()
+                voter_candidate_dist = 100 - (maximum - math.dist(voter.coordinates(), candidate.coordinates())) / maximum * 100
+
+                if voter_candidate_dist < distance:
+                    should_delegate = False
+                    break
+
+            # Add the voter to the delegating voters list, if needed
+            if should_delegate:
+                delegating_voters.append((voter_index, voter))
+            else:
+                non_delegating_voters.append((voter_index, voter))
+
+        if len(delegating_voters) == 0:
+            break
+
+        delegating_coords = np.array([voter[1].coordinates() for voter in delegating_voters])
+        non_delegating_coords = np.array([voter[1].coordinates() for voter in non_delegating_voters])
+        distances = cdist(delegating_coords, non_delegating_coords)
+        closest_indices = np.argmin(distances, axis=1)
+        closest_points = [non_delegating_voters[i] for i in closest_indices]
+        for ind, (voter_index, voter) in enumerate(delegating_voters):
+            if random.random() < proba:
+                closest_voter_index = closest_points[ind][0]
+                all_voters[closest_voter_index].set_weight(all_voters[closest_voter_index].get_weight() + voter.get_weight())
+                data_manager.edit_voter_at(voter_index, voter.get_label(), True, 0)
+                data_manager.edit_voter_at(closest_voter_index, all_voters[closest_voter_index].get_label(), all_voters[closest_voter_index].has_delegated_vote(), all_voters[closest_voter_index].get_weight())
+                log_string += "votant " + voter.get_label() + " délègue au votant " + all_voters[closest_voter_index].get_label()  + " (poids : " + str(all_voters[closest_voter_index].get_weight()) + ")\n"
+
+    # graph_manager.add_voter_closeness_circles(distance)
+    graph_manager.build()
+
+    show_democratie_liquide_log(log_string)
+
+
+def show_democratie_liquide_log(log_string: string):
+    global log_dialog
+    if log_dialog:
+        log_dialog.destroy()
+
+    log_dialog = tk.Toplevel(root)
+    log_dialog.protocol('WM_DELETE_WINDOW',
+                        lambda: [graph_manager.clear_voter_closeness_circles(), graph_manager.build(),
+                                 log_dialog.destroy()])
+    log_dialog.title("Log de ce qui s'est passé")
+
+    if log_string == "":
+        log_string = "Rien ne s'est passé !"
+
+    tk.Label(log_dialog, text=log_string).pack()
+
+    keyboard_manager.esc_bind(log_dialog)
+
+
+def reset_voters_delegations(event):
+    for index, voter in enumerate(data_manager.get_voters()):
+        data_manager.edit_voter_at(index, voter.get_label(), False, 1)
+    graph_manager.build()
+
+
 # Add the canvas to the tkinter window
 graph_manager.get_tk_widget().grid(row=0, column=0, padx=20, pady=20)
 graph_manager.get_tk_widget().pack()
@@ -1476,10 +1695,17 @@ distribute_candidates = tk.Button(main_panel, text="Distribuer les candidats", t
 distribute_candidates.place(relx=0.75, rely=1 - button_height, relwidth=button_width, relheight=button_height)
 
 # Toggle annotations of voters on button click
-toggle_annotations = tk.Label(main_panel, image=on, borderwidth=0, background="white", height=50, width=55, cursor="target")
+toggle_annotations = tk.Label(main_panel, image=off, borderwidth=0, background="white", height=35, width=35, cursor="target")
 toggle_annotations.bind('<Button>', toggle)
 bind_tooltip(toggle_annotations, text="Afficher/Masquer les annotations des votants")
 toggle_annotations.place(relx=0.91, rely=0.06)
+
+# Reset color and weight of voters on button click
+reset_icon = ImageTk.PhotoImage(Image.open("icons/png_icons/reset_icon.png").resize((35, 35)))
+reset_voters_state_btn = tk.Label(main_panel, image=reset_icon, borderwidth=0, background="white", height=35, width=35, cursor="hand1")
+reset_voters_state_btn.bind('<Button>', reset_voters_delegations)
+bind_tooltip(reset_voters_state_btn, text="Réinitialiser l'état des votants")
+reset_voters_state_btn.place(relx=0.85, rely=0.06)
 
 list_buttons = [import_file, export_file, reset_voters, reset_candidates, generate_utility,
                 btn_show_voting_systems, distribute_voters, distribute_candidates, -1]
