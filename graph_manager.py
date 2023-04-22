@@ -29,15 +29,18 @@ class GraphManager:
     # list (tuple(str("candidate_label"), tuple(point, annotation)))
     __candidates = list()
 
-    # Store the plotted approbation approval circles
+    # Store the plotted candidates' approbation approval circles
     __approbation_circles = list()
+
+    # Store the plotted voters' closeness circles
+    __closeness_circles = list()
 
     # Font and marker size for annotations
     __font_size = 8
     __marker_size = 4
 
     # Variable to keep track of the toggle button state
-    __toggle_state = True
+    __toggle_state = False
 
     def __init__(self, tk_root: Widget):
         # Create a figure
@@ -116,7 +119,7 @@ class GraphManager:
             voter.coordinates()[1],
             "o",
             markersize=self.__marker_size,
-            color="black",
+            color="grey" if voter.has_delegated_vote() else "black",
             zorder=10,
         )
         # Label the point on the graph
@@ -125,6 +128,7 @@ class GraphManager:
             xy=voter.coordinates(),
             xytext=(voter.coordinates()[0] - 0.02, voter.coordinates()[1] + 0.05),
             fontsize=self.__font_size,
+            color="grey" if voter.has_delegated_vote() else "black",
             zorder=11,
         )
         # Add voter to the dict
@@ -150,8 +154,8 @@ class GraphManager:
             voter.coordinates()[1],
             'o',
             markersize=self.__marker_size,
-            color="black",
-            zorder=10
+            color="grey" if voter.has_delegated_vote() else "black",
+            zorder=10,
         )
         # Label the point on the graph
         annotation = self.__axes.annotate(
@@ -159,7 +163,8 @@ class GraphManager:
             xy=voter.coordinates(),
             xytext=(voter.coordinates()[0] - 0.02, voter.coordinates()[1] + 0.05),
             fontsize=self.__font_size,
-            zorder=10
+            color="grey" if voter.has_delegated_vote() else "black",
+            zorder=10,
         )
         # Replace voter in the dict
         self.__voters[index] = (voter.get_label(), (point, annotation))
@@ -255,7 +260,7 @@ class GraphManager:
             annotation.remove()
 
         self.__candidates.clear()
-        self.clear_approbation_circles()
+        self.clear_candidate_approbation_circles()
 
     def build(self):
         """
@@ -314,7 +319,7 @@ class GraphManager:
             + (int(self.__axes.get_ylim()[1]) - int(self.__axes.get_ylim()[0])) ** 2
         )
 
-    def add_approbation_circles(self, approval_radius: int):
+    def add_candidate_approbation_circles(self, approval_radius: int):
         """
         Adds the approval circles around candidates on the graph.
         Voters inside a candidate's circle are approving of them.
@@ -322,7 +327,7 @@ class GraphManager:
         :param approval_radius: Radius of the approval circle
         """
         # Remove the already plotted approval circles
-        self.clear_approbation_circles()
+        self.clear_candidate_approbation_circles()
 
         # Calculate the multiplier in order to fill the diagonal:
         #   - radius multiplier: diagonal size / x-axis size
@@ -348,7 +353,7 @@ class GraphManager:
             self.__approbation_circles.append(circle)
             self.__axes.add_patch(circle)
 
-    def clear_approbation_circles(self):
+    def clear_candidate_approbation_circles(self):
         """
         Clears the approval circles around candidates on the graph.
         """
@@ -356,3 +361,45 @@ class GraphManager:
         for approbation_circle in self.__approbation_circles:
             approbation_circle.remove()
         self.__approbation_circles.clear()
+
+    def add_voter_closeness_circles(self, closeness_radius: int):
+        """
+        Adds the closeness circles around voters on the graph.
+
+        :param approval_radius: Radius of the closeness circle
+        """
+        # Remove the already plotted closeness circles
+        self.clear_voter_closeness_circles()
+
+        # Calculate the multiplier in order to fill the diagonal:
+        #   - radius multiplier: diagonal size / x-axis size
+        #   - diameter multiplier: 2 * radius multiplier
+        multiplier = (
+                2
+                * self.get_diagonal()
+                / (int(self.__axes.get_xlim()[1]) - int(self.__axes.get_xlim()[0]))
+        )
+
+        # For each voter, plot the closeness circles (color them accordingly)
+        for (voter_label, (coordinates, _)) in self.__voters:
+            xs, ys = coordinates.get_data()
+
+            # Plot the closeness circle
+            circle = plt.Circle(
+                (xs[0], ys[0]),
+                multiplier * closeness_radius / 100,
+                color=coordinates.get_color(),
+                fill=False,
+                zorder=15,
+                )
+            self.__closeness_circles.append(circle)
+            self.__axes.add_patch(circle)
+
+    def clear_voter_closeness_circles(self):
+        """
+        Clears the closeness circles around voters on the graph.
+        """
+        # Remove the already plotted approval circles
+        for closeness_circle in self.__closeness_circles:
+            closeness_circle.remove()
+        self.__closeness_circles.clear()
