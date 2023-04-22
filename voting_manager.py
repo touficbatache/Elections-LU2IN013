@@ -79,11 +79,11 @@ class VotingManager:
         """
         scores = dict()
 
-        for _, preferences in profils.items():
+        for _, (preferences, weight) in profils.items():
             label = preferences[0][0]
             if label not in scores:
                 scores[label] = 0
-            scores[label] += 1
+            scores[label] += weight
         return scores
 
     def elimination_successive(self, profils: dict) -> tuple[str, bool, list]:
@@ -127,7 +127,7 @@ class VotingManager:
 
             all_scores[round_number][1] = letter
 
-            for _, profil in profils.items():
+            for _, (profil, weight) in profils.items():
                 for candidate, _ in profil:
                     if candidate == letter:
                         profil.remove((candidate, _))
@@ -149,12 +149,12 @@ class VotingManager:
         """
         results = dict()
 
-        for voter_label, profil in profils.items():
+        for voter_label, (profil, weight) in profils.items():
             for candidate_label, score in profil:
                 if (score * 100) >= 100 - approval_radius:
                     if candidate_label not in results:
                         results[candidate_label] = 0
-                    results[candidate_label] += 1
+                    results[candidate_label] += weight
 
         if len(results) == 0:
             winner = None
@@ -174,11 +174,11 @@ class VotingManager:
         """
         points_association = dict()
 
-        for candidate in profils.values():
+        for (candidate, weight) in profils.values():
             candidate_label, _ = candidate[0]
             if candidate_label not in points_association:
                 points_association[candidate_label] = 0
-            points_association[candidate_label] += 1
+            points_association[candidate_label] += weight
 
         winner = self.__find_winner(points_association)
         self.voting_details_manager.set_remaining_methods_details([winner, points_association])
@@ -201,12 +201,12 @@ class VotingManager:
         """
         points_association = dict()
 
-        for profil in profils.values():
+        for (profil, weight) in profils.values():
             for i, (candidate_label, _) in enumerate(profil):
                 if candidate_label not in points_association:
                     points_association[candidate_label] = 0
                 if (maximum - (i * step)) > 0:
-                    points_association[candidate_label] += maximum - (i * step)
+                    points_association[candidate_label] += (maximum - (i * step)) * weight
 
         winner = self.__find_winner(points_association)
         self.voting_details_manager.set_remaining_methods_details([winner, points_association])
@@ -221,14 +221,14 @@ class VotingManager:
         """
         veto_scores = dict()
 
-        for profil in profils.values():
+        for (profil, weight) in profils.values():
             if len(profil) == 1:
                 return profil[0][0], False, []
 
             for candidate_label, _ in profil[:-1]:
                 if candidate_label not in veto_scores:
                     veto_scores[candidate_label] = 0
-                veto_scores[candidate_label] += 1
+                veto_scores[candidate_label] += weight
 
         winner = self.__find_winner(veto_scores)
         self.voting_details_manager.set_remaining_methods_details([winner, veto_scores])
@@ -261,7 +261,7 @@ class VotingManager:
                 )
         """
         # Candidate labels list
-        candidate_labels = [candidate_label for candidate_label, _ in list(profils.values())[0]]
+        candidate_labels = [candidate_label for candidate_label, _ in list(profils.values())[0][0]]
         duel_scores = None
         duel_results = None
         winners = None
@@ -277,10 +277,10 @@ class VotingManager:
                     # so that we have unique pairs (combination)
                     if candidate2_label > candidate1_label:
                         current_duel = {candidate1_label: 0, candidate2_label: 0}
-                        for profil in profils.values():
+                        for (profil, weight) in profils.values():
                             for candidate_label, _ in profil:
                                 if candidate_label in current_duel:
-                                    current_duel[candidate_label] += 1
+                                    current_duel[candidate_label] += weight
                                     break
                         duel_scores.append(current_duel)
 
