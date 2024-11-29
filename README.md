@@ -4,7 +4,7 @@
 
 _Ce repo est un clone de l'original sur GitLab, il ne contient pas les issues, pull requests, milestones et spring backlog._
 
-_This repository is a clone of the original sur GitLab, it does not contain issues, pull requests, milestones and the sprint backlog._
+_This repository is a clone of the original on GitLab, it does not contain issues, pull requests, milestones and the sprint backlog._
 
 ["Original" repository](https://gitlab.com/zentek/elections) ([private](https://gitlabsu.sorbonne-universite.fr/lu2in013/fev2023/gr1/zentek/elections/))
 
